@@ -32,6 +32,8 @@ class RolePermissionSeeder extends Seeder
             'exam_attempt' => 'exam_attempts_mng',
             'student_answer' => 'student_answers_mng',
             'site_setting' => 'site_settings_mng',
+            'student_report' => 'reports_mng',
+            'exam_report' => 'reports_mng',
         ];
 
         foreach ($modules as $module => $type) {

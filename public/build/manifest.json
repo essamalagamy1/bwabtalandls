@@ -255,13 +255,8 @@
     "file": "assets/flags@2x-CK7NHWq8.webp",
     "src": "node_modules/intl-tel-input/build/img/flags@2x.webp"
   },
-  "resources/css/app.css": {
-    "file": "assets/app-77_-BxDW.css",
-    "src": "resources/css/app.css",
-    "isEntry": true
-  },
   "resources/js/app.js": {
-    "file": "assets/app-BrtFElwe.js",
+    "file": "assets/app-DltaRgTd.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -272,8 +267,7 @@
       "_intl-tel-input-_TYKjkDG.js"
     ],
     "css": [
-      "assets/app-DA1KIQKx.css",
-      "assets/app-77_-BxDW.css"
+      "assets/app-mBto5gP5.css"
     ],
     "assets": [
       "assets/cairo-arabic-200-normal-DsjwGvbU.woff2",

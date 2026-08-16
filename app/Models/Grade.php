@@ -11,7 +11,12 @@ class Grade extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
-    protected $fillable = ['stage_id', 'name'];
+    protected $fillable = ['stage_id', 'name', 'is_active'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
 
     public function stage()
     {

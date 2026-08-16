@@ -4,20 +4,24 @@
 
 	<x-menu-separator />
 
+	{{-- منطقة الطالب --}}
+	@role('student')
+		<x-menu-title title="{{ __('lang.student') ?? 'المنطقة الخاصة' }}" />
+		<x-menu-item title="{{ __('lang.my_exams') ?? 'امتحاناتي' }}" icon-classes="text-primary" icon="o-document-text" link="{{ route('student.exams') }}" />
+		<x-menu-item title="{{ __('lang.my_trainings') ?? 'تدريباتي' }}" icon-classes="text-primary" icon="o-play-circle" link="{{ route('student.trainings') }}" />
+		<x-menu-separator />
+	@endrole
+
 	{{-- إدارة المستخدمين --}}
-	@canany(['show_user', 'show_admin', 'show_instructor', 'show_role'])
+	@canany(['show_student', 'show_admin', 'show_role'])
 		<x-menu-title title="{{ __('lang.users_management') }}" />
 
-		@can('show_user')
-			<x-menu-item  title="{{ __('lang.users') }}" icon-classes="text-primary" icon="o-users" link="{{ route('users') }}" />
+		@can('show_student')
+			<x-menu-item  title="{{ __('lang.students') }}" icon-classes="text-primary" icon="o-users" link="{{ route('students') }}" />
 		@endcan
 
 		@can('show_admin')
 			<x-menu-item  title="{{ __('lang.admins') }}" icon-classes="text-primary" icon="o-user-circle" link="{{ route('admins') }}" />
-		@endcan
-
-		@can('show_instructor')
-			<x-menu-item  title="{{ __('lang.instructors') }}" icon-classes="text-primary" icon="o-academic-cap" link="{{ route('instructors') }}" />
 		@endcan
 
 		@can('show_role')
@@ -28,59 +32,59 @@
 	@endcanany
 
 	{{-- المحتوى الأكاديمي --}}
-	@canany(['show_category', 'show_university'])
+	@canany(['show_stage', 'show_grade', 'show_semester', 'show_week', 'show_training', 'show_exam', 'show_question'])
 		<x-menu-title title="{{ __('lang.academic_content') }}" />
 
-		@can('show_category')
-			<x-menu-sub title="{{ __('lang.categories') }}" icon-classes="text-primary" icon="o-squares-plus">
-				<x-menu-item title="{{ __('lang.categories') }}"  link="{{ route('dashboard.categories') }}" />
-				<x-menu-item title="{{ __('lang.subcategories') }}"  link="{{ route('subcategories') }}" />
-			</x-menu-sub>
+		@can('show_stage')
+			<x-menu-item  title="{{ __('lang.stages') }}" icon-classes="text-primary" icon="o-academic-cap" link="{{ route('stages') }}" />
 		@endcan
 
-		@can('show_university')
-			<x-menu-item  title="{{ __('lang.universities') }}" icon-classes="text-primary" icon="fas.university" link="{{ route('universities') }}" />
+		@can('show_grade')
+			<x-menu-item  title="{{ __('lang.grades') }}" icon-classes="text-primary" icon="o-rectangle-group" link="{{ route('grades') }}" />
+		@endcan
+
+		@can('show_semester')
+			<x-menu-item  title="{{ __('lang.semesters') }}" icon-classes="text-primary" icon="o-calendar" link="{{ route('semesters') }}" />
+		@endcan
+
+		@can('show_week')
+			<x-menu-item  title="{{ __('lang.weeks') }}" icon-classes="text-primary" icon="o-calendar-days" link="{{ route('weeks') }}" />
+		@endcan
+
+		@can('show_training')
+			<x-menu-item  title="{{ __('lang.trainings') }}" icon-classes="text-primary" icon="o-play-circle" link="{{ route('trainings') }}" />
+		@endcan
+
+		@can('show_exam')
+			<x-menu-item  title="{{ __('lang.exams') }}" icon-classes="text-primary" icon="o-document-text" link="{{ route('exams') }}" />
+		@endcan
+
+		@can('show_question')
+			<x-menu-item  title="{{ __('lang.questions') }}" icon-classes="text-primary" icon="o-question-mark-circle" link="{{ route('questions') }}" />
 		@endcan
 
 		<x-menu-separator />
 	@endcanany
 
-	{{-- التسويق والعروض --}}
-	@canany(['show_coupon', 'show_banner'])
-		<x-menu-title title="{{ __('lang.marketing') }}" />
+	{{-- التقارير --}}
+	@canany(['show_student_report', 'show_exam_report'])
+		<x-menu-title title="{{ __('lang.reports_mng') }}" />
 
-		@can('show_coupon')
-			<x-menu-item  title="{{ __('lang.coupons') }}" icon-classes="text-primary" icon="o-ticket" link="{{ route('coupons') }}" />
+		@can('show_student_report')
+			<x-menu-item  title="{{ __('lang.student_reports') }}" icon-classes="text-primary" icon="o-chart-pie" link="{{ route('reports.students') }}" />
 		@endcan
 
-		@can('show_banner')
-			<x-menu-item  title="{{ __('lang.banners') }}" icon-classes="text-primary" icon="o-rectangle-stack" link="{{ route('banners') }}" />
+		@can('show_exam_report')
+			<x-menu-item  title="{{ __('lang.exam_reports') }}" icon-classes="text-primary" icon="o-chart-bar" link="{{ route('reports.exams') }}" />
 		@endcan
-
 		<x-menu-separator />
 	@endcanany
-
-	{{-- الدعم --}}
-	@can('show_faq')
-		<x-menu-title title="{{ __('lang.support') }}" />
-
-		<x-menu-item  title="{{ __('lang.faqs') }}" icon-classes="text-primary" icon="o-question-mark-circle" link="{{ route('faqs') }}" />
-
-		<x-menu-separator />
-	@endcan
 
 	{{-- إعدادات النظام --}}
-	@canany(['show_payment_gateway', 'show_site_setting'])
+	@can('show_site_setting')
 		<x-menu-title title="{{ __('lang.system_settings') }}" />
-
-		@can('show_payment_gateway')
-			<x-menu-item  title="{{ __('lang.payment_gateways') }}" icon-classes="text-primary" icon="o-credit-card" link="{{ route('dashboard.payment-gateways') }}" />
-		@endcan
-
-		@can('show_site_setting')
-			<x-menu-item  title="{{ __('lang.settings') }}" icon-classes="text-primary" icon="o-cog-6-tooth" link="{{ route('site-settings') }}" />
-		@endcan
-	@endcanany
+		<x-menu-item  title="{{ __('lang.settings') }}" icon-classes="text-primary" icon="o-cog-6-tooth" link="{{ route('site-settings') }}" />
+	@endcan
 </x-menu>
 
 
