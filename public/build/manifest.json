@@ -256,7 +256,7 @@
     "src": "node_modules/intl-tel-input/build/img/flags@2x.webp"
   },
   "resources/js/app.js": {
-    "file": "assets/app-DltaRgTd.js",
+    "file": "assets/app-BHGOqRo4.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -267,7 +267,7 @@
       "_intl-tel-input-_TYKjkDG.js"
     ],
     "css": [
-      "assets/app-mBto5gP5.css"
+      "assets/app-D4KsKbL7.css"
     ],
     "assets": [
       "assets/cairo-arabic-200-normal-DsjwGvbU.woff2",

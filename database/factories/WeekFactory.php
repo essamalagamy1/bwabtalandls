@@ -13,6 +13,9 @@ class WeekFactory extends Factory
             'semester_id' => Semester::factory(),
             'title' => 'الأسبوع ' . $this->faker->numberBetween(1, 15),
             'order' => $this->faker->numberBetween(1, 15),
+            'is_active' => $this->faker->boolean(80),
+            'start_date' => $this->faker->dateTimeBetween('-1 week', '+1 week')->format('Y-m-d'),
+            'end_date' => $this->faker->dateTimeBetween('+2 weeks', '+4 weeks')->format('Y-m-d'),
         ];
     }
 }

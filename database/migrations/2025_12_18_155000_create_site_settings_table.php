@@ -19,9 +19,9 @@ return new class extends Migration
             //            $table->string('logo_white')->nullable(); // صورة أبيض
             //            $table->string('logo_black')->nullable(); // صورة أسود
             //            $table->string('favicon')->nullable(); // أيقونة الموقع
-            $table->string('color_primary')->nullable()->default('#f8a400');
+            $table->string('color_primary')->nullable()->default('#25376F');
             $table->string('color_secondary')->nullable()->default('#FFFEFC');
-            $table->string('color_accent')->nullable()->default('#f8a400');
+            $table->string('color_accent')->nullable()->default('#25376F');
             $table->json('about_us')->nullable();
             $table->json('shipping_returns')->nullable();
             $table->json('privacy_policy')->nullable();

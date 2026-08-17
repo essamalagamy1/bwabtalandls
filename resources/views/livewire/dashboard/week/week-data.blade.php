@@ -5,9 +5,14 @@
 				<livewire:dashboard.week.create-week :all_semesters="$all_semesters" wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
 			@endcan
 		</x-slot:menu>
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_title" placeholder="{{ __('lang.search') }}..." clearable/>
 			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[
+                ['id' => '', 'name' => __('lang.all')],
+                ['id' => '1', 'name' => __('lang.active')],
+                ['id' => '0', 'name' => __('lang.inactive')],
+            ]" option-value="id" option-label="name"/>
 		</div>
 		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 			<div class="overflow-x-auto">
@@ -18,9 +23,11 @@
 						<th class="text-center">{{ __('lang.title') }}</th>
 						<th class="text-center">{{ __('lang.order') }}</th>
 						<th class="text-center">{{ __('lang.semester') }}</th>
+						<th class="text-center">{{ __('lang.start_date') }}</th>
+						<th class="text-center">{{ __('lang.end_date') }}</th>
 						<th class="text-center">{{ __('lang.trainings') }}</th>
 						<th class="text-center">{{ __('lang.exams') }}</th>
-						<th class="text-center">{{ __('lang.created_at') }}</th>
+						<th class="text-center">{{ __('lang.status') }}</th>
 						<th class="text-center">{{ __('lang.action') }}</th>
 					</tr>
 					</thead>
@@ -31,9 +38,17 @@
 							<td class="text-nowrap">{{ $week->title }}</td>
 							<td class="text-center"><x-badge value="{{ $week->order }}" class="badge-neutral"/></td>
 							<td class="text-center text-nowrap">{{ $week->semester?->name ?? '-' }}</td>
+							<td class="text-center text-nowrap">{{ $week->start_date?->format('Y-m-d') ?? '-' }}</td>
+							<td class="text-center text-nowrap">{{ $week->end_date?->format('Y-m-d') ?? '-' }}</td>
 							<td class="text-center"><x-badge value="{{ $week->trainings_count }}" class="badge-info"/></td>
 							<td class="text-center"><x-badge value="{{ $week->exams_count }}" class="badge-warning"/></td>
-							<td class="text-center text-nowrap">{{ formatDate($week->created_at, true) }}</td>
+							<td class="text-center">
+								@if($week->is_active)
+									<x-badge value="{{ __('lang.active') }}" class="badge-success"/>
+								@else
+									<x-badge value="{{ __('lang.inactive') }}" class="badge-error"/>
+								@endif
+							</td>
 							<td>
 								<div class="flex gap-2 justify-center">
 									@can('show_training')
@@ -44,6 +59,12 @@
 									@endcan
 									@can('edit_week')
 										<livewire:dashboard.week.update-week :week="$week" :all_semesters="$all_semesters" :key="\Illuminate\Support\Str::random(10)"/>
+										<x-button
+											icon="{{ $week->is_active ? 'o-lock-closed' : 'o-lock-open' }}"
+											class="btn-sm btn-ghost {{ $week->is_active ? 'text-warning' : 'text-success' }}"
+											wire:click="toggleActive({{ $week->id }})"
+											tooltip="{{ $week->is_active ? __('lang.deactivate') : __('lang.activate') }}"
+										/>
 									@endcan
 									@can('delete_week')
 										<x-button icon="o-trash" class="btn-sm btn-ghost text-error"
@@ -57,7 +78,7 @@
 						</tr>
 					@empty
 						<tr class="bg-base-200">
-							<th colspan="8" class="text-center">{{ __('lang.no_data') }}</th>
+							<th colspan="10" class="text-center">{{ __('lang.no_data') }}</th>
 						</tr>
 					@endforelse
 					</tbody>

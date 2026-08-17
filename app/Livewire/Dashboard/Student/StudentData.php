@@ -31,7 +31,7 @@ class StudentData extends Component
 
     public function mount(): void
     {
-        $this->all_grades = Grade::get(['id', 'name'])->toArray();
+        $this->all_grades = Grade::with('stage:id,name')->get(['id', 'name', 'stage_id'])->toArray();
         view()->share('breadcrumbs', $this->breadcrumbs());
     }
 

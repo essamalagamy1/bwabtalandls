@@ -27,6 +27,7 @@ class WeekData extends Component
     public $all_semesters;
     public $search_title;
     public $search_semester_id;
+    public $search_is_active = '';
 
     public function mount(): void
     {
@@ -47,12 +48,22 @@ class WeekData extends Component
         $data['weeks'] = Week::query()
             ->when($this->search_title, fn(Builder $q) => $q->where('title', 'like', "%{$this->search_title}%"))
             ->when($this->search_semester_id, fn(Builder $q) => $q->where('semester_id', $this->search_semester_id))
+            ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
             ->with(['semester.grade.stage'])
             ->withCount(['trainings', 'exams'])
             ->orderBy('order')
             ->paginate(10);
 
         return view('livewire.dashboard.week.week-data', $data);
+    }
+
+    public function toggleActive($id): void
+    {
+        $this->authorize('edit_week');
+        $week = Week::findOrFail($id);
+        $week->update(['is_active' => !$week->is_active]);
+        $this->success(__('lang.updated_successfully', ['attribute' => __('lang.week')]));
+        $this->dispatch('render')->component(WeekData::class);
     }
 
     public function delete($id): void

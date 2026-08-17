@@ -150,7 +150,7 @@ class ExamReports extends Component
                     [
                         'label' => __('lang.average_score'),
                         'data' => $data,
-                        'backgroundColor' => '#f8a400',
+                        'backgroundColor' => '#25376F',
                     ]
                 ]
             ]

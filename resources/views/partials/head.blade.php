@@ -23,9 +23,9 @@
 	{{-- Dynamic Colors from Site Settings --}}
 	<style>
 		:root {
-			--color-primary: {{ siteSetting()->color_primary ?? '#f8a400' }};
+			--color-primary: {{ siteSetting()->color_primary ?? '#25376F' }};
 			--color-secondary: {{ siteSetting()->color_secondary ?? '#FFFEFC' }};
-			--color-accent: {{ siteSetting()->color_accent ?? '#f8a400' }};
+			--color-accent: {{ siteSetting()->color_accent ?? '#25376F' }};
 		}
 	</style>
 

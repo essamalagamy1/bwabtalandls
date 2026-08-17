@@ -42,8 +42,13 @@
                             <div>
                                 <x-file label="{{ __('lang.logo_white') }}" wire:model="logo_white" accept="image/*"
                                         hint="{{ __('lang.click_on_image_to_change') }}" class="cursor-pointer">
-                                    <img alt="logo_white" src="{{ siteSetting()->getFirstMediaUrl('logo_white') }}"
-                                         class="!w-24 !h-24 rounded-lg"/>
+                                    @if ($logo_white && method_exists($logo_white, 'temporaryUrl'))
+                                        <img alt="logo_white" src="{{ $logo_white->temporaryUrl() }}"
+                                             class="!w-24 !h-24 rounded-lg object-contain bg-gray-800 p-1"/>
+                                    @else
+                                        <img alt="logo_white" src="{{ $setting->getFirstMediaUrl('logo_white') }}"
+                                             class="!w-24 !h-24 rounded-lg object-contain bg-gray-800 p-1"/>
+                                    @endif
                                 </x-file>
                                 <div wire:loading wire:target="logo_white" class="mt-2">
                                     <x-progress class="progress-primary h-1" indeterminate/>
@@ -57,8 +62,13 @@
                             <div>
                                 <x-file label="{{ __('lang.logo_black') }}" wire:model="logo_black" accept="image/*"
                                         hint="{{ __('lang.click_on_image_to_change') }}" class="cursor-pointer">
-                                    <img alt="logo_black" src="{{siteSetting()->getFirstMediaUrl('logo_black') }}"
-                                         class="!w-24 !h-24 rounded-lg"/>
+                                    @if ($logo_black && method_exists($logo_black, 'temporaryUrl'))
+                                        <img alt="logo_black" src="{{ $logo_black->temporaryUrl() }}"
+                                             class="!w-24 !h-24 rounded-lg object-contain bg-gray-100 p-1"/>
+                                    @else
+                                        <img alt="logo_black" src="{{ $setting->getFirstMediaUrl('logo_black') }}"
+                                             class="!w-24 !h-24 rounded-lg object-contain bg-gray-100 p-1"/>
+                                    @endif
                                 </x-file>
                                 <div wire:loading wire:target="logo_black" class="mt-2">
                                     <x-progress class="progress-primary h-1" indeterminate/>
@@ -72,8 +82,13 @@
                             <div>
                                 <x-file label="{{ __('lang.favicon') }}" wire:model="favicon" accept="image/*"
                                         hint="{{ __('lang.click_on_image_to_change') }}" class="cursor-pointer">
-                                    <img alt="favicon" src="{{ siteSetting()->getFirstMediaUrl('favicon') }}"
-                                         class="!w-24 !h-24 rounded-lg"/>
+                                    @if ($favicon && method_exists($favicon, 'temporaryUrl'))
+                                        <img alt="favicon" src="{{ $favicon->temporaryUrl() }}"
+                                             class="!w-24 !h-24 rounded-lg object-contain bg-gray-100 p-1"/>
+                                    @else
+                                        <img alt="favicon" src="{{ $setting->getFirstMediaUrl('favicon') }}"
+                                             class="!w-24 !h-24 rounded-lg object-contain bg-gray-100 p-1"/>
+                                    @endif
                                 </x-file>
                                 <div wire:loading wire:target="favicon" class="mt-2">
                                     <x-progress class="progress-primary h-1" indeterminate/>

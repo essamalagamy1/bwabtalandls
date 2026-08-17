@@ -30,18 +30,7 @@
 					@forelse($stages as $stage)
 						<tr class="bg-base-200">
 							<th class="text-center">{{ $stages->firstItem() + $loop->index }}</th>
-							<td class="text-nowrap">
-								<div class="flex items-center gap-2">
-									@if($stage->getFirstMediaUrl('image'))
-										<div class="avatar">
-											<div class="w-8 rounded-full">
-												<img src="{{ $stage->getFirstMediaUrl('image') }}" alt="{{ $stage->name }}"/>
-											</div>
-										</div>
-									@endif
-									{{ $stage->name }}
-								</div>
-							</td>
+							<td class="text-nowrap">{{ $stage->name }}</td>
 							<td class="text-center">
 								<x-badge value="{{ $stage->grades_count }}" class="badge-info"/>
 							</td>

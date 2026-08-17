@@ -5,18 +5,16 @@ namespace App\Livewire\Dashboard\Stage;
 use App\Models\Stage;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 
 class UpdateStage extends Component
 {
-    use Toast, WithFileUploads;
+    use Toast;
 
     public bool $modalUpdate = false;
     public Stage $stage;
     public $name;
     public bool $is_active;
-    public $image;
 
     public function mount(): void
     {
@@ -29,7 +27,6 @@ class UpdateStage extends Component
         return [
             'name'      => 'required|string|max:255|unique:stages,name,'.$this->stage->id,
             'is_active' => 'boolean',
-            'image'     => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
         ];
     }
 
@@ -42,10 +39,6 @@ class UpdateStage extends Component
             'name'      => $this->name,
             'is_active' => $this->is_active,
         ]);
-
-        if ($this->image) {
-            $this->stage->addMedia($this->image->getRealPath())->toMediaCollection('image');
-        }
 
         $this->modalUpdate = false;
         $this->dispatch('render')->component(StageData::class);

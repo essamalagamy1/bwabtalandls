@@ -105,9 +105,9 @@ class UpdateSiteSetting extends Component
         $this->google_client_id = $this->setting->google_client_id;
         $this->google_client_secret = $this->setting->google_client_secret;
         $this->google_redirect_uri = $this->setting->google_redirect_uri;
-        $this->color_primary = $this->setting->color_primary ?? '#f8a400';
+        $this->color_primary = $this->setting->color_primary ?? '#25376F';
         $this->color_secondary = $this->setting->color_secondary ?? '#FFFEFC';
-        $this->color_accent = $this->setting->color_accent ?? '#f8a400';
+        $this->color_accent = $this->setting->color_accent ?? '#25376F';
 
         view()->share('breadcrumbs', $this->breadcrumbs());
     }
@@ -161,6 +161,17 @@ class UpdateSiteSetting extends Component
     public function saveUpdate(): void
     {
         $this->authorize('edit_site_setting');
+
+        if ($this->logo_white && (! $this->logo_white instanceof \Illuminate\Http\UploadedFile || ! file_exists($this->logo_white->getRealPath()))) {
+            $this->logo_white = null;
+        }
+        if ($this->logo_black && (! $this->logo_black instanceof \Illuminate\Http\UploadedFile || ! file_exists($this->logo_black->getRealPath()))) {
+            $this->logo_black = null;
+        }
+        if ($this->favicon && (! $this->favicon instanceof \Illuminate\Http\UploadedFile || ! file_exists($this->favicon->getRealPath()))) {
+            $this->favicon = null;
+        }
+
         $this->validate();
 
         $data = [
@@ -211,35 +222,37 @@ class UpdateSiteSetting extends Component
             'color_accent' => $this->color_accent,
         ];
 
-        // Handle logo_white
-        if ($this->logo_white) {
-            $this->setting->addMedia($this->logo_white->getRealPath())->toMediaCollection('logo_white');
-        }
-
-        // Handle logo_black
-        if ($this->logo_black) {
-            $this->setting->addMedia($this->logo_black->getRealPath())->toMediaCollection('logo_black');
-        }
-
-        // Handle favicon
-        if ($this->favicon) {
-            $this->setting->addMedia($this->favicon->getRealPath())->toMediaCollection('favicon');
-        }
-
         if ($this->setting->exists) {
             $this->setting->update($data);
         } else {
-            $setting = SiteSetting::create($data);
-            if ($this->logo_white) {
-                $setting->addMedia($this->logo_white->getRealPath())->toMediaCollection('logo_white');
-            }
-            if ($this->logo_black) {
-                $setting->addMedia($this->logo_black->getRealPath())->toMediaCollection('logo_black');
-            }
-            if ($this->favicon) {
-                $setting->addMedia($this->favicon->getRealPath())->toMediaCollection('favicon');
-            }
+            $this->setting = SiteSetting::create($data);
         }
+
+        $mediaChanged = false;
+
+        // Handle logo_white
+        if ($this->logo_white && $this->logo_white instanceof \Illuminate\Http\UploadedFile && file_exists($this->logo_white->getRealPath())) {
+            $this->setting->addMedia($this->logo_white->getRealPath())->toMediaCollection('logo_white');
+            $this->logo_white = null;
+            $mediaChanged = true;
+        }
+
+        // Handle logo_black
+        if ($this->logo_black && $this->logo_black instanceof \Illuminate\Http\UploadedFile && file_exists($this->logo_black->getRealPath())) {
+            $this->setting->addMedia($this->logo_black->getRealPath())->toMediaCollection('logo_black');
+            $this->logo_black = null;
+            $mediaChanged = true;
+        }
+
+        // Handle favicon
+        if ($this->favicon && $this->favicon instanceof \Illuminate\Http\UploadedFile && file_exists($this->favicon->getRealPath())) {
+            $this->setting->addMedia($this->favicon->getRealPath())->toMediaCollection('favicon');
+            $this->favicon = null;
+            $mediaChanged = true;
+        }
+
+        \Illuminate\Support\Facades\Cache::forget('site_setting');
+        $this->setting = SiteSetting::getSetting();
 
         $this->success(__('lang.updated_successfully', ['attribute' => __('lang.site_settings')]));
     }

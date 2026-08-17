@@ -771,7 +771,30 @@ return [
     'avg_completion_time' => 'Avg Completion Time (Mins)',
     'student_performance' => 'Student Performance',
     'exam_analytics' => 'Exam Analytics',
-    'create_student_report'
+    'create_student_report',
+
+    // Dashboard Statistics
+    'statistics' => 'Statistics',
+    'overview' => 'Overview',
+    'pass_rate' => 'Pass Rate',
+    'new_students_monthly' => 'New Students Monthly',
+    'students_per_grade' => 'Students Per Grade',
+    'student_status_distribution' => 'Student Status Distribution',
+    'latest_students' => 'Latest Students',
+    'exam_scores_avg' => 'Average Exam Scores',
+    'active_students' => 'Active Students',
+    'total_students' => 'Total Students',
+    'total_stages' => 'Total Stages',
+    'total_grades' => 'Total Grades',
+    'total_semesters' => 'Total Semesters',
+    'total_weeks' => 'Total Weeks',
+    'total_trainings' => 'Total Trainings',
+    'total_exams' => 'Total Exams',
+    'total_questions' => 'Total Questions',
+    'total_attempts' => 'Total Attempts',
+    'total_instructors' => 'Total Instructors',
+    'joined_at' => 'Joined At',
+    'filter_by' => 'Filter By',
 
 ];
 

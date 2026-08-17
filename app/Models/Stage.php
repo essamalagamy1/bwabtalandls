@@ -4,12 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Stage extends Model implements HasMedia
+class Stage extends Model
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory;
 
     protected $fillable = ['name', 'is_active'];
 
@@ -23,8 +21,4 @@ class Stage extends Model implements HasMedia
         return $this->hasMany(Grade::class);
     }
 
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('image')->singleFile();
-    }
 }

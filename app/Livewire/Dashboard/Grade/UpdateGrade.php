@@ -5,19 +5,17 @@ namespace App\Livewire\Dashboard\Grade;
 use App\Models\Grade;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 
 class UpdateGrade extends Component
 {
-    use Toast, WithFileUploads;
+    use Toast;
 
     public bool $modalUpdate = false;
     public Grade $grade;
     public $name;
     public $stage_id;
     public bool $is_active;
-    public $image;
     public $all_stages;
 
     public function mount(): void
@@ -33,7 +31,6 @@ class UpdateGrade extends Component
             'name'      => 'required|string|max:255|unique:grades,name,'.$this->grade->id,
             'stage_id'  => 'required|exists:stages,id',
             'is_active' => 'boolean',
-            'image'     => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
         ];
     }
 
@@ -47,10 +44,6 @@ class UpdateGrade extends Component
             'stage_id'  => $this->stage_id,
             'is_active' => $this->is_active,
         ]);
-
-        if ($this->image) {
-            $this->grade->addMedia($this->image->getRealPath())->toMediaCollection('image');
-        }
 
         $this->modalUpdate = false;
         $this->dispatch('render')->component(GradeData::class);

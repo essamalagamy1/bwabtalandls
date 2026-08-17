@@ -66,7 +66,7 @@ class StudentDashboard extends Component
                     [
                         'label' => __('lang.score') ?? 'الدرجة',
                         'data' => $allAttempts->pluck('total_score')->toArray(),
-                        'borderColor' => '#f8a400',
+                        'borderColor' => '#25376F',
                         'tension' => 0.4
                     ]
                 ]

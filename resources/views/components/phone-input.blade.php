@@ -134,13 +134,7 @@
             // 1. تهيئة المكتبة
             iti = window.intlTelInput(input, {
                 loadUtils: () => import('https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.4/build/js/utils.js'),
-                initialCountry: 'auto',
-                geoIpLookup: (success, failure) => {
-                    fetch('https://ipapi.co/json')
-                        .then(res => res.json())
-                        .then(data => success(data.country_code))
-                        .catch(() => failure());
-                },
+                initialCountry: 'sa',
                 nationalMode: true,
                 separateDialCode: true,
             });

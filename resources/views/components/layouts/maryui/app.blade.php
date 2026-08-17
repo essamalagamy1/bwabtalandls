@@ -27,7 +27,7 @@
 		<x-theme-toggle class="btn btn-ghost btn-circle  btn-sm"/>
 
 		{{--Language--}}
-		<div class="dropdown dropdown-end">
+		{{-- <div class="dropdown dropdown-end">
 			<label tabindex="0" class="btn btn-ghost btn-circle  btn-sm">
 				<i class='bx bx-translate text-lg sm:text-xl'></i>
 			</label>
@@ -49,7 +49,7 @@
 					</a>
 				</li>
 			</ul>
-		</div>
+		</div> --}}
 
 		{{--Notifications--}}
 		<livewire:dashboard.notifications></livewire:dashboard.notifications>

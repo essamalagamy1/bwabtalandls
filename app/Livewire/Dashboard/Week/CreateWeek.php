@@ -4,18 +4,19 @@ namespace App\Livewire\Dashboard\Week;
 
 use App\Models\Week;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 
 class CreateWeek extends Component
 {
-    use Toast, WithFileUploads;
+    use Toast;
 
     public bool $modalAdd = false;
     public $title;
     public $order;
     public $semester_id;
-    public $image;
+    public bool $is_active = true;
+    public $start_date;
+    public $end_date;
     public $all_semesters;
 
     public function render()
@@ -29,7 +30,9 @@ class CreateWeek extends Component
             'title'       => 'required|string|max:255',
             'order'       => 'required|integer|min:1',
             'semester_id' => 'required|exists:semesters,id',
-            'image'       => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+            'is_active'   => 'boolean',
+            'start_date'  => 'nullable|date',
+            'end_date'    => 'nullable|date|after_or_equal:start_date',
         ];
     }
 
@@ -38,15 +41,14 @@ class CreateWeek extends Component
         $this->authorize('create_week');
         $this->validate();
 
-        $week = Week::create([
+        Week::create([
             'title'       => $this->title,
             'order'       => $this->order,
             'semester_id' => $this->semester_id,
+            'is_active'   => $this->is_active,
+            'start_date'  => $this->start_date,
+            'end_date'    => $this->end_date,
         ]);
-
-        if ($this->image) {
-            $week->addMedia($this->image->getRealPath())->toMediaCollection('image');
-        }
 
         $this->modalAdd = false;
         $this->dispatch('render')->component(WeekData::class);
@@ -55,7 +57,8 @@ class CreateWeek extends Component
 
     public function resetData(): void
     {
-        $this->reset(['title', 'order', 'semester_id', 'image']);
+        $this->reset(['title', 'order', 'semester_id', 'start_date', 'end_date']);
+        $this->is_active = true;
         $this->resetErrorBag();
         $this->resetValidation();
     }

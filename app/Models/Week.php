@@ -4,14 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Week extends Model implements HasMedia
+class Week extends Model
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory;
 
-    protected $fillable = ['semester_id', 'title', 'order'];
+    protected $fillable = ['semester_id', 'title', 'order', 'is_active', 'start_date', 'end_date'];
+
+    protected $casts = [
+        'is_active'  => 'boolean',
+        'start_date' => 'date',
+        'end_date'   => 'date',
+    ];
 
     public function semester()
     {
@@ -26,10 +30,5 @@ class Week extends Model implements HasMedia
     public function exams()
     {
         return $this->hasMany(Exam::class);
-    }
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('image')->singleFile();
     }
 }

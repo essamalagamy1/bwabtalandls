@@ -14,7 +14,7 @@
 			
 			<x-phone-input required label="{{ __('lang.phone') }}" phoneProperty="phone" keyProperty="phone_key"/>
 			
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model="grade_id" :options="$all_grades" option-value="id" option-label="name" single searchable/>
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model="grade_id" :options="$all_grades" option-value="id" option-label="name" optionSubLabel="stage.name" single searchable/>
 			
 			<x-select label="{{ __('lang.status') }}" wire:model="status" :options="[
                 ['id' => 'active', 'name' => __('lang.active')],

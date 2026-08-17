@@ -12,7 +12,9 @@ class SemesterFactory extends Factory
         return [
             'grade_id' => Grade::factory(),
             'name' => $this->faker->randomElement(['الفصل الدراسي الأول', 'الفصل الدراسي الثاني', 'الفصل الدراسي الثالث']),
-            'is_active' => $this->faker->boolean(50),
+            'is_active' => $this->faker->boolean(80),
+            'start_date' => $this->faker->dateTimeBetween('-1 month', '+1 month')->format('Y-m-d'),
+            'end_date' => $this->faker->dateTimeBetween('+2 months', '+5 months')->format('Y-m-d'),
         ];
     }
 }

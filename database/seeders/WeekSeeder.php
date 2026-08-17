@@ -19,6 +19,9 @@ class WeekSeeder extends Seeder
                     'semester_id' => $semester->id,
                     'title' => $weekTitle,
                     'order' => $index + 1,
+                    'is_active' => true,
+                    'start_date' => now()->addWeeks($index)->format('Y-m-d'),
+                    'end_date' => now()->addWeeks($index)->addDays(6)->format('Y-m-d'),
                 ]);
             }
         }

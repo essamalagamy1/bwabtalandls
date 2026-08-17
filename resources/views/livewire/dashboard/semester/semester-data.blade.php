@@ -7,7 +7,7 @@
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_name" placeholder="{{ __('lang.search') }}..." clearable/>
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" optionSubLabel="stage.name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[
                 ['id' => '', 'name' => __('lang.all')],
                 ['id' => '1', 'name' => __('lang.active')],
@@ -23,9 +23,10 @@
 						<th class="text-center">{{ __('lang.name') }}</th>
 						<th class="text-center">{{ __('lang.grade') }}</th>
 						<th class="text-center">{{ __('lang.stage') }}</th>
+						<th class="text-center">{{ __('lang.start_date') }}</th>
+						<th class="text-center">{{ __('lang.end_date') }}</th>
 						<th class="text-center">{{ __('lang.weeks') }}</th>
 						<th class="text-center">{{ __('lang.status') }}</th>
-						<th class="text-center">{{ __('lang.created_at') }}</th>
 						<th class="text-center">{{ __('lang.action') }}</th>
 					</tr>
 					</thead>
@@ -36,6 +37,8 @@
 							<td class="text-nowrap">{{ $semester->name }}</td>
 							<td class="text-center">{{ $semester->grade?->name ?? '-' }}</td>
 							<td class="text-center">{{ $semester->grade?->stage?->name ?? '-' }}</td>
+							<td class="text-center text-nowrap">{{ $semester->start_date?->format('Y-m-d') ?? '-' }}</td>
+							<td class="text-center text-nowrap">{{ $semester->end_date?->format('Y-m-d') ?? '-' }}</td>
 							<td class="text-center"><x-badge value="{{ $semester->weeks_count }}" class="badge-info"/></td>
 							<td class="text-center">
 								@if($semester->is_active)
@@ -44,7 +47,6 @@
 									<x-badge value="{{ __('lang.inactive') }}" class="badge-error"/>
 								@endif
 							</td>
-							<td class="text-center text-nowrap">{{ formatDate($semester->created_at, true) }}</td>
 							<td>
 								<div class="flex gap-2 justify-center">
 									@can('edit_semester')
@@ -68,7 +70,7 @@
 						</tr>
 					@empty
 						<tr class="bg-base-200">
-							<th colspan="8" class="text-center">{{ __('lang.no_data') }}</th>
+							<th colspan="9" class="text-center">{{ __('lang.no_data') }}</th>
 						</tr>
 					@endforelse
 					</tbody>

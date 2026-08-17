@@ -11,10 +11,12 @@ class Semester extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
-    protected $fillable = ['grade_id', 'name', 'is_active'];
+    protected $fillable = ['grade_id', 'name', 'is_active', 'start_date', 'end_date'];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'is_active'  => 'boolean',
+        'start_date' => 'date',
+        'end_date'   => 'date',
     ];
 
     public function grade()

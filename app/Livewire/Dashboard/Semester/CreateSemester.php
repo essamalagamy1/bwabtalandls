@@ -15,6 +15,8 @@ class CreateSemester extends Component
     public $name;
     public $grade_id;
     public bool $is_active = true;
+    public $start_date;
+    public $end_date;
     public $image;
     public $all_grades;
 
@@ -26,10 +28,12 @@ class CreateSemester extends Component
     public function rules(): array
     {
         return [
-            'name'      => 'required|string|max:255|unique:semesters,name',
-            'grade_id'  => 'required|exists:grades,id',
-            'is_active' => 'boolean',
-            'image'     => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+            'name'       => 'required|string|max:255|unique:semesters,name',
+            'grade_id'   => 'required|exists:grades,id',
+            'is_active'  => 'boolean',
+            'start_date' => 'nullable|date',
+            'end_date'   => 'nullable|date|after_or_equal:start_date',
+            'image'      => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
         ];
     }
 
@@ -39,9 +43,11 @@ class CreateSemester extends Component
         $this->validate();
 
         $semester = Semester::create([
-            'name'      => $this->name,
-            'grade_id'  => $this->grade_id,
-            'is_active' => $this->is_active,
+            'name'       => $this->name,
+            'grade_id'   => $this->grade_id,
+            'is_active'  => $this->is_active,
+            'start_date' => $this->start_date,
+            'end_date'   => $this->end_date,
         ]);
 
         if ($this->image) {
@@ -55,7 +61,7 @@ class CreateSemester extends Component
 
     public function resetData(): void
     {
-        $this->reset(['name', 'grade_id', 'image']);
+        $this->reset(['name', 'grade_id', 'image', 'start_date', 'end_date']);
         $this->is_active = true;
         $this->resetErrorBag();
         $this->resetValidation();

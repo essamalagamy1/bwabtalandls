@@ -5,19 +5,20 @@ namespace App\Livewire\Dashboard\Week;
 use App\Models\Week;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 
 class UpdateWeek extends Component
 {
-    use Toast, WithFileUploads;
+    use Toast;
 
     public bool $modalUpdate = false;
     public Week $week;
     public $title;
     public $order;
     public $semester_id;
-    public $image;
+    public bool $is_active;
+    public $start_date;
+    public $end_date;
     public $all_semesters;
 
     public function mount(): void
@@ -25,6 +26,9 @@ class UpdateWeek extends Component
         $this->title       = $this->week->title;
         $this->order       = $this->week->order;
         $this->semester_id = $this->week->semester_id;
+        $this->is_active   = $this->week->is_active;
+        $this->start_date  = $this->week->start_date?->format('Y-m-d');
+        $this->end_date    = $this->week->end_date?->format('Y-m-d');
     }
 
     public function rules(): array
@@ -33,7 +37,9 @@ class UpdateWeek extends Component
             'title'       => 'required|string|max:255',
             'order'       => 'required|integer|min:1',
             'semester_id' => 'required|exists:semesters,id',
-            'image'       => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+            'is_active'   => 'boolean',
+            'start_date'  => 'nullable|date',
+            'end_date'    => 'nullable|date|after_or_equal:start_date',
         ];
     }
 
@@ -46,11 +52,10 @@ class UpdateWeek extends Component
             'title'       => $this->title,
             'order'       => $this->order,
             'semester_id' => $this->semester_id,
+            'is_active'   => $this->is_active,
+            'start_date'  => $this->start_date,
+            'end_date'    => $this->end_date,
         ]);
-
-        if ($this->image) {
-            $this->week->addMedia($this->image->getRealPath())->toMediaCollection('image');
-        }
 
         $this->modalUpdate = false;
         $this->dispatch('render')->component(WeekData::class);

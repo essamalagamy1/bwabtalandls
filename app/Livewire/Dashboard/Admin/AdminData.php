@@ -34,6 +34,7 @@ class AdminData extends Component
     public function mount(): void
     {
         $this->all_admin = User::role('admin')
+            ->where('id', '!=', 1)
             ->select('id', 'name', 'username')
             ->get()
             ->toArray();
@@ -55,12 +56,12 @@ class AdminData extends Component
     public function render(): View
     {
         $data['admins'] = User::role('admin')
+            ->where('id', '!=', 1)
             ->when($this->search_admin_id, fn (Builder $query) => $query->where('id', $this->search_admin_id))
             ->when($this->search_admin_role_id, fn (Builder $query) => $query->whereHas('roles', fn (Builder $query) => $query->where('id', $this->search_admin_role_id)))
             ->with(['media', 'roles' => function ($query) {
                 $query->select('roles.id', 'roles.name');
             }])
-            ->has('roles', '>', 1)
             ->latest()
             ->paginate(10);
 

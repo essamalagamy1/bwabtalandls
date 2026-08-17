@@ -7,13 +7,17 @@
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_name" placeholder="{{ __('lang.search') }}..." clearable/>
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" optionSubLabel="stage.name"
+			option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+
+
 			<x-select label="{{ __('lang.status') }}" wire:model.live="search_status" :options="[
                 ['id' => '', 'name' => __('lang.all')],
                 ['id' => 'active', 'name' => __('lang.active')],
                 ['id' => 'inactive', 'name' => __('lang.inactive')],
                 ['id' => 'pending', 'name' => __('lang.pending')],
-            ]" option-value="id" option-label="name"/>
+            ]" option-value="id" option-label="name" />
 		</div>
 		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 			<div class="overflow-x-auto">
