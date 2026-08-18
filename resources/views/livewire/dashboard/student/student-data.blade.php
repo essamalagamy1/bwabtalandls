@@ -1,17 +1,24 @@
 <div>
 	<x-card title="{{ __('lang.students') }}" shadow class="mb-3">
 		<x-slot:menu>
+			<x-button icon="o-document-arrow-down" class="btn-success btn-sm" wire:click="exportExcel" tooltip="تصدير Excel" spinner="exportExcel" />
+			<x-button icon="o-document-arrow-down" class="btn-error btn-sm" wire:click="exportPdf" tooltip="تصدير PDF" spinner="exportPdf" />
 			@can('create_student')
 				<livewire:dashboard.student.create-student :all_grades="$all_grades" wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
 			@endcan
 		</x-slot:menu>
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+			<x-stat title="إجمالي الطلاب" value="{{ $total_students }}" icon="o-users" class="bg-base-200" />
+			<x-stat title="الطلاب المفعلين" value="{{ $active_students }}" icon="o-check-circle" class="bg-success/20 text-success" />
+			<x-stat title="الطلاب غير المفعلين" value="{{ $inactive_students }}" icon="o-x-circle" class="bg-error/20 text-error" />
+		</div>
+
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_name" placeholder="{{ __('lang.search') }}..." clearable/>
-
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" optionSubLabel="stage.name"
-			option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-
-
+			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-sub-label="full_path_name" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-select label="{{ __('lang.status') }}" wire:model.live="search_status" :options="[
                 ['id' => '', 'name' => __('lang.all')],
                 ['id' => 'active', 'name' => __('lang.active')],

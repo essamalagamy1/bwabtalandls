@@ -25,16 +25,122 @@ class TrainingData extends Component
         return view('livewire.placeholders.page-loading');
     }
 
+    public $all_stages;
+    public $all_grades;
+    public $all_semesters;
     public $all_weeks;
     public $search_title;
+    
+    #[Url]
+    public $search_stage_id;
+    #[Url]
+    public $search_grade_id;
+    #[Url]
+    public $search_semester_id;
     #[Url]
     public $search_week_id;
+    
     public $search_type;
     public $search_is_published = '';
 
+    public function updatedSearchStageId($value)
+    {
+        $this->search_grade_id = null;
+        $this->search_semester_id = null;
+        $this->search_week_id = null;
+        $this->loadGrades();
+        $this->loadSemesters();
+        $this->loadWeeks();
+    }
+
+    public function updatedSearchGradeId($value)
+    {
+        $this->search_semester_id = null;
+        $this->search_week_id = null;
+        $this->loadSemesters();
+        $this->loadWeeks();
+    }
+
+    public function updatedSearchSemesterId($value)
+    {
+        $this->search_week_id = null;
+        $this->loadWeeks();
+    }
+
+    public function loadStages() {
+        $this->all_stages = \App\Models\Stage::where('is_active', true)->get(['id', 'name'])->toArray();
+    }
+
+    public function loadGrades() {
+        $query = \App\Models\Grade::with('stage:id,name')->where('is_active', true);
+        if ($this->search_stage_id) {
+            $query->where('stage_id', $this->search_stage_id);
+        }
+        $this->all_grades = $query->get(['id', 'name', 'stage_id'])
+            ->map(function ($grade) {
+                return [
+                    'id' => $grade->id,
+                    'name' => $grade->name,
+                    'full_path_name' => $grade->stage?->name ?? ''
+                ];
+            })->toArray();
+    }
+
+    public function loadSemesters() {
+        $query = \App\Models\Semester::with('grade.stage')->where('is_active', true);
+        if ($this->search_grade_id) {
+            $query->where('grade_id', $this->search_grade_id);
+        } elseif ($this->search_stage_id) {
+            $query->whereHas('grade', fn($q) => $q->where('stage_id', $this->search_stage_id));
+        }
+        $this->all_semesters = $query->get(['id', 'name', 'grade_id'])
+            ->map(function ($semester) {
+                return [
+                    'id' => $semester->id,
+                    'name' => $semester->name,
+                    'full_path_name' => ($semester->grade?->stage?->name ?? '') . ' - ' . ($semester->grade?->name ?? '')
+                ];
+            })->toArray();
+    }
+
+    public function loadWeeks() {
+        $query = Week::with('semester.grade.stage')
+            ->where('is_active', true)
+            ->whereHas('semester', function ($q) {
+                $q->where('is_active', true)
+                  ->whereHas('grade', function ($q2) {
+                      $q2->where('is_active', true)
+                         ->whereHas('stage', function ($q3) {
+                             $q3->where('is_active', true);
+                         });
+                  });
+            });
+
+        if ($this->search_semester_id) {
+            $query->where('semester_id', $this->search_semester_id);
+        } elseif ($this->search_grade_id) {
+            $query->whereHas('semester', fn($q) => $q->where('grade_id', $this->search_grade_id));
+        } elseif ($this->search_stage_id) {
+            $query->whereHas('semester.grade', fn($q) => $q->where('stage_id', $this->search_stage_id));
+        }
+        
+        $this->all_weeks = $query->get(['id', 'title as name', 'semester_id'])
+            ->map(function ($week) {
+                return [
+                    'id' => $week->id,
+                    'name' => $week->name,
+                    'full_path_name' => ($week->semester?->grade?->stage?->name ?? '') . ' - ' . ($week->semester?->grade?->name ?? '') . ' - ' . ($week->semester?->name ?? '')
+                ];
+            })
+            ->toArray();
+    }
+
     public function mount(): void
     {
-        $this->all_weeks = Week::get(['id', 'title as name'])->toArray();
+        $this->loadStages();
+        $this->loadGrades();
+        $this->loadSemesters();
+        $this->loadWeeks();
         view()->share('breadcrumbs', $this->breadcrumbs());
     }
 
@@ -50,6 +156,9 @@ class TrainingData extends Component
     {
         $data['trainings'] = Training::query()
             ->when($this->search_title, fn(Builder $q) => $q->where('title', 'like', "%{$this->search_title}%"))
+            ->when($this->search_stage_id, fn(Builder $q) => $q->whereHas('week.semester.grade.stage', fn($q2) => $q2->where('id', $this->search_stage_id)))
+            ->when($this->search_grade_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($q2) => $q2->where('id', $this->search_grade_id)))
+            ->when($this->search_semester_id, fn(Builder $q) => $q->whereHas('week.semester', fn($q2) => $q2->where('id', $this->search_semester_id)))
             ->when($this->search_week_id, fn(Builder $q) => $q->where('week_id', $this->search_week_id))
             ->when($this->search_type, fn(Builder $q) => $q->where('type', $this->search_type))
             ->when($this->search_is_published !== '', fn(Builder $q) => $q->where('is_published', (bool)$this->search_is_published))

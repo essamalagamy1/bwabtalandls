@@ -31,4 +31,15 @@ class Week extends Model
     {
         return $this->hasMany(Exam::class);
     }
+
+    protected static function booted()
+    {
+        static::updated(function ($week) {
+            if ($week->wasChanged('is_active') && !$week->is_active) {
+                $week->trainings->each(function ($training) {
+                    $training->update(['is_published' => false]);
+                });
+            }
+        });
+    }
 }

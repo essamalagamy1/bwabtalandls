@@ -50,6 +50,7 @@
 											icon="{{ $stage->is_active ? 'o-lock-closed' : 'o-lock-open' }}"
 											class="btn-sm btn-ghost {{ $stage->is_active ? 'text-warning' : 'text-success' }}"
 											wire:click="toggleActive({{ $stage->id }})"
+											@if($stage->is_active) wire:confirm="هل أنت متأكد من الإلغاء؟ سيتم إلغاء تفعيل كافة الصفوف والفصول والأسابيع والتدريبات المرتبطة بهذه المرحلة تلقائياً" @endif
 											tooltip="{{ $stage->is_active ? __('lang.deactivate') : __('lang.activate') }}"
 											wire:loading.attr="disabled"
 										/>

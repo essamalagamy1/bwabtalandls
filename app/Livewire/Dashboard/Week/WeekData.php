@@ -31,7 +31,13 @@ class WeekData extends Component
 
     public function mount(): void
     {
-        $this->all_semesters = Semester::where('is_active', true)->get(['id', 'name'])->toArray();
+        $this->all_semesters = Semester::with('grade.stage')->where('is_active', true)->get(['id', 'name', 'grade_id'])->map(function ($semester) {
+            return [
+                'id' => $semester->id,
+                'name' => $semester->name,
+                'full_path_name' => ($semester->grade?->stage?->name ?? '') . ' - ' . ($semester->grade?->name ?? ''),
+            ];
+        })->toArray();
         view()->share('breadcrumbs', $this->breadcrumbs());
     }
 

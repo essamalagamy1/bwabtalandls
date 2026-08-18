@@ -5,9 +5,12 @@
 				<livewire:dashboard.exam.create-exam :all_weeks="$all_weeks" wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
 			@endcan
 		</x-slot:menu>
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+		<div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_title" placeholder="{{ __('lang.search') }}..." clearable/>
-			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 		</div>
 		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 			<div class="overflow-x-auto">

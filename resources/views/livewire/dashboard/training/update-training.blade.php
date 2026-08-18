@@ -13,7 +13,7 @@
 			@if(in_array($type, ['link', 'video']))
 				<x-input label="{{ __('lang.url') }}" wire:model="url" placeholder="https://..."/>
 			@endif
-			<x-choices-offline label="{{ __('lang.week') }}" wire:model="week_id" :options="$all_weeks" option-value="id" option-label="name" single searchable/>
+			<x-choices-offline label="{{ __('lang.week') }}" wire:model="week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable/>
 			<x-input label="{{ __('lang.publish_date') }}" wire:model="publish_date" type="date"/>
 			<x-toggle label="{{ __('lang.published') }}" wire:model="is_published"/>
 			@if(in_array($type, ['pdf', 'file']))

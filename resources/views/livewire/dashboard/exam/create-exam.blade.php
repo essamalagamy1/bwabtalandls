@@ -4,7 +4,7 @@
 		<x-form wire:submit="saveAdd">
 			<x-input label="{{ __('lang.title') }}" wire:model="title"/>
 			<x-textarea label="{{ __('lang.description') }}" wire:model="description" rows="3"/>
-			<x-choices-offline label="{{ __('lang.week') }}" wire:model="week_id" :options="$all_weeks" option-value="id" option-label="name" single searchable/>
+			<x-choices-offline label="{{ __('lang.week') }}" wire:model="week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable/>
 			<div class="grid grid-cols-2 gap-4">
 				<x-input label="{{ __('lang.duration_minutes') }}" wire:model="duration_minutes" type="number" min="1"/>
 				<x-input label="{{ __('lang.passing_score') }} (%)" wire:model="passing_score" type="number" min="0" max="100"/>

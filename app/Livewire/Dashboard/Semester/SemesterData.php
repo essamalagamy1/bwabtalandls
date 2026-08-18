@@ -31,7 +31,14 @@ class SemesterData extends Component
 
     public function mount(): void
     {
-        $this->all_grades = Grade::with('stage:id,name')->where('is_active', true)->get(['id', 'name', 'stage_id'])->toArray();
+        $this->all_grades = Grade::with('stage:id,name')->where('is_active', true)->get(['id', 'name', 'stage_id'])
+            ->map(function ($grade) {
+                return [
+                    'id' => $grade->id,
+                    'name' => $grade->name,
+                    'full_path_name' => $grade->stage?->name ?? ''
+                ];
+            })->toArray();
         view()->share('breadcrumbs', $this->breadcrumbs());
     }
 

@@ -51,6 +51,7 @@
 											icon="{{ $grade->is_active ? 'o-lock-closed' : 'o-lock-open' }}"
 											class="btn-sm btn-ghost {{ $grade->is_active ? 'text-warning' : 'text-success' }}"
 											wire:click="toggleActive({{ $grade->id }})"
+											@if($grade->is_active) wire:confirm="هل أنت متأكد من الإلغاء؟ سيتم إلغاء تفعيل كافة الفصول والأسابيع والتدريبات المرتبطة بهذا الصف تلقائياً" @endif
 											tooltip="{{ $grade->is_active ? __('lang.deactivate') : __('lang.activate') }}"
 										/>
 									@endcan

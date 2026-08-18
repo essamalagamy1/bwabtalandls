@@ -21,4 +21,15 @@ class Stage extends Model
         return $this->hasMany(Grade::class);
     }
 
+    protected static function booted()
+    {
+        static::updated(function ($stage) {
+            if ($stage->wasChanged('is_active') && !$stage->is_active) {
+                $stage->grades->each(function ($grade) {
+                    $grade->update(['is_active' => false]);
+                });
+            }
+        });
+    }
+
 }

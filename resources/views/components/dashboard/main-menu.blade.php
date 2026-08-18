@@ -59,9 +59,9 @@
 			<x-menu-item  title="{{ __('lang.exams') }}" icon-classes="text-primary" icon="o-document-text" link="{{ route('exams') }}" />
 		@endcan
 
-		@can('show_question')
+		{{-- @can('show_question')
 			<x-menu-item  title="{{ __('lang.questions') }}" icon-classes="text-primary" icon="o-question-mark-circle" link="{{ route('questions') }}" />
-		@endcan
+		@endcan --}}
 
 		<x-menu-separator />
 	@endcanany

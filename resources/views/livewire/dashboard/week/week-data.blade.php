@@ -7,7 +7,7 @@
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_title" placeholder="{{ __('lang.search') }}..." clearable/>
-			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[
                 ['id' => '', 'name' => __('lang.all')],
                 ['id' => '1', 'name' => __('lang.active')],
@@ -63,6 +63,7 @@
 											icon="{{ $week->is_active ? 'o-lock-closed' : 'o-lock-open' }}"
 											class="btn-sm btn-ghost {{ $week->is_active ? 'text-warning' : 'text-success' }}"
 											wire:click="toggleActive({{ $week->id }})"
+											@if($week->is_active) wire:confirm="هل أنت متأكد من الإلغاء؟ سيتم إلغاء تفعيل كافة التدريبات المرتبطة بهذا الأسبوع تلقائياً" @endif
 											tooltip="{{ $week->is_active ? __('lang.deactivate') : __('lang.activate') }}"
 										/>
 									@endcan

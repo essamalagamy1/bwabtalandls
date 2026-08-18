@@ -33,4 +33,15 @@ class Semester extends Model implements HasMedia
     {
         $this->addMediaCollection('image')->singleFile();
     }
+
+    protected static function booted()
+    {
+        static::updated(function ($semester) {
+            if ($semester->wasChanged('is_active') && !$semester->is_active) {
+                $semester->weeks->each(function ($week) {
+                    $week->update(['is_active' => false]);
+                });
+            }
+        });
+    }
 }

@@ -4,7 +4,7 @@
 		<x-form wire:submit="saveAdd">
 			<x-input label="{{ __('lang.title') }}" wire:model="title"/>
 			<x-input label="{{ __('lang.order') }}" wire:model="order" type="number" min="1"/>
-			<x-choices-offline label="{{ __('lang.semester') }}" wire:model="semester_id" :options="$all_semesters" option-value="id" option-label="name" single searchable/>
+			<x-choices-offline label="{{ __('lang.semester') }}" wire:model="semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable/>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 				<x-datepicker label="{{ __('lang.start_date') }}" wire:model="start_date" icon="o-calendar"/>
 				<x-datepicker label="{{ __('lang.end_date') }}" wire:model="end_date" icon="o-calendar"/>
