@@ -44,5 +44,4 @@ class Exam extends Model
         return $this->hasMany(ExamAttempt::class);
     }
 
-    }
 }

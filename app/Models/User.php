@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
@@ -33,7 +34,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, HasRoles, \Illuminate\Auth\MustVerifyEmail, InteractsWithMedia, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasRoles, \Illuminate\Auth\MustVerifyEmail, InteractsWithMedia, Notifiable, SoftDeletes, HasPushSubscriptions;
 
     protected $table = 'users';
 

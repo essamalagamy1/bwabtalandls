@@ -13,6 +13,9 @@
 	<meta name="keywords" content="@yield('meta_keywords', siteSetting()->description)">
 	<link rel="icon" href="{{ siteSetting()->getFirstMediaUrl('favicon') }}" type="image/x-icon"/>
 	<link rel="shortcut icon" href="{{ siteSetting()->getFirstMediaUrl('favicon') }}" type="image/x-icon"/>
+	<link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+	<link rel="manifest" href="{{ asset('manifest.json') }}">
+	<meta name="theme-color" content="{{ siteSetting()->color_primary ?? '#25376F' }}">
 
 	@vite(['resources/js/app.js'])
 	@yield('style')

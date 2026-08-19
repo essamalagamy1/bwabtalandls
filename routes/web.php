@@ -22,6 +22,7 @@ use App\Livewire\Dashboard\Week\WeekData;
 use App\Livewire\Student\ExamResult;
 use App\Livewire\Student\StudentExamsData;
 use App\Livewire\Student\TakeExam;
+use App\Http\Controllers\NotificationManagerController;
 use Illuminate\Support\Facades\Route;
 
 // getFirstMediaUrl('image')
@@ -51,6 +52,9 @@ Route::middleware(['web-language'])->group(function () {
         Route::livewire('reports/students', StudentReports::class)->name('reports.students')->middleware('permission:show_student_report');
         Route::livewire('reports/exams', ExamReports::class)->name('reports.exams')->middleware('permission:show_exam_report');
         Route::livewire('site-settings', UpdateSiteSetting::class)->name('site-settings')->middleware('permission:show_site_setting'); // site settings
+        
+        // Push notification subscription
+        Route::post('/save-subscription', NotificationManagerController::class)->name('save-subscription');
     });
 
     // student routes
