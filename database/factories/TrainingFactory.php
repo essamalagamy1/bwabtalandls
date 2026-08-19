@@ -17,8 +17,7 @@ class TrainingFactory extends Factory
             'description' => $this->faker->realText(200),
             'type' => $this->faker->randomElement(['video', 'pdf', 'file', 'link']),
             'url' => $this->faker->url,
-            'publish_date' => $this->faker->dateTimeBetween('-1 month', '+1 month'),
-            'is_published' => $this->faker->boolean(80),
+            'is_active' => $this->faker->boolean(80),
         ];
     }
 }
