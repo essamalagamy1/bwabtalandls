@@ -17,7 +17,7 @@ class ExamFactory extends Factory
             'description' => 'الرجاء قراءة الأسئلة بعناية قبل الإجابة',
             'duration_minutes' => $this->faker->randomElement([30, 45, 60, 90]),
             'passing_score' => $this->faker->numberBetween(50, 70),
-            'assignment_date' => $this->faker->dateTimeBetween('-1 week', '+1 week'),
+            'is_active' => $this->faker->boolean(80),
         ];
     }
 }
