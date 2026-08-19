@@ -12,13 +12,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RolePermissionSeeder::class);
-        
+
         User::factory()->create([
             'name' => 'superadmin',
             'email' => 'superadmin@admin.com',
             'password' => Hash::make('12345678'),
+            'email_verified_at' => now(),
+            'status' => 'active',
         ])->assignRole('admin')->givePermissionTo(Permission::all()->pluck('name')->toArray());
-        
+
         $this->call([
             StageSeeder::class,
             GradeSeeder::class,

@@ -1,1 +1,1 @@
-<img src="{{siteSetting()->getFirstMediaUrl('logo_black') }}" alt="App Logo Icon" class="" width="60" height="60">
+<img src="{{siteSetting()->getFirstMediaUrl('logo_black') ?? asset('logo.png')}}" alt="logo" class="" width="60" height="60">
