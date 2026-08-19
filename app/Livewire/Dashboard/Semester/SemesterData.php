@@ -68,7 +68,19 @@ class SemesterData extends Component
     {
         $this->authorize('edit_semester');
         $semester = Semester::findOrFail($id);
-        $semester->update(['is_active' => !$semester->is_active]);
+        $newStatus = !$semester->is_active;
+        $semester->update(['is_active' => $newStatus]);
+        
+        if (!$newStatus) {
+            $weekIds = $semester->weeks()->pluck('id');
+            $semester->weeks()->update(['is_active' => false]);
+            
+            if ($weekIds->isNotEmpty()) {
+                \App\Models\Training::whereIn('week_id', $weekIds)->update(['is_active' => false]);
+                \App\Models\Exam::whereIn('week_id', $weekIds)->update(['is_active' => false]);
+            }
+        }
+
         $this->success(__('lang.updated_successfully', ['attribute' => __('lang.semester')]));
         $this->dispatch('render')->component(SemesterData::class);
     }

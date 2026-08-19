@@ -1,4 +1,20 @@
 <div>
+	<x-header title="{{ __('lang.my_exams') ?? 'امتحاناتي' }}" subtitle="{{ __('lang.all_exams_for_your_grade') ?? 'جميع الامتحانات المخصصة لصفك الدراسي' }}" separator>
+		<x-slot:middle class="!justify-end">
+			@if(!empty($weeks) && count($weeks) > 0)
+				<x-select 
+					icon="o-calendar-days" 
+					:options="$weeks" 
+					option-value="id" 
+					option-label="title" 
+					placeholder="{{ __('lang.all_weeks') ?? 'جميع الأسابيع' }}" 
+					wire:model.live="selectedWeek" 
+					class="w-full lg:w-auto" 
+				/>
+			@endif
+		</x-slot:middle>
+	</x-header>
+
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 		@forelse($exams as $exam)
 			@php
@@ -6,16 +22,16 @@
 			@endphp
 			<x-card title="{{ $exam->title }}" class="shadow-xl">
 				<x-slot:figure>
-					@if($exam->getFirstMediaUrl('image'))
-						<img src="{{ $exam->getFirstMediaUrl('image') }}" alt="Exam Image" class="h-48 w-full object-cover"/>
-					@else
-						<div class="h-48 w-full bg-base-300 flex items-center justify-center">
-							<x-icon name="o-document-text" class="w-16 h-16 text-base-content/30" />
-						</div>
-					@endif
+					<div class="h-48 w-full bg-base-300 flex items-center justify-center">
+						<x-icon name="o-document-text" class="w-16 h-16 text-base-content/30" />
+					</div>
 				</x-slot:figure>
 				
 				<div class="space-y-2 mt-4">
+					<div class="flex justify-between items-center mb-2">
+						<span class="badge badge-outline">{{ $exam->week?->title }}</span>
+						<span class="text-xs text-base-content/50">{{ $exam->week?->semester?->name }}</span>
+					</div>
 					<div class="flex justify-between">
 						<span class="text-sm text-base-content/70">{{ __('lang.questions') }}</span>
 						<span class="font-bold">{{ $exam->questions_count }}</span>

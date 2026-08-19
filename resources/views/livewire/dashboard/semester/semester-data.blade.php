@@ -51,13 +51,22 @@
 								<div class="flex gap-2 justify-center">
 									@can('edit_semester')
 										<livewire:dashboard.semester.update-semester :semester="$semester" :all_grades="$all_grades" :key="\Illuminate\Support\Str::random(10)"/>
-										<x-button
-											icon="{{ $semester->is_active ? 'o-lock-closed' : 'o-lock-open' }}"
-											class="btn-sm btn-ghost {{ $semester->is_active ? 'text-warning' : 'text-success' }}"
-											wire:click="toggleActive({{ $semester->id }})"
-											@if($semester->is_active) wire:confirm="هل أنت متأكد من الإلغاء؟ سيتم إلغاء تفعيل كافة الأسابيع والتدريبات المرتبطة بهذا الفصل الدراسي تلقائياً" @endif
-											tooltip="{{ $semester->is_active ? __('lang.deactivate') : __('lang.activate') }}"
-										/>
+										@if($semester->is_active)
+											<x-button
+												icon="o-lock-closed"
+												class="btn-sm btn-ghost text-warning"
+												wire:click="toggleActive({{ $semester->id }})"
+												wire:confirm="عند الغاء تفعيل الفصل الدراسي ({{ $semester->name }}) سوف يتم الغاء تفعيل كافة الاسابيع الدراسيه التابعة له والتدريبات والامتحانات كذلك. هل أنت متأكد من الإلغاء؟"
+												tooltip="{{ __('lang.deactivate') }}"
+											/>
+										@else
+											<x-button
+												icon="o-lock-open"
+												class="btn-sm btn-ghost text-success"
+												wire:click="toggleActive({{ $semester->id }})"
+												tooltip="{{ __('lang.activate') }}"
+											/>
+										@endif
 									@endcan
 									@can('delete_semester')
 										<x-button icon="o-trash" class="btn-sm btn-ghost text-error"

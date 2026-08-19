@@ -797,5 +797,6 @@ return [
     'joined_at' => 'Joined At',
     'filter_by' => 'Filter By',
 
-];
 
+    'account_pending_review' => 'Sorry, your account is still under review and has not been activated yet.',
+];

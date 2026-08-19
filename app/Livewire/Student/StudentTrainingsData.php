@@ -17,6 +17,7 @@ class StudentTrainingsData extends Component
     use WithPagination;
 
     public string $search = '';
+    public $selectedWeek = '';
 
     public function placeholder(): View
     {
@@ -40,13 +41,27 @@ class StudentTrainingsData extends Component
         $user = Auth::user();
         $gradeId = $user->grade_id;
 
-        $trainings = Training::whereHas('week', function ($query) use ($gradeId) {
+        $activeSemester = \App\Models\Semester::where('grade_id', $gradeId)
+            ->where('is_active', true)
+            ->first();
+
+        $weeks = [];
+        if ($activeSemester) {
+            $weeks = \App\Models\Week::where('semester_id', $activeSemester->id)->get();
+        }
+
+        $trainingsQuery = Training::whereHas('week', function ($query) use ($gradeId) {
             $query->whereHas('semester', function ($q) use ($gradeId) {
                 $q->where('grade_id', $gradeId);
             });
-        })
-        ->with('week.semester')
-        ->where('is_published', true)
+        });
+
+        if (!empty($this->selectedWeek)) {
+            $trainingsQuery->where('week_id', $this->selectedWeek);
+        }
+
+        $trainings = $trainingsQuery->with('week.semester')
+        ->where('is_active', true)
         ->when($this->search, function ($query) {
             $query->where('title', 'like', '%' . $this->search . '%')
                   ->orWhere('description', 'like', '%' . $this->search . '%');
@@ -54,6 +69,6 @@ class StudentTrainingsData extends Component
         ->latest()
         ->paginate(12);
 
-        return view('livewire.student.student-trainings-data', compact('trainings'));
+        return view('livewire.student.student-trainings-data', compact('trainings', 'weeks'));
     }
 }

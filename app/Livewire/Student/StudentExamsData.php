@@ -16,6 +16,8 @@ class StudentExamsData extends Component
 {
     use WithPagination;
 
+    public $selectedWeek = '';
+
     public function placeholder(): View
     {
         return view('livewire.placeholders.page-loading');
@@ -38,18 +40,32 @@ class StudentExamsData extends Component
         $user = Auth::user();
         $gradeId = $user->grade_id;
 
-        $exams = Exam::whereHas('week', function ($query) use ($gradeId) {
+        $activeSemester = \App\Models\Semester::where('grade_id', $gradeId)
+            ->where('is_active', true)
+            ->first();
+
+        $weeks = [];
+        if ($activeSemester) {
+            $weeks = \App\Models\Week::where('semester_id', $activeSemester->id)->get();
+        }
+
+        $examsQuery = Exam::whereHas('week', function ($query) use ($gradeId) {
             $query->whereHas('semester', function ($q) use ($gradeId) {
                 $q->where('grade_id', $gradeId);
             });
-        })
-        ->with(['week.semester', 'attempts' => function($q) use ($user) {
+        });
+
+        if (!empty($this->selectedWeek)) {
+            $examsQuery->where('week_id', $this->selectedWeek);
+        }
+
+        $exams = $examsQuery->with(['week.semester', 'attempts' => function($q) use ($user) {
             $q->where('user_id', $user->id);
         }])
         ->withCount('questions')
         ->latest()
         ->paginate(12);
 
-        return view('livewire.student.student-exams-data', compact('exams'));
+        return view('livewire.student.student-exams-data', compact('exams', 'weeks'));
     }
 }

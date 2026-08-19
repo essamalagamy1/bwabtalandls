@@ -22,7 +22,7 @@
 						<th class="text-center">#</th>
 						<th class="text-center">{{ __('lang.title') }}</th>
 						<th class="text-center">{{ __('lang.order') }}</th>
-						<th class="text-center">{{ __('lang.semester') }}</th>
+						<th class="text-center">{{ __('lang.academic_path') ?? 'المسار الأكاديمي' }}</th>
 						<th class="text-center">{{ __('lang.start_date') }}</th>
 						<th class="text-center">{{ __('lang.end_date') }}</th>
 						<th class="text-center">{{ __('lang.trainings') }}</th>
@@ -37,7 +37,15 @@
 							<th class="text-center">{{ $weeks->firstItem() + $loop->index }}</th>
 							<td class="text-nowrap">{{ $week->title }}</td>
 							<td class="text-center"><x-badge value="{{ $week->order }}" class="badge-neutral"/></td>
-							<td class="text-center text-nowrap">{{ $week->semester?->name ?? '-' }}</td>
+							<td class="text-center text-nowrap">
+								<div class="font-bold">{{ $week->semester?->name ?? '-' }}</div>
+								@if($week->semester)
+									<div class="text-xs text-base-content/70 mt-1">
+										{{ $week->semester->grade?->stage?->name }} - 
+										{{ $week->semester->grade?->name }}
+									</div>
+								@endif
+							</td>
 							<td class="text-center text-nowrap">{{ $week->start_date?->format('Y-m-d') ?? '-' }}</td>
 							<td class="text-center text-nowrap">{{ $week->end_date?->format('Y-m-d') ?? '-' }}</td>
 							<td class="text-center"><x-badge value="{{ $week->trainings_count }}" class="badge-info"/></td>
@@ -59,13 +67,22 @@
 									@endcan
 									@can('edit_week')
 										<livewire:dashboard.week.update-week :week="$week" :all_semesters="$all_semesters" :key="\Illuminate\Support\Str::random(10)"/>
-										<x-button
-											icon="{{ $week->is_active ? 'o-lock-closed' : 'o-lock-open' }}"
-											class="btn-sm btn-ghost {{ $week->is_active ? 'text-warning' : 'text-success' }}"
-											wire:click="toggleActive({{ $week->id }})"
-											@if($week->is_active) wire:confirm="هل أنت متأكد من الإلغاء؟ سيتم إلغاء تفعيل كافة التدريبات المرتبطة بهذا الأسبوع تلقائياً" @endif
-											tooltip="{{ $week->is_active ? __('lang.deactivate') : __('lang.activate') }}"
-										/>
+										@if($week->is_active)
+											<x-button
+												icon="o-lock-closed"
+												class="btn-sm btn-ghost text-warning"
+												wire:click="toggleActive({{ $week->id }})"
+												wire:confirm="عند الغاء تفعيل الاسبوع ({{ $week->title }}) سوف يتم الغاء تفعيل كافة التدريبات والامتحانات المرتبطة به. هل أنت متأكد من الإلغاء؟"
+												tooltip="{{ __('lang.deactivate') }}"
+											/>
+										@else
+											<x-button
+												icon="o-lock-open"
+												class="btn-sm btn-ghost text-success"
+												wire:click="toggleActive({{ $week->id }})"
+												tooltip="{{ __('lang.activate') }}"
+											/>
+										@endif
 									@endcan
 									@can('delete_week')
 										<x-button icon="o-trash" class="btn-sm btn-ghost text-error"

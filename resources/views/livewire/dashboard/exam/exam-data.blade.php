@@ -8,7 +8,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_title" placeholder="{{ __('lang.search') }}..." clearable/>
 			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[['id' => '1', 'name' => __('lang.active')], ['id' => '0', 'name' => __('lang.inactive')]]" option-value="id" option-label="name" placeholder="{{ __('lang.all') }}"/>
@@ -20,7 +20,7 @@
 					<tr>
 						<th class="text-center">#</th>
 						<th class="text-center">{{ __('lang.title') }}</th>
-						<th class="text-center">{{ __('lang.week') }}</th>
+						<th class="text-center">{{ __('lang.academic_path') ?? 'المسار الأكاديمي' }}</th>
 						<th class="text-center">{{ __('lang.duration_minutes') }}</th>
 						<th class="text-center">{{ __('lang.passing_score') }}</th>
 						<th class="text-center">{{ __('lang.questions') }}</th>
@@ -33,7 +33,16 @@
 						<tr class="bg-base-200">
 							<th class="text-center">{{ $exams->firstItem() + $loop->index }}</th>
 							<td class="text-nowrap">{{ $exam->title }}</td>
-							<td class="text-center text-nowrap">{{ $exam->week?->title ?? '-' }}</td>
+							<td class="text-center text-nowrap">
+								<div class="font-bold">{{ $exam->week?->title ?? '-' }}</div>
+								@if($exam->week)
+									<div class="text-xs text-base-content/70 mt-1">
+										{{ $exam->week->semester?->grade?->stage?->name }} - 
+										{{ $exam->week->semester?->grade?->name }} - 
+										{{ $exam->week->semester?->name }}
+									</div>
+								@endif
+							</td>
 							<td class="text-center"><x-badge value="{{ $exam->duration_minutes }}" class="badge-neutral"/></td>
 							<td class="text-center"><x-badge value="{{ $exam->passing_score }}%" class="badge-info"/></td>
 							<td class="text-center"><x-badge value="{{ $exam->questions_count }}" class="badge-warning"/></td>

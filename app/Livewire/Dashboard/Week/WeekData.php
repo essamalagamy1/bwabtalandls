@@ -67,7 +67,14 @@ class WeekData extends Component
     {
         $this->authorize('edit_week');
         $week = Week::findOrFail($id);
-        $week->update(['is_active' => !$week->is_active]);
+        $newStatus = !$week->is_active;
+        $week->update(['is_active' => $newStatus]);
+        
+        if (!$newStatus) {
+            \App\Models\Training::where('week_id', $week->id)->update(['is_active' => false]);
+            \App\Models\Exam::where('week_id', $week->id)->update(['is_active' => false]);
+        }
+
         $this->success(__('lang.updated_successfully', ['attribute' => __('lang.week')]));
         $this->dispatch('render')->component(WeekData::class);
     }

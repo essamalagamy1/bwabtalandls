@@ -13,6 +13,7 @@ use Livewire\Component;
 class StudentDashboard extends Component
 {
     public array $progressChart = [];
+    public array $statusChart = [];
 
     public function placeholder(): View
     {
@@ -47,7 +48,7 @@ class StudentDashboard extends Component
             });
         })
         ->with('week.semester')
-        ->where('is_published', true)
+        ->where('is_active', true)
         ->latest()
         ->get();
 
@@ -56,6 +57,10 @@ class StudentDashboard extends Component
         
         $totalExamsTaken = $allAttempts->count();
         $averageScore = $totalExamsTaken > 0 ? $allAttempts->avg('total_score') : 0;
+        
+        $passedExams = $allAttempts->where('status', 'passed')->count();
+        $failedExams = $allAttempts->where('status', 'failed')->count();
+        $pendingExams = $allAttempts->where('status', null)->count();
         
         // Progress Chart Data
         $this->progressChart = [
@@ -73,6 +78,19 @@ class StudentDashboard extends Component
             ]
         ];
 
-        return view('livewire.student.student-dashboard', compact('user', 'activeSemester', 'exams', 'trainings', 'totalExamsTaken', 'averageScore'));
+        $this->statusChart = [
+            'type' => 'doughnut',
+            'data' => [
+                'labels' => [__('lang.passed') ?? 'ناجح', __('lang.failed') ?? 'راسب', __('lang.in_progress') ?? 'قيد الإجراء'],
+                'datasets' => [
+                    [
+                        'data' => [$passedExams, $failedExams, $pendingExams],
+                        'backgroundColor' => ['#10b981', '#ef4444', '#f59e0b'],
+                    ]
+                ]
+            ]
+        ];
+
+        return view('livewire.student.student-dashboard', compact('user', 'activeSemester', 'exams', 'trainings', 'totalExamsTaken', 'averageScore', 'passedExams', 'failedExams'));
     }
 }

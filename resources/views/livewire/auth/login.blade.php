@@ -37,6 +37,16 @@ new #[Layout('components.layouts.auth', ['title' => 'login'])] class extends Com
             ]);
         }
 
+        if (Auth::user()->status === 'pending') {
+            Auth::logout();
+            
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => __('lang.account_pending_review'),
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 

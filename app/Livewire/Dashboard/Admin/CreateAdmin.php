@@ -62,6 +62,7 @@ class CreateAdmin extends Component
             'password' => Hash::make($this->password),
             'phone' => $this->phone,
             'phone_key' => $this->phone_key,
+            'email_verified_at' => now(),
         ]);
         if ($this->image) {
             $user->addMedia($this->image->getRealPath())->toMediaCollection('image');

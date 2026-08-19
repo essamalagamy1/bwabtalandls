@@ -47,6 +47,7 @@ new #[Layout('components.layouts.auth', ['title' => 'register'])] class extends 
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['status'] = 'pending';
+        $validated['email_verified_at'] = now();
 
         $user = User::create($validated);
         $user->assignRole('student');

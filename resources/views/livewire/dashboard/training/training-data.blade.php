@@ -8,7 +8,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_title" placeholder="{{ __('lang.search') }}..." clearable/>
 			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-select label="{{ __('lang.type') }}" wire:model.live="search_type" :options="[
@@ -32,7 +32,7 @@
 						<th class="text-center">#</th>
 						<th class="text-center">{{ __('lang.title') }}</th>
 						<th class="text-center">{{ __('lang.type') }}</th>
-						<th class="text-center">{{ __('lang.week') }}</th>
+						<th class="text-center">{{ __('lang.academic_path') ?? 'المسار الأكاديمي' }}</th>
 						<th class="text-center">{{ __('lang.status') }}</th>
 						<th class="text-center">{{ __('lang.action') }}</th>
 					</tr>
@@ -42,8 +42,17 @@
 						<tr class="bg-base-200">
 							<th class="text-center">{{ $trainings->firstItem() + $loop->index }}</th>
 							<td class="text-nowrap">{{ $training->title }}</td>
-							<td class="text-center"><x-badge value="{{ $training->type }}" class="badge-neutral"/></td>
-							<td class="text-center text-nowrap">{{ $training->week?->title ?? '-' }}</td>
+							<td class="text-center"><x-badge value="{{ __('lang.'.$training->type) }}" class="badge-neutral"/></td>
+							<td class="text-center text-nowrap">
+                                                                <div class="font-bold">{{ $training->week?->title ?? '-' }}</div>
+                                                                @if($training->week)
+                                                                        <div class="text-xs text-base-content/70 mt-1">
+                                                                                {{ $training->week->semester?->grade?->stage?->name }} - 
+                                                                                {{ $training->week->semester?->grade?->name }} - 
+                                                                                {{ $training->week->semester?->name }}
+                                                                        </div>
+                                                                @endif
+                                                        </td>
 							<td class="text-center">
 								<x-toggle wire:model.live="is_active" wire:click="toggleActive({{ $training->id }})" :checked="$training->is_active" class="toggle-primary toggle-sm" />
 							</td>

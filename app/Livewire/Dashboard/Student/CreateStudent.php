@@ -13,15 +13,25 @@ class CreateStudent extends Component
     use Toast, WithFileUploads;
 
     public bool $modalAdd = false;
+
     public $name;
+
     public $email;
+
     public $password;
+
     public $password_confirmation;
+
     public $phone;
+
     public $phone_key;
+
     public $grade_id;
+
     public $status = 'active';
+
     public $image;
+
     public $all_grades;
 
     public function render()
@@ -32,14 +42,14 @@ class CreateStudent extends Component
     public function rules(): array
     {
         return [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|max:255|unique:users,email',
-            'password'  => 'required|string|min:8|confirmed',
-            'phone'     => 'required|string|max:20',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'phone' => 'required|string|max:20',
             'phone_key' => 'required|string|max:5',
-            'grade_id'  => 'required|exists:grades,id',
-            'status'    => 'required|in:pending,active,inactive',
-            'image'     => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+            'grade_id' => 'required|exists:grades,id',
+            'status' => 'required|in:pending,active,inactive',
+            'image' => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
         ];
     }
 
@@ -49,13 +59,14 @@ class CreateStudent extends Component
         $this->validate();
 
         $student = User::create([
-            'name'      => $this->name,
-            'email'     => $this->email,
-            'password'  => Hash::make($this->password),
-            'phone'     => $this->phone,
+            'name' => $this->name,
+            'email' => $this->email,
+            'password' => Hash::make($this->password),
+            'phone' => $this->phone,
             'phone_key' => $this->phone_key,
-            'grade_id'  => $this->grade_id,
-            'status'    => $this->status,
+            'grade_id' => $this->grade_id,
+            'status' => $this->status,
+            'email_verified_at' => now(),
         ]);
 
         $student->assignRole('student');

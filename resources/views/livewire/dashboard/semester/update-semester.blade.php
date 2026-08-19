@@ -8,7 +8,7 @@
 				<x-datepicker label="{{ __('lang.start_date') }}" wire:model="start_date" icon="o-calendar"/>
 				<x-datepicker label="{{ __('lang.end_date') }}" wire:model="end_date" icon="o-calendar"/>
 			</div>
-			<x-toggle label="{{ __('lang.active') }}" wire:model="is_active"/>
+			{{-- <x-toggle label="{{ __('lang.active') }}" wire:model="is_active"/> --}}
 			<x-slot:actions>
 				<x-button label="{{ __('lang.cancel') }}" @click="$wire.modalUpdate = false"/>
 				<x-button label="{{ __('lang.update') }}" class="btn btn-primary" wire:loading.attr="disabled" type="submit" spinner="saveUpdate"/>
