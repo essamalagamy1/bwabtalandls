@@ -84,10 +84,10 @@
 	@endcanany
 
 	{{-- إعدادات النظام --}}
-	@can('show_site_setting')
+	{{-- @can('show_site_setting')
 		<x-menu-title title="{{ __('lang.system_settings') }}" />
 		<x-menu-item  title="{{ __('lang.settings') }}" icon-classes="text-primary" icon="o-cog-6-tooth" link="{{ route('site-settings') }}" />
-	@endcan
+	@endcan --}}
 
 	{{-- <x-menu-separator /> --}}
 
