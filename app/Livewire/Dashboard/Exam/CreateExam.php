@@ -14,12 +14,48 @@ class CreateExam extends Component
     public bool $modalAdd = false;
     public $title;
     public $description;
-    public $week_id;
+    public $stage_id;
+    public $grade_id;
     public $semester_id;
+    public $week_id;
+
     public $duration_minutes;
     public $passing_score;
     public $is_active = true;
-    public $all_weeks;
+    
+    public $all_stages = [];
+    public $all_grades = [];
+    public $all_semesters = [];
+    public $all_weeks = [];
+
+    public function mount()
+    {
+        $this->all_stages = \App\Models\Stage::where('is_active', true)->get();
+    }
+
+    public function updatedStageId($stage_id)
+    {
+        $this->grade_id = null;
+        $this->semester_id = null;
+        $this->week_id = null;
+        $this->all_grades = \App\Models\Grade::where('stage_id', $stage_id)->where('is_active', true)->get();
+        $this->all_semesters = [];
+        $this->all_weeks = [];
+    }
+
+    public function updatedGradeId($grade_id)
+    {
+        $this->semester_id = null;
+        $this->week_id = null;
+        $this->all_semesters = \App\Models\Semester::where('grade_id', $grade_id)->where('is_active', true)->get();
+        $this->all_weeks = [];
+    }
+
+    public function updatedSemesterId($semester_id)
+    {
+        $this->week_id = null;
+        $this->all_weeks = \App\Models\Week::where('semester_id', $semester_id)->where('is_active', true)->get();
+    }
 
     public function render()
     {
@@ -68,7 +104,9 @@ class CreateExam extends Component
 
     public function resetData(): void
     {
-        $this->reset(['title', 'description', 'week_id', 'semester_id', 'duration_minutes', 'passing_score', 'is_active']);
+        $this->reset(['title', 'description', 'stage_id', 'grade_id', 'week_id', 'semester_id', 'duration_minutes', 'passing_score', 'is_active']);
+        $this->all_grades = [];
+        $this->all_semesters = [];
         $this->resetErrorBag();
         $this->resetValidation();
     }

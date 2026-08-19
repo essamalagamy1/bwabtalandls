@@ -16,12 +16,19 @@ class UpdateExam extends Component
     public Exam $exam;
     public $title;
     public $description;
-    public $week_id;
+    public $stage_id;
+    public $grade_id;
     public $semester_id;
+    public $week_id;
+    
     public $duration_minutes;
     public $passing_score;
     public $is_active;
-    public $all_weeks;
+
+    public $all_stages = [];
+    public $all_grades = [];
+    public $all_semesters = [];
+    public $all_weeks = [];
 
     public function mount(): void
     {
@@ -29,9 +36,51 @@ class UpdateExam extends Component
         $this->description      = $this->exam->description;
         $this->week_id          = $this->exam->week_id;
         $this->semester_id      = $this->exam->semester_id;
+        
+        $semester = \App\Models\Semester::with('grade')->find($this->semester_id);
+        if ($semester) {
+            $this->grade_id = $semester->grade_id;
+            $this->stage_id = $semester->grade?->stage_id;
+        }
+
+        $this->all_stages = \App\Models\Stage::where('is_active', true)->get();
+        if ($this->stage_id) {
+            $this->all_grades = \App\Models\Grade::where('stage_id', $this->stage_id)->where('is_active', true)->get();
+        }
+        if ($this->grade_id) {
+            $this->all_semesters = \App\Models\Semester::where('grade_id', $this->grade_id)->where('is_active', true)->get();
+        }
+        if ($this->semester_id) {
+            $this->all_weeks = \App\Models\Week::where('semester_id', $this->semester_id)->where('is_active', true)->get();
+        }
+        
         $this->duration_minutes = $this->exam->duration_minutes;
         $this->passing_score    = $this->exam->passing_score;
         $this->is_active        = $this->exam->is_active;
+    }
+
+    public function updatedStageId($stage_id)
+    {
+        $this->grade_id = null;
+        $this->semester_id = null;
+        $this->week_id = null;
+        $this->all_grades = \App\Models\Grade::where('stage_id', $stage_id)->where('is_active', true)->get();
+        $this->all_semesters = [];
+        $this->all_weeks = [];
+    }
+
+    public function updatedGradeId($grade_id)
+    {
+        $this->semester_id = null;
+        $this->week_id = null;
+        $this->all_semesters = \App\Models\Semester::where('grade_id', $grade_id)->where('is_active', true)->get();
+        $this->all_weeks = [];
+    }
+
+    public function updatedSemesterId($semester_id)
+    {
+        $this->week_id = null;
+        $this->all_weeks = \App\Models\Week::where('semester_id', $semester_id)->where('is_active', true)->get();
     }
 
     public function rules(): array

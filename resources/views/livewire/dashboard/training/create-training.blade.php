@@ -13,7 +13,12 @@
 			@if(in_array($type, ['link', 'video']))
 				<x-input label="{{ __('lang.url') }}" wire:model="url" placeholder="https://..."/>
 			@endif
-			<x-choices-offline label="{{ __('lang.week') }}" wire:model="week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable/>
+            <div class="grid grid-cols-2 gap-4">
+                <x-select label="{{ __('lang.stage') }}" wire:model.live="stage_id" :options="$all_stages" option-value="id" option-label="name" placeholder="{{ __('lang.select') }}..." />
+                <x-select label="{{ __('lang.grade') }}" wire:model.live="grade_id" :options="$all_grades" option-value="id" option-label="name" placeholder="{{ __('lang.select') }}..." />
+                <x-select label="{{ __('lang.semester') }}" wire:model.live="semester_id" :options="$all_semesters" option-value="id" option-label="name" placeholder="{{ __('lang.select') }}..." />
+                <x-select label="{{ __('lang.week') }}" wire:model.live="week_id" :options="$all_weeks" option-value="id" option-label="title" placeholder="{{ __('lang.select') }}..." />
+            </div>
 			<x-toggle label="{{ __('lang.is_active') }}" wire:model="is_active" class="mt-4" />
 			@if(in_array($type, ['pdf', 'file']))
 				<div>

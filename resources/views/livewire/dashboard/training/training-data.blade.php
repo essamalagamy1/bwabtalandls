@@ -2,7 +2,7 @@
 	<x-card title="{{ __('lang.trainings') }}" shadow class="mb-3">
 		<x-slot:menu>
 			@can('create_training')
-				<livewire:dashboard.training.create-training :all_weeks="$all_weeks" :all_semesters="[]" wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
+				<livewire:dashboard.training.create-training wire:key="create-training-modal"/>
 			@endcan
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
@@ -63,7 +63,7 @@
 							<td>
 								<div class="flex gap-2 justify-center">
 									@can('edit_training')
-										<livewire:dashboard.training.update-training :training="$training" :all_weeks="$all_weeks" :all_semesters="[]" :key="\Illuminate\Support\Str::random(10)"/>
+										<livewire:dashboard.training.update-training :training="$training"  :key="\Illuminate\Support\Str::random(10)"/>
 										@if($training->is_active)
 											<x-button
 												icon="o-lock-closed"

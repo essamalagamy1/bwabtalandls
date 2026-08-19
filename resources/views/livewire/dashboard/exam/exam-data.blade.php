@@ -2,7 +2,7 @@
 	<x-card title="{{ __('lang.exams') }}" shadow class="mb-3">
 		<x-slot:menu>
 			@can('create_exam')
-				<livewire:dashboard.exam.create-exam :all_weeks="$all_weeks" wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
+				<livewire:dashboard.exam.create-exam wire:key="create-exam-modal"/>
 			@endcan
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
@@ -62,7 +62,7 @@
 										<x-button icon="o-users" class="btn-sm btn-ghost text-primary" link="{{ route('exam_attempts', ['search_exam_id' => $exam->id]) }}" tooltip="{{ __('lang.exam_attempts_mng') }}"/>
 									@endcan
 									@can('edit_exam')
-										<livewire:dashboard.exam.update-exam :exam="$exam" :all_weeks="$all_weeks" :key="\Illuminate\Support\Str::random(10)"/>
+										<livewire:dashboard.exam.update-exam :exam="$exam" wire:key="update-exam-{{ $exam->id }}"/>
 										@if($exam->is_active)
 											<x-button
 												icon="o-lock-closed"
