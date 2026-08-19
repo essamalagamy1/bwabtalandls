@@ -1,9 +1,8 @@
 'use strict';
 
 // --- >> الجزء الخاص بـ PWA (الكاشينج) << ---
-const CACHE_NAME = 'app-cache-v1';
+const CACHE_NAME = 'app-cache-v2';
 const urlsToCache = [
-    '/',
     '/offline.html',
 ];
 
@@ -20,19 +19,29 @@ self.addEventListener('activate', event => {
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) return caches.delete(cacheName);
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        return caches.delete(cacheName);
+                    }
                 })
             );
         })
     );
+    // تفعيل السيرفيس وركر فورا لجميع الصفحات المفتوحة
+    return self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
+    
+    // تجاهل الطلبات التي لا تبدأ بـ http/https (مثل إضافات المتصفح)
+    if (!event.request.url.startsWith('http')) return;
+
     event.respondWith(
-        caches.match(event.request).then(cachedResponse => {
-            if (cachedResponse) return cachedResponse;
-            return fetch(event.request).catch(() => caches.match('/offline.html'));
+        fetch(event.request).catch(() => {
+            // في حالة انقطاع الإنترنت وكان الطلب لصفحة HTML، نعرض صفحة offline
+            if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
+                return caches.match('/offline.html');
+            }
         })
     );
 });
