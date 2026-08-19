@@ -39,6 +39,8 @@ class ExamData extends Component
     public $search_semester_id;
     #[Url]
     public $search_week_id;
+    
+    public $search_is_active = '';
 
     public function updatedSearchStageId($value)
     {
@@ -157,6 +159,7 @@ class ExamData extends Component
             ->when($this->search_grade_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($q2) => $q2->where('id', $this->search_grade_id)))
             ->when($this->search_semester_id, fn(Builder $q) => $q->whereHas('week.semester', fn($q2) => $q2->where('id', $this->search_semester_id)))
             ->when($this->search_week_id, fn(Builder $q) => $q->where('week_id', $this->search_week_id))
+            ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
             ->with(['week.semester'])
             ->withCount('questions')
             ->latest()
@@ -170,5 +173,21 @@ class ExamData extends Component
         $this->authorize('delete_exam');
         Exam::findOrFail($id)->delete();
         $this->success(__('lang.deleted_successfully', ['attribute' => __('lang.exam')]));
+    }
+
+    public function toggleActive($id): void
+    {
+        $this->authorize('edit_exam');
+        $exam = Exam::findOrFail($id);
+        $exam->update(['is_active' => !$exam->is_active]);
+
+        if ($exam->is_active) {
+            $gradeId = \App\Models\Semester::find($exam->semester_id)?->grade_id;
+            if ($gradeId) {
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $exam->title, 'exam');
+            }
+        }
+
+        $this->success(__('lang.updated_successfully', ['attribute' => __('lang.exam')]));
     }
 }

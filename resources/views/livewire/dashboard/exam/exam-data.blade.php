@@ -11,6 +11,7 @@
 			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[['id' => '1', 'name' => __('lang.active')], ['id' => '0', 'name' => __('lang.inactive')]]" option-value="id" option-label="name" placeholder="{{ __('lang.all') }}"/>
 		</div>
 		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 			<div class="overflow-x-auto">
@@ -23,7 +24,7 @@
 						<th class="text-center">{{ __('lang.duration_minutes') }}</th>
 						<th class="text-center">{{ __('lang.passing_score') }}</th>
 						<th class="text-center">{{ __('lang.questions') }}</th>
-						<th class="text-center">{{ __('lang.assignment_date') }}</th>
+						<th class="text-center">{{ __('lang.status') }}</th>
 						<th class="text-center">{{ __('lang.action') }}</th>
 					</tr>
 					</thead>
@@ -36,7 +37,9 @@
 							<td class="text-center"><x-badge value="{{ $exam->duration_minutes }}" class="badge-neutral"/></td>
 							<td class="text-center"><x-badge value="{{ $exam->passing_score }}%" class="badge-info"/></td>
 							<td class="text-center"><x-badge value="{{ $exam->questions_count }}" class="badge-warning"/></td>
-							<td class="text-center text-nowrap">{{ formatDate($exam->assignment_date, true) ?? '-' }}</td>
+							<td class="text-center">
+								<x-toggle wire:model.live="is_active" wire:click="toggleActive({{ $exam->id }})" :checked="$exam->is_active" class="toggle-primary toggle-sm" />
+							</td>
 							<td>
 								<div class="flex gap-2 justify-center">
 									@can('show_question')

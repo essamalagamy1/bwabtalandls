@@ -84,16 +84,22 @@ class Dashboard extends Component
 
     // ─── Filtered Query Builders ───────────────────────────────────────
 
-    private function filteredStudentQuery(): Builder
+    private function baseFilteredStudentQuery(): Builder
     {
         return User::role('student')
             ->when($this->stage_id, fn(Builder $q) => $q->whereHas('grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
             ->when($this->grade_id, fn(Builder $q) => $q->where('grade_id', $this->grade_id));
     }
 
+    private function filteredStudentQuery(): Builder
+    {
+        return $this->baseFilteredStudentQuery()->where('status', 'active');
+    }
+
     private function filteredGradeQuery(): Builder
     {
         return Grade::query()
+            ->where('is_active', true)
             ->when($this->stage_id, fn(Builder $q) => $q->where('stage_id', $this->stage_id))
             ->when($this->grade_id, fn(Builder $q) => $q->where('id', $this->grade_id));
     }
@@ -101,6 +107,7 @@ class Dashboard extends Component
     private function filteredSemesterQuery(): Builder
     {
         return Semester::query()
+            ->where('is_active', true)
             ->when($this->stage_id, fn(Builder $q) => $q->whereHas('grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
             ->when($this->grade_id, fn(Builder $q) => $q->where('grade_id', $this->grade_id))
             ->when($this->semester_id, fn(Builder $q) => $q->where('id', $this->semester_id));
@@ -109,6 +116,7 @@ class Dashboard extends Component
     private function filteredWeekQuery(): Builder
     {
         return Week::query()
+            ->where('is_active', true)
             ->when($this->stage_id, fn(Builder $q) => $q->whereHas('semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
             ->when($this->grade_id, fn(Builder $q) => $q->whereHas('semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
             ->when($this->semester_id, fn(Builder $q) => $q->where('semester_id', $this->semester_id));
@@ -117,6 +125,8 @@ class Dashboard extends Component
     private function filteredExamQuery(): Builder
     {
         return Exam::query()
+            ->where('is_active', true)
+            ->whereHas('week', fn($q) => $q->where('is_active', true))
             ->when($this->stage_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
             ->when($this->grade_id, fn(Builder $q) => $q->whereHas('week.semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
             ->when($this->semester_id, fn(Builder $q) => $q->whereHas('week', fn($wq) => $wq->where('semester_id', $this->semester_id)));
@@ -125,6 +135,8 @@ class Dashboard extends Component
     private function filteredTrainingQuery(): Builder
     {
         return Training::query()
+            ->where('is_active', true)
+            ->whereHas('week', fn($q) => $q->where('is_active', true))
             ->when($this->stage_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
             ->when($this->grade_id, fn(Builder $q) => $q->whereHas('week.semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
             ->when($this->semester_id, fn(Builder $q) => $q->whereHas('week', fn($wq) => $wq->where('semester_id', $this->semester_id)));
@@ -133,6 +145,7 @@ class Dashboard extends Component
     private function filteredQuestionQuery(): Builder
     {
         return Question::query()
+            ->whereHas('exam', fn($q) => $q->where('is_active', true)->whereHas('week', fn($wq) => $wq->where('is_active', true)))
             ->when($this->stage_id, fn(Builder $q) => $q->whereHas('exam.week.semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
             ->when($this->grade_id, fn(Builder $q) => $q->whereHas('exam.week.semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
             ->when($this->semester_id, fn(Builder $q) => $q->whereHas('exam.week', fn($wq) => $wq->where('semester_id', $this->semester_id)));
@@ -141,6 +154,8 @@ class Dashboard extends Component
     private function filteredAttemptQuery(): Builder
     {
         return ExamAttempt::query()
+            ->whereHas('user', fn($q) => $q->where('status', 'active'))
+            ->whereHas('exam', fn($q) => $q->where('is_active', true)->whereHas('week', fn($wq) => $wq->where('is_active', true)))
             ->when($this->stage_id, fn(Builder $q) => $q->whereHas('exam.week.semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
             ->when($this->grade_id, fn(Builder $q) => $q->whereHas('exam.week.semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
             ->when($this->semester_id, fn(Builder $q) => $q->whereHas('exam.week', fn($wq) => $wq->where('semester_id', $this->semester_id)));
@@ -191,9 +206,9 @@ class Dashboard extends Component
 
     private function loadStudentStatusChart(): void
     {
-        $active = (clone $this->filteredStudentQuery())->where('status', 'active')->count();
-        $inactive = (clone $this->filteredStudentQuery())->where('status', 'inactive')->count();
-        $pending = (clone $this->filteredStudentQuery())->where('status', 'pending')->count();
+        $active = (clone $this->baseFilteredStudentQuery())->where('status', 'active')->count();
+        $inactive = (clone $this->baseFilteredStudentQuery())->where('status', 'inactive')->count();
+        $pending = (clone $this->baseFilteredStudentQuery())->where('status', 'pending')->count();
 
         $this->studentStatusChart = [
             'type' => 'doughnut',
@@ -279,9 +294,10 @@ class Dashboard extends Component
     public function render(): View
     {
         // Stats row 1
-        $totalStudents = (clone $this->filteredStudentQuery())->count();
-        $activeStudents = (clone $this->filteredStudentQuery())->where('status', 'active')->count();
-        $totalStages = Stage::when($this->stage_id, fn($q) => $q->where('id', $this->stage_id))->count();
+        $totalStudents = (clone $this->baseFilteredStudentQuery())->count();
+        $activeStudents = (clone $this->baseFilteredStudentQuery())->where('status', 'active')->count();
+        $inactiveStudents = (clone $this->baseFilteredStudentQuery())->whereIn('status', ['inactive', 'pending'])->count();
+        $totalStages = Stage::when($this->stage_id, fn($q) => $q->where('id', $this->stage_id))->where('is_active', true)->count();
         $totalGrades = (clone $this->filteredGradeQuery())->count();
 
         // Stats row 2
@@ -307,7 +323,7 @@ class Dashboard extends Component
             ->get();
 
         return view('livewire.dashboard.dashboard', compact(
-            'totalStudents', 'activeStudents', 'totalStages', 'totalGrades',
+            'totalStudents', 'activeStudents', 'inactiveStudents', 'totalStages', 'totalGrades',
             'totalSemesters', 'totalWeeks', 'totalTrainings', 'totalExams',
             'totalQuestions', 'totalAttempts', 'avgScore', 'passRate', 'totalInstructors',
             'latestStudents',

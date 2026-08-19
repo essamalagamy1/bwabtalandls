@@ -18,8 +18,12 @@ class ExamAttemptSeeder extends Seeder
 
         if ($students->count() === 0) {
             // أنشئ بعض الطلاب الوهميين
-            $students = User::factory()->count(10)->create()->each(function ($user) {
+            $grades = \App\Models\Grade::pluck('id');
+            $students = User::factory()->count(10)->create()->each(function ($user) use ($grades) {
                 $user->assignRole('student');
+                if ($grades->isNotEmpty()) {
+                    $user->update(['grade_id' => $grades->random()]);
+                }
             });
         }
 

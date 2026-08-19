@@ -5,12 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Exam extends Model implements HasMedia
+class Exam extends Model
 {
-    use HasFactory, SoftDeletes, InteractsWithMedia;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'week_id',
@@ -19,11 +17,11 @@ class Exam extends Model implements HasMedia
         'description',
         'duration_minutes',
         'passing_score',
-        'assignment_date',
+        'is_active',
     ];
 
     protected $casts = [
-        'assignment_date' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     public function week()
@@ -46,8 +44,5 @@ class Exam extends Model implements HasMedia
         return $this->hasMany(ExamAttempt::class);
     }
 
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('image')->singleFile();
     }
 }

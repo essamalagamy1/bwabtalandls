@@ -63,7 +63,9 @@ class ExamReports extends Component
 
     private function getFilteredExamQuery()
     {
-        $query = Exam::query();
+        $query = Exam::query()
+            ->where('is_active', true)
+            ->whereHas('week', fn($q) => $q->where('is_active', true));
 
         if ($this->stage_id) {
             $query->whereHas('week.semester.grade', function($q) {
@@ -86,7 +88,9 @@ class ExamReports extends Component
 
     private function getFilteredAttemptQuery()
     {
-        $query = ExamAttempt::query();
+        $query = ExamAttempt::query()
+            ->whereHas('user', fn($q) => $q->where('status', 'active'))
+            ->whereHas('exam', fn($q) => $q->where('is_active', true)->whereHas('week', fn($wq) => $wq->where('is_active', true)));
 
         if ($this->stage_id) {
             $query->whereHas('exam.week.semester.grade', function($q) {
@@ -109,7 +113,9 @@ class ExamReports extends Component
 
     private function getFilteredStudentAnswerQuery()
     {
-        $query = StudentAnswer::query();
+        $query = StudentAnswer::query()
+            ->whereHas('attempt.user', fn($q) => $q->where('status', 'active'))
+            ->whereHas('attempt.exam.week', fn($q) => $q->where('is_active', true));
 
         if ($this->stage_id || $this->grade_id || $this->semester_id) {
             $query->whereHas('attempt', function($q) {
@@ -190,9 +196,9 @@ class ExamReports extends Component
             ->take(5)
             ->get();
 
-        $stages = Stage::all();
-        $grades = $this->stage_id ? Grade::where('stage_id', $this->stage_id)->get() : collect();
-        $semesters = $this->grade_id ? Semester::where('grade_id', $this->grade_id)->get() : collect();
+        $stages = Stage::where('is_active', true)->get();
+        $grades = $this->stage_id ? Grade::where('stage_id', $this->stage_id)->where('is_active', true)->get() : collect();
+        $semesters = $this->grade_id ? Semester::where('grade_id', $this->grade_id)->where('is_active', true)->get() : collect();
 
         return view('livewire.dashboard.reports.exam-reports', compact('totalExams', 'totalAttempts', 'hardestQuestions', 'easiestQuestions', 'difficultExams', 'stages', 'grades', 'semesters'));
     }

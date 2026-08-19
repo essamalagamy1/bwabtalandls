@@ -63,7 +63,9 @@ class StudentReports extends Component
 
     private function getFilteredAttemptQuery()
     {
-        $query = ExamAttempt::query();
+        $query = ExamAttempt::query()
+            ->whereHas('user', fn($q) => $q->where('status', 'active'))
+            ->whereHas('exam', fn($q) => $q->where('is_active', true)->whereHas('week', fn($wq) => $wq->where('is_active', true)));
 
         if ($this->stage_id) {
             $query->whereHas('exam.week.semester.grade', function($q) {
@@ -137,7 +139,7 @@ class StudentReports extends Component
         $totalAttempts = (clone $this->getFilteredAttemptQuery())->count();
         $avgScore = (clone $this->getFilteredAttemptQuery())->avg('total_score') ?? 0;
         
-        $topStudents = User::role('student');
+        $topStudents = User::role('student')->where('status', 'active');
         if ($this->stage_id) {
             $topStudents->whereHas('grade', fn($q) => $q->where('stage_id', $this->stage_id));
         }
@@ -167,9 +169,9 @@ class StudentReports extends Component
             ->take(5)
             ->get();
 
-        $stages = Stage::all();
-        $grades = $this->stage_id ? Grade::where('stage_id', $this->stage_id)->get() : collect();
-        $semesters = $this->grade_id ? Semester::where('grade_id', $this->grade_id)->get() : collect();
+        $stages = Stage::where('is_active', true)->get();
+        $grades = $this->stage_id ? Grade::where('stage_id', $this->stage_id)->where('is_active', true)->get() : collect();
+        $semesters = $this->grade_id ? Semester::where('grade_id', $this->grade_id)->where('is_active', true)->get() : collect();
 
         return view('livewire.dashboard.reports.student-reports', compact('totalAttempts', 'avgScore', 'topStudents', 'weakStudents', 'stages', 'grades', 'semesters'));
     }

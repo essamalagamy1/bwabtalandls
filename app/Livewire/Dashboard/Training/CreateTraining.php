@@ -18,8 +18,7 @@ class CreateTraining extends Component
     public $url;
     public $week_id;
     public $semester_id;
-    public $publish_date;
-    public bool $is_published = false;
+    public bool $is_active = true;
     public $training_file;
     public $all_weeks;
     public $all_semesters;
@@ -38,8 +37,7 @@ class CreateTraining extends Component
             'url'           => 'nullable|url',
             'week_id'       => 'required|exists:weeks,id',
             'semester_id'   => 'required|exists:semesters,id',
-            'publish_date'  => 'nullable|date',
-            'is_published'  => 'boolean',
+            'is_active'     => 'boolean',
             'training_file' => 'nullable|file|max:51200',
         ];
     }
@@ -56,14 +54,20 @@ class CreateTraining extends Component
             'url'          => $this->url,
             'week_id'      => $this->week_id,
             'semester_id'  => $this->semester_id,
-            'publish_date' => $this->publish_date,
-            'is_published' => $this->is_published,
+            'is_active'    => $this->is_active,
         ]);
 
         if ($this->training_file) {
             $training->addMedia($this->training_file->getRealPath())
                 ->usingFileName($this->training_file->getClientOriginalName())
                 ->toMediaCollection('training_file');
+        }
+
+        if ($training->is_active) {
+            $gradeId = \App\Models\Semester::find($training->semester_id)?->grade_id;
+            if ($gradeId) {
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $training->title, 'training');
+            }
         }
 
         $this->modalAdd = false;
@@ -73,9 +77,9 @@ class CreateTraining extends Component
 
     public function resetData(): void
     {
-        $this->reset(['title', 'description', 'url', 'week_id', 'semester_id', 'publish_date', 'training_file']);
-        $this->type         = 'video';
-        $this->is_published = false;
+        $this->reset(['title', 'description', 'url', 'week_id', 'semester_id', 'training_file']);
+        $this->type      = 'video';
+        $this->is_active = true;
         $this->resetErrorBag();
         $this->resetValidation();
     }

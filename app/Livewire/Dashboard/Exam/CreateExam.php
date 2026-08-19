@@ -18,8 +18,7 @@ class CreateExam extends Component
     public $semester_id;
     public $duration_minutes;
     public $passing_score;
-    public $assignment_date;
-    public $image;
+    public $is_active = true;
     public $all_weeks;
 
     public function render()
@@ -36,8 +35,7 @@ class CreateExam extends Component
             'semester_id'      => 'required|exists:semesters,id',
             'duration_minutes' => 'required|integer|min:1',
             'passing_score'    => 'required|numeric|min:0|max:100',
-            'assignment_date'  => 'nullable|date',
-            'image'            => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+            'is_active'        => 'boolean',
         ];
     }
 
@@ -53,11 +51,14 @@ class CreateExam extends Component
             'semester_id'      => $this->semester_id,
             'duration_minutes' => $this->duration_minutes,
             'passing_score'    => $this->passing_score,
-            'assignment_date'  => $this->assignment_date,
+            'is_active'        => (bool) $this->is_active,
         ]);
 
-        if ($this->image) {
-            $exam->addMedia($this->image->getRealPath())->toMediaCollection('image');
+        if ($exam->is_active) {
+            $gradeId = \App\Models\Semester::find($exam->semester_id)?->grade_id;
+            if ($gradeId) {
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $exam->title, 'exam');
+            }
         }
 
         $this->modalAdd = false;
@@ -67,7 +68,7 @@ class CreateExam extends Component
 
     public function resetData(): void
     {
-        $this->reset(['title', 'description', 'week_id', 'semester_id', 'duration_minutes', 'passing_score', 'assignment_date', 'image']);
+        $this->reset(['title', 'description', 'week_id', 'semester_id', 'duration_minutes', 'passing_score', 'is_active']);
         $this->resetErrorBag();
         $this->resetValidation();
     }

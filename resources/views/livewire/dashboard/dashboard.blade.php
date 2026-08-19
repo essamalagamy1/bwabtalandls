@@ -39,144 +39,80 @@
 				</div>
 			</x-card>
 
-			{{-- ═══════════════════════ Stats Row 1 ═══════════════════════ --}}
-			<div class="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-4">
+			{{-- ═══════════════════════ Stats Row 1: Students ═══════════════════════ --}}
+			<div class="grid auto-rows-min gap-4 grid-cols-1 md:grid-cols-3">
 				{{-- Total Students --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-indigo-500/10 to-indigo-500/5">
-					<x-stat
-						title="{{ __('lang.total_students') }}"
-						value="{{ $totalStudents }}"
-						icon="o-users"
-						color="text-indigo-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_students') }}" value="{{ $totalStudents }}" icon="o-users" color="text-indigo-500" class="!border-0" />
 				</div>
 
 				{{-- Active Students --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-emerald-500/10 to-emerald-500/5">
-					<x-stat
-						title="{{ __('lang.active_students') }}"
-						value="{{ $activeStudents }}"
-						icon="o-user-group"
-						color="text-emerald-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.active_students') }}" value="{{ $activeStudents }}" icon="o-user-group" color="text-emerald-500" class="!border-0" />
 				</div>
+				
+				{{-- Inactive Students --}}
+				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-red-500/10 to-red-500/5">
+					<x-stat title="{{ __('lang.inactive_students') }}" value="{{ $inactiveStudents }}" icon="o-user-minus" color="text-red-500" class="!border-0" />
+				</div>
+			</div>
 
+			{{-- ═══════════════════════ Stats Row 2: Structure ═══════════════════════ --}}
+			<div class="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-4">
 				{{-- Total Stages --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-violet-500/10 to-violet-500/5">
-					<x-stat
-						title="{{ __('lang.total_stages') }}"
-						value="{{ $totalStages }}"
-						icon="o-academic-cap"
-						color="text-violet-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_stages') }}" value="{{ $totalStages }}" icon="o-academic-cap" color="text-violet-500" class="!border-0" />
 				</div>
 
 				{{-- Total Grades --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-sky-500/10 to-sky-500/5">
-					<x-stat
-						title="{{ __('lang.total_grades') }}"
-						value="{{ $totalGrades }}"
-						icon="o-bookmark"
-						color="text-sky-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_grades') }}" value="{{ $totalGrades }}" icon="o-bookmark" color="text-sky-500" class="!border-0" />
 				</div>
-			</div>
-
-			{{-- ═══════════════════════ Stats Row 2 ═══════════════════════ --}}
-			<div class="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-4">
+				
 				{{-- Total Semesters --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-amber-500/10 to-amber-500/5">
-					<x-stat
-						title="{{ __('lang.total_semesters') }}"
-						value="{{ $totalSemesters }}"
-						icon="o-calendar-days"
-						color="text-amber-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_semesters') }}" value="{{ $totalSemesters }}" icon="o-calendar-days" color="text-amber-500" class="!border-0" />
 				</div>
 
 				{{-- Total Weeks --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-teal-500/10 to-teal-500/5">
-					<x-stat
-						title="{{ __('lang.total_weeks') }}"
-						value="{{ $totalWeeks }}"
-						icon="o-clock"
-						color="text-teal-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_weeks') }}" value="{{ $totalWeeks }}" icon="o-clock" color="text-teal-500" class="!border-0" />
 				</div>
-
+			</div>
+			
+			{{-- ═══════════════════════ Stats Row 3: Exams ═══════════════════════ --}}
+			<div class="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-4">
 				{{-- Total Trainings --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-rose-500/10 to-rose-500/5">
-					<x-stat
-						title="{{ __('lang.total_trainings') }}"
-						value="{{ $totalTrainings }}"
-						icon="o-play-circle"
-						color="text-rose-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_trainings') }}" value="{{ $totalTrainings }}" icon="o-play-circle" color="text-rose-500" class="!border-0" />
 				</div>
 
 				{{-- Total Exams --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-orange-500/10 to-orange-500/5">
-					<x-stat
-						title="{{ __('lang.total_exams') }}"
-						value="{{ $totalExams }}"
-						icon="o-document-text"
-						color="text-orange-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_exams') }}" value="{{ $totalExams }}" icon="o-document-text" color="text-orange-500" class="!border-0" />
 				</div>
-			</div>
 
-			{{-- ═══════════════════════ Stats Row 3 ═══════════════════════ --}}
-			<div class="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-4">
 				{{-- Total Questions --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-pink-500/10 to-pink-500/5">
-					<x-stat
-						title="{{ __('lang.total_questions') }}"
-						value="{{ $totalQuestions }}"
-						icon="o-question-mark-circle"
-						color="text-pink-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_questions') }}" value="{{ $totalQuestions }}" icon="o-question-mark-circle" color="text-pink-500" class="!border-0" />
 				</div>
 
 				{{-- Total Attempts --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-cyan-500/10 to-cyan-500/5">
-					<x-stat
-						title="{{ __('lang.total_attempts') }}"
-						value="{{ $totalAttempts }}"
-						icon="o-arrow-path"
-						color="text-cyan-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.total_attempts') }}" value="{{ $totalAttempts }}" icon="o-arrow-path" color="text-cyan-500" class="!border-0" />
 				</div>
+			</div>
 
+			{{-- ═══════════════════════ Stats Row 4: Performance ═══════════════════════ --}}
+			<div class="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-2">
 				{{-- Average Score --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-yellow-500/10 to-yellow-500/5">
-					<x-stat
-						title="{{ __('lang.average_score') }}"
-						value="{{ $avgScore }}%"
-						icon="o-chart-bar"
-						color="text-yellow-500"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.average_score') }}" value="{{ $avgScore }}%" icon="o-chart-bar" color="text-yellow-500" class="!border-0" />
 				</div>
 
 				{{-- Pass Rate --}}
 				<div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-lime-500/10 to-lime-500/5">
-					<x-stat
-						title="{{ __('lang.pass_rate') }}"
-						value="{{ $passRate }}%"
-						icon="o-check-badge"
-						color="text-lime-600"
-						class="!border-0"
-					/>
+					<x-stat title="{{ __('lang.pass_rate') }}" value="{{ $passRate }}%" icon="o-check-badge" color="text-lime-600" class="!border-0" />
 				</div>
 			</div>
 

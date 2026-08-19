@@ -9,11 +9,7 @@
 				<x-input label="{{ __('lang.duration_minutes') }}" wire:model="duration_minutes" type="number" min="1"/>
 				<x-input label="{{ __('lang.passing_score') }} (%)" wire:model="passing_score" type="number" min="0" max="100"/>
 			</div>
-			<x-input label="{{ __('lang.assignment_date') }}" wire:model="assignment_date" type="datetime-local"/>
-			<div>
-				<x-file wire:model="image" label="{{ __('lang.image') }}" accept="image/*"/>
-				<x-progress class="progress-primary h-0.5" indeterminate wire:loading wire:target="image"/>
-			</div>
+			<x-toggle label="{{ __('lang.is_active') }}" wire:model="is_active" class="mt-4" />
 			<x-slot:actions>
 				<x-button label="{{ __('lang.cancel') }}" @click="$wire.modalAdd = false"/>
 				<x-button label="{{ __('lang.save') }}" class="btn btn-primary" wire:loading.attr="disabled" type="submit" spinner="saveAdd"/>

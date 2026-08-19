@@ -41,7 +41,7 @@ class TrainingData extends Component
     public $search_week_id;
     
     public $search_type;
-    public $search_is_published = '';
+    public $search_is_active = '';
 
     public function updatedSearchStageId($value)
     {
@@ -161,7 +161,7 @@ class TrainingData extends Component
             ->when($this->search_semester_id, fn(Builder $q) => $q->whereHas('week.semester', fn($q2) => $q2->where('id', $this->search_semester_id)))
             ->when($this->search_week_id, fn(Builder $q) => $q->where('week_id', $this->search_week_id))
             ->when($this->search_type, fn(Builder $q) => $q->where('type', $this->search_type))
-            ->when($this->search_is_published !== '', fn(Builder $q) => $q->where('is_published', (bool)$this->search_is_published))
+            ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
             ->with('week')
             ->latest()
             ->paginate(10);
@@ -174,5 +174,21 @@ class TrainingData extends Component
         $this->authorize('delete_training');
         Training::findOrFail($id)->delete();
         $this->success(__('lang.deleted_successfully', ['attribute' => __('lang.training')]));
+    }
+
+    public function toggleActive($id): void
+    {
+        $this->authorize('edit_training');
+        $training = Training::findOrFail($id);
+        $training->update(['is_active' => !$training->is_active]);
+
+        if ($training->is_active) {
+            $gradeId = \App\Models\Semester::find($training->semester_id)?->grade_id;
+            if ($gradeId) {
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $training->title, 'training');
+            }
+        }
+
+        $this->success(__('lang.updated_successfully', ['attribute' => __('lang.training')]));
     }
 }

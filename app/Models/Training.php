@@ -19,13 +19,11 @@ class Training extends Model implements HasMedia
         'description',
         'type',
         'url',
-        'publish_date',
-        'is_published',
+        'is_active',
     ];
 
     protected $casts = [
-        'publish_date' => 'datetime',
-        'is_published' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function week()

@@ -854,7 +854,7 @@ return [
     'delete_question' => 'حذف سؤال',
 
     // Exam Attempts
-    'exam_attempts_mng' => 'إدارة محاولات الاختبار',
+    'exam_attempts_mng' => 'المشاركون في الاختبار',
     'create_exam_attempt' => 'إضافة محاولة اختبار',
     'show_exam_attempt' => 'عرض محاولة اختبار',
     'edit_exam_attempt' => 'تعديل محاولة اختبار',
@@ -1004,8 +1004,9 @@ return [
     'total_trainings' => 'إجمالي التدريبات',
     'total_exams' => 'إجمالي الامتحانات',
     'total_questions' => 'إجمالي الأسئلة',
-    'total_attempts' => 'إجمالي المحاولات',
+    'total_attempts' => 'المشاركون في الاختبار',
     'total_instructors' => 'إجمالي المدربين',
     'joined_at' => 'تاريخ الانضمام',
     'filter_by' => 'فلتر حسب',
+    'inactive_students' => 'الطلاب غير النشطين',
 ];

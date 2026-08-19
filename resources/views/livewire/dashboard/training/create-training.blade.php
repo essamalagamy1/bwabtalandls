@@ -14,8 +14,7 @@
 				<x-input label="{{ __('lang.url') }}" wire:model="url" placeholder="https://..."/>
 			@endif
 			<x-choices-offline label="{{ __('lang.week') }}" wire:model="week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable/>
-			<x-input label="{{ __('lang.publish_date') }}" wire:model="publish_date" type="date"/>
-			<x-toggle label="{{ __('lang.published') }}" wire:model="is_published"/>
+			<x-toggle label="{{ __('lang.is_active') }}" wire:model="is_active" class="mt-4" />
 			@if(in_array($type, ['pdf', 'file']))
 				<div>
 					<x-file wire:model="training_file" label="{{ __('lang.file') }}"/>

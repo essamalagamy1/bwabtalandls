@@ -18,10 +18,10 @@
                 ['id' => 'file', 'name' => __('lang.file')],
                 ['id' => 'link', 'name' => __('lang.link')],
             ]" option-value="id" option-label="name"/>
-			<x-select label="{{ __('lang.published') }}" wire:model.live="search_is_published" :options="[
+			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[
                 ['id' => '', 'name' => __('lang.all')],
-                ['id' => '1', 'name' => __('lang.yes')],
-                ['id' => '0', 'name' => __('lang.no')],
+                ['id' => '1', 'name' => __('lang.active')],
+                ['id' => '0', 'name' => __('lang.inactive')],
             ]" option-value="id" option-label="name"/>
 		</div>
 		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -33,8 +33,7 @@
 						<th class="text-center">{{ __('lang.title') }}</th>
 						<th class="text-center">{{ __('lang.type') }}</th>
 						<th class="text-center">{{ __('lang.week') }}</th>
-						<th class="text-center">{{ __('lang.published') }}</th>
-						<th class="text-center">{{ __('lang.publish_date') }}</th>
+						<th class="text-center">{{ __('lang.status') }}</th>
 						<th class="text-center">{{ __('lang.action') }}</th>
 					</tr>
 					</thead>
@@ -46,13 +45,8 @@
 							<td class="text-center"><x-badge value="{{ $training->type }}" class="badge-neutral"/></td>
 							<td class="text-center text-nowrap">{{ $training->week?->title ?? '-' }}</td>
 							<td class="text-center">
-								@if($training->is_published)
-									<x-badge value="{{ __('lang.yes') }}" class="badge-success"/>
-								@else
-									<x-badge value="{{ __('lang.no') }}" class="badge-error"/>
-								@endif
+								<x-toggle wire:model.live="is_active" wire:click="toggleActive({{ $training->id }})" :checked="$training->is_active" class="toggle-primary toggle-sm" />
 							</td>
-							<td class="text-center text-nowrap">{{ formatDate($training->publish_date) ?? '-' }}</td>
 							<td>
 								<div class="flex gap-2 justify-center">
 									@can('edit_training')
@@ -70,7 +64,7 @@
 						</tr>
 					@empty
 						<tr class="bg-base-200">
-							<th colspan="7" class="text-center">{{ __('lang.no_data') }}</th>
+							<th colspan="6" class="text-center">{{ __('lang.no_data') }}</th>
 						</tr>
 					@endforelse
 					</tbody>
