@@ -13,26 +13,21 @@ if ('Notification' in window) {
     Notification.requestPermission().then(permission => {
         if (permission === 'granted') {
             subscribeUserToPush();
-        } else if (permission === 'default') {
-            // إظهار زر طلب الإشعار يدوياً
-            const btn = document.getElementById('enable-notifications');
-            if(btn) btn.style.display = 'block';
         }
     });
 }
 
 // 3. زر مخصص لتفعيل الإشعارات يدويًا
-const enableNotificationsButton = document.getElementById('enable-notifications');
+const notificationBell = document.getElementById('notification-bell');
 const vapidMeta = document.head.querySelector('meta[name="vapid-public-key"]');
 const VAPID_PUBLIC_KEY = vapidMeta ? vapidMeta.content : '';
 
-if(enableNotificationsButton) {
-    enableNotificationsButton.addEventListener('click', function () {
-        if ('Notification' in window && 'serviceWorker' in navigator) {
+if(notificationBell) {
+    notificationBell.addEventListener('click', function () {
+        if ('Notification' in window && 'serviceWorker' in navigator && Notification.permission !== 'granted') {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
                     subscribeUserToPush();
-                    enableNotificationsButton.style.display = 'none';
                 }
             });
         }

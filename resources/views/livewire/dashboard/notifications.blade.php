@@ -50,7 +50,7 @@ new class extends Component {
 	<x-dropdown>
 		<x-slot:trigger>
 			<div class="indicator relative">
-				<x-button icon="o-bell" class="btn-ghost btn-sm btn-circle" responsive/>
+				<x-button id="notification-bell" icon="o-bell" class="btn-ghost btn-sm btn-circle" responsive/>
 				@if($unread_notifications > 0)
 					<small class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-[10px] font-bold rounded-full px-1 py-0.4" style="font-size: 12px;">
 						{{ $unread_notifications > 9 ? '9+' : $unread_notifications }}

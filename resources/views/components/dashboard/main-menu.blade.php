@@ -89,11 +89,10 @@
 		<x-menu-item  title="{{ __('lang.settings') }}" icon-classes="text-primary" icon="o-cog-6-tooth" link="{{ route('site-settings') }}" />
 	@endcan --}}
 
-	<x-menu-separator />
+	{{-- <x-menu-separator /> --}}
 
 	{{-- PWA & Notifications --}}
 	<div class="pwa-install-container hidden">
 		<x-menu-item title="تثبيت التطبيق" icon-classes="text-indigo-600 dark:text-indigo-400" class="pwa-install-button text-indigo-600 dark:text-indigo-400 font-bold" icon="o-arrow-down-tray" link="javascript:void(0)" />
 	</div>
-	<x-menu-item id="enable-notifications" title="تفعيل الإشعارات" icon-classes="text-pink-600 dark:text-pink-400" class="text-pink-600 dark:text-pink-400 font-bold" icon="o-bell" link="javascript:void(0)" style="display: none;" />
 </x-menu>
