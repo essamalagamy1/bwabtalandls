@@ -1,3 +1,4 @@
+(() => {
 // 1. تسجيل الـ Service Worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(function (registration) {
@@ -85,3 +86,4 @@ function urlBase64ToUint8Array(base64String) {
     }
     return outputArray;
 }
+})();

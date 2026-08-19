@@ -17,7 +17,24 @@ class StudentTrainingsData extends Component
     use WithPagination;
 
     public string $search = '';
+    public $selectedSemester = '';
     public $selectedWeek = '';
+
+    public function updatedSelectedSemester()
+    {
+        $this->selectedWeek = '';
+        $this->resetPage();
+    }
+
+    public function updatedSelectedWeek()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
 
     public function placeholder(): View
     {
@@ -41,13 +58,19 @@ class StudentTrainingsData extends Component
         $user = Auth::user();
         $gradeId = $user->grade_id;
 
-        $activeSemester = \App\Models\Semester::where('grade_id', $gradeId)
+        $semesters = \App\Models\Semester::where('grade_id', $gradeId)
             ->where('is_active', true)
-            ->first();
+            ->get();
+
+        if (empty($this->selectedSemester) && $semesters->isNotEmpty()) {
+            $this->selectedSemester = $semesters->first()->id;
+        }
 
         $weeks = [];
-        if ($activeSemester) {
-            $weeks = \App\Models\Week::where('semester_id', $activeSemester->id)->get();
+        if (!empty($this->selectedSemester)) {
+            $weeks = \App\Models\Week::where('semester_id', $this->selectedSemester)
+                ->where('is_active', true)
+                ->get();
         }
 
         $trainingsQuery = Training::whereHas('week', function ($query) use ($gradeId) {
@@ -55,6 +78,12 @@ class StudentTrainingsData extends Component
                 $q->where('grade_id', $gradeId);
             });
         });
+
+        if (!empty($this->selectedSemester)) {
+            $trainingsQuery->whereHas('week', function($q) {
+                $q->where('semester_id', $this->selectedSemester);
+            });
+        }
 
         if (!empty($this->selectedWeek)) {
             $trainingsQuery->where('week_id', $this->selectedWeek);
@@ -69,6 +98,6 @@ class StudentTrainingsData extends Component
         ->latest()
         ->paginate(12);
 
-        return view('livewire.student.student-trainings-data', compact('trainings', 'weeks'));
+        return view('livewire.student.student-trainings-data', compact('trainings', 'semesters', 'weeks'));
     }
 }

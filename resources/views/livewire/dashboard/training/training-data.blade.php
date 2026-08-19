@@ -54,12 +54,35 @@
                                                                 @endif
                                                         </td>
 							<td class="text-center">
-								<x-toggle wire:model.live="is_active" wire:click="toggleActive({{ $training->id }})" :checked="$training->is_active" class="toggle-primary toggle-sm" />
+								@if($training->is_active)
+									<x-badge value="{{ __('lang.active') }}" class="badge-success"/>
+								@else
+									<x-badge value="{{ __('lang.inactive') }}" class="badge-error"/>
+								@endif
 							</td>
 							<td>
 								<div class="flex gap-2 justify-center">
 									@can('edit_training')
 										<livewire:dashboard.training.update-training :training="$training" :all_weeks="$all_weeks" :all_semesters="[]" :key="\Illuminate\Support\Str::random(10)"/>
+										@if($training->is_active)
+											<x-button
+												icon="o-lock-closed"
+												class="btn-sm btn-ghost text-warning"
+												wire:click="toggleActive({{ $training->id }})"
+												wire:confirm="هل أنت متأكد من إلغاء تفعيل التدريب ({{ $training->title }})؟"
+												tooltip="{{ __('lang.deactivate') }}"
+												wire:loading.attr="disabled"
+											/>
+										@else
+											<x-button
+												icon="o-lock-open"
+												class="btn-sm btn-ghost text-success"
+												wire:click="toggleActive({{ $training->id }})"
+												wire:confirm="هل أنت متأكد من تفعيل التدريب ({{ $training->title }})؟"
+												tooltip="{{ __('lang.activate') }}"
+												wire:loading.attr="disabled"
+											/>
+										@endif
 									@endcan
 									@can('delete_training')
 										<x-button icon="o-trash" class="btn-sm btn-ghost text-error"

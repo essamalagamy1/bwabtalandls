@@ -47,13 +47,25 @@
 								<div class="flex gap-2 justify-center">
 									@can('edit_grade')
 										<livewire:dashboard.grade.update-grade :grade="$grade" :all_stages="$all_stages" :key="\Illuminate\Support\Str::random(10)"/>
-										<x-button
-											icon="{{ $grade->is_active ? 'o-lock-closed' : 'o-lock-open' }}"
-											class="btn-sm btn-ghost {{ $grade->is_active ? 'text-warning' : 'text-success' }}"
-											wire:click="toggleActive({{ $grade->id }})"
-											@if($grade->is_active) wire:confirm="هل أنت متأكد من الإلغاء؟ سيتم إلغاء تفعيل كافة الفصول والأسابيع والتدريبات المرتبطة بهذا الصف تلقائياً" @endif
-											tooltip="{{ $grade->is_active ? __('lang.deactivate') : __('lang.activate') }}"
-										/>
+										@if($grade->is_active)
+											<x-button
+												icon="o-lock-closed"
+												class="btn-sm btn-ghost text-warning"
+												wire:click="toggleActive({{ $grade->id }})"
+												wire:confirm="هل أنت متأكد من إلغاء تفعيل الصف ({{ $grade->name }})؟ سيتم إلغاء تفعيل كافة الفصول والأسابيع والتدريبات المرتبطة به."
+												tooltip="{{ __('lang.deactivate') }}"
+												wire:loading.attr="disabled"
+											/>
+										@else
+											<x-button
+												icon="o-lock-open"
+												class="btn-sm btn-ghost text-success"
+												wire:click="toggleActive({{ $grade->id }})"
+												wire:confirm="هل أنت متأكد من تفعيل الصف ({{ $grade->name }})؟"
+												tooltip="{{ __('lang.activate') }}"
+												wire:loading.attr="disabled"
+											/>
+										@endif
 									@endcan
 									@can('delete_grade')
 										<x-button icon="o-trash" class="btn-sm btn-ghost text-error"

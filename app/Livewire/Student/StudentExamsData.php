@@ -16,7 +16,19 @@ class StudentExamsData extends Component
 {
     use WithPagination;
 
+    public $selectedSemester = '';
     public $selectedWeek = '';
+
+    public function updatedSelectedSemester()
+    {
+        $this->selectedWeek = '';
+        $this->resetPage();
+    }
+
+    public function updatedSelectedWeek()
+    {
+        $this->resetPage();
+    }
 
     public function placeholder(): View
     {
@@ -40,13 +52,19 @@ class StudentExamsData extends Component
         $user = Auth::user();
         $gradeId = $user->grade_id;
 
-        $activeSemester = \App\Models\Semester::where('grade_id', $gradeId)
+        $semesters = \App\Models\Semester::where('grade_id', $gradeId)
             ->where('is_active', true)
-            ->first();
+            ->get();
+
+        if (empty($this->selectedSemester) && $semesters->isNotEmpty()) {
+            $this->selectedSemester = $semesters->first()->id;
+        }
 
         $weeks = [];
-        if ($activeSemester) {
-            $weeks = \App\Models\Week::where('semester_id', $activeSemester->id)->get();
+        if (!empty($this->selectedSemester)) {
+            $weeks = \App\Models\Week::where('semester_id', $this->selectedSemester)
+                ->where('is_active', true)
+                ->get();
         }
 
         $examsQuery = Exam::whereHas('week', function ($query) use ($gradeId) {
@@ -55,6 +73,12 @@ class StudentExamsData extends Component
             });
         });
 
+        if (!empty($this->selectedSemester)) {
+            $examsQuery->whereHas('week', function($q) {
+                $q->where('semester_id', $this->selectedSemester);
+            });
+        }
+
         if (!empty($this->selectedWeek)) {
             $examsQuery->where('week_id', $this->selectedWeek);
         }
@@ -62,10 +86,11 @@ class StudentExamsData extends Component
         $exams = $examsQuery->with(['week.semester', 'attempts' => function($q) use ($user) {
             $q->where('user_id', $user->id);
         }])
+        ->where('is_active', true)
         ->withCount('questions')
         ->latest()
         ->paginate(12);
 
-        return view('livewire.student.student-exams-data', compact('exams', 'weeks'));
+        return view('livewire.student.student-exams-data', compact('exams', 'semesters', 'weeks'));
     }
 }

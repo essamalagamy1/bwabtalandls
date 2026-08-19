@@ -47,7 +47,11 @@
 							<td class="text-center"><x-badge value="{{ $exam->passing_score }}%" class="badge-info"/></td>
 							<td class="text-center"><x-badge value="{{ $exam->questions_count }}" class="badge-warning"/></td>
 							<td class="text-center">
-								<x-toggle wire:model.live="is_active" wire:click="toggleActive({{ $exam->id }})" :checked="$exam->is_active" class="toggle-primary toggle-sm" />
+								@if($exam->is_active)
+									<x-badge value="{{ __('lang.active') }}" class="badge-success"/>
+								@else
+									<x-badge value="{{ __('lang.inactive') }}" class="badge-error"/>
+								@endif
 							</td>
 							<td>
 								<div class="flex gap-2 justify-center">
@@ -59,6 +63,25 @@
 									@endcan
 									@can('edit_exam')
 										<livewire:dashboard.exam.update-exam :exam="$exam" :all_weeks="$all_weeks" :key="\Illuminate\Support\Str::random(10)"/>
+										@if($exam->is_active)
+											<x-button
+												icon="o-lock-closed"
+												class="btn-sm btn-ghost text-warning"
+												wire:click="toggleActive({{ $exam->id }})"
+												wire:confirm="هل أنت متأكد من إلغاء تفعيل الامتحان ({{ $exam->title }})؟"
+												tooltip="{{ __('lang.deactivate') }}"
+												wire:loading.attr="disabled"
+											/>
+										@else
+											<x-button
+												icon="o-lock-open"
+												class="btn-sm btn-ghost text-success"
+												wire:click="toggleActive({{ $exam->id }})"
+												wire:confirm="هل أنت متأكد من تفعيل الامتحان ({{ $exam->title }})؟"
+												tooltip="{{ __('lang.activate') }}"
+												wire:loading.attr="disabled"
+											/>
+										@endif
 									@endcan
 									@can('delete_exam')
 										<x-button icon="o-trash" class="btn-sm btn-ghost text-error"

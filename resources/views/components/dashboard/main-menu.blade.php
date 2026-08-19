@@ -6,9 +6,12 @@
 
 	{{-- منطقة الطالب --}}
 	@role('student')
-		<x-menu-title title="{{ __('lang.student') ?? 'المنطقة الخاصة' }}" />
-		<x-menu-item title="{{ __('lang.my_exams') ?? 'امتحاناتي' }}" icon-classes="text-primary" icon="o-document-text" link="{{ route('student.exams') }}" />
-		<x-menu-item title="{{ __('lang.my_trainings') ?? 'تدريباتي' }}" icon-classes="text-primary" icon="o-play-circle" link="{{ route('student.trainings') }}" />
+		<x-menu-title title="المنطقة الخاصة" />
+		<x-menu-item title="امتحاناتي" icon-classes="text-primary" icon="o-document-text" link="{{ route('student.exams') }}" />
+		<x-menu-item title="تدريباتي" icon-classes="text-primary" icon="o-play-circle" link="{{ route('student.trainings') }}" />
+		<div class="pwa-install-container hidden">
+			<x-menu-item title="تثبيت التطبيق" class="pwa-install-button text-indigo-600 dark:text-indigo-400 font-bold" icon-classes="text-indigo-600 dark:text-indigo-400" icon="o-arrow-down-tray" link="javascript:void(0)" />
+		</div>
 		<x-menu-separator />
 	@endrole
 
@@ -89,8 +92,8 @@
 	<x-menu-separator />
 
 	{{-- PWA & Notifications --}}
-	<div id="install-container" class="hidden">
-		<x-menu-item id="install-button" title="تثبيت التطبيق" icon-classes="text-indigo-600 dark:text-indigo-400" class="text-indigo-600 dark:text-indigo-400 font-bold" icon="o-arrow-down-tray" link="javascript:void(0)" />
+	<div class="pwa-install-container hidden">
+		<x-menu-item title="تثبيت التطبيق" icon-classes="text-indigo-600 dark:text-indigo-400" class="pwa-install-button text-indigo-600 dark:text-indigo-400 font-bold" icon="o-arrow-down-tray" link="javascript:void(0)" />
 	</div>
 	<x-menu-item id="enable-notifications" title="تفعيل الإشعارات" icon-classes="text-pink-600 dark:text-pink-400" class="text-pink-600 dark:text-pink-400 font-bold" icon="o-bell" link="javascript:void(0)" style="display: none;" />
 </x-menu>

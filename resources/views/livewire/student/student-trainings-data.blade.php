@@ -1,17 +1,30 @@
 <div>
     <x-header title="{{ __('lang.my_trainings') ?? 'تدريباتي' }}" subtitle="{{ __('lang.all_trainings_for_your_grade') ?? 'جميع التدريبات المخصصة لصفك الدراسي' }}" separator>
         <x-slot:middle class="!justify-end gap-2">
-            @if(!empty($weeks) && count($weeks) > 0)
-                <x-select 
-                    icon="o-calendar-days" 
-                    :options="$weeks" 
-                    option-value="id" 
-                    option-label="title" 
-                    placeholder="{{ __('lang.all_weeks') ?? 'جميع الأسابيع' }}" 
-                    wire:model.live="selectedWeek" 
-                    class="w-full lg:w-48" 
-                />
-            @endif
+            <div class="flex gap-2 w-full lg:w-auto">
+                @if(isset($semesters) && count($semesters) > 0)
+                    <x-select
+                        icon="o-calendar"
+                        :options="$semesters"
+                        option-value="id"
+                        option-label="name"
+                        placeholder="{{ __('lang.all_semesters') ?? 'الفصول المتاحة' }}"
+                        wire:model.live="selectedSemester"
+                        class="w-full lg:w-48"
+                    />
+                @endif
+                @if(!empty($weeks) && count($weeks) > 0)
+                    <x-select 
+                        icon="o-calendar-days" 
+                        :options="$weeks" 
+                        option-value="id" 
+                        option-label="title" 
+                        placeholder="{{ __('lang.all_weeks') ?? 'جميع الأسابيع' }}" 
+                        wire:model.live="selectedWeek" 
+                        class="w-full lg:w-48" 
+                    />
+                @endif
+            </div>
             <x-input icon="o-magnifying-glass" placeholder="{{ __('lang.search') }}..." wire:model.live="search" class="w-full lg:w-auto" clearable />
         </x-slot:middle>
     </x-header>

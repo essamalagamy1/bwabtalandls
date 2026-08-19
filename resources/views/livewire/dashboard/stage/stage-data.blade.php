@@ -46,14 +46,25 @@
 								<div class="flex gap-2 justify-center">
 									@can('edit_stage')
 										<livewire:dashboard.stage.update-stage :stage="$stage" :key="\Illuminate\Support\Str::random(10)"/>
-										<x-button
-											icon="{{ $stage->is_active ? 'o-lock-closed' : 'o-lock-open' }}"
-											class="btn-sm btn-ghost {{ $stage->is_active ? 'text-warning' : 'text-success' }}"
-											wire:click="toggleActive({{ $stage->id }})"
-											@if($stage->is_active) wire:confirm="هل أنت متأكد من الإلغاء؟ سيتم إلغاء تفعيل كافة الصفوف والفصول والأسابيع والتدريبات المرتبطة بهذه المرحلة تلقائياً" @endif
-											tooltip="{{ $stage->is_active ? __('lang.deactivate') : __('lang.activate') }}"
-											wire:loading.attr="disabled"
-										/>
+										@if($stage->is_active)
+											<x-button
+												icon="o-lock-closed"
+												class="btn-sm btn-ghost text-warning"
+												wire:click="toggleActive({{ $stage->id }})"
+												wire:confirm="هل أنت متأكد من إلغاء تفعيل المرحلة ({{ $stage->name }})؟ سيتم إلغاء تفعيل كافة الصفوف والفصول والأسابيع والتدريبات المرتبطة بها."
+												tooltip="{{ __('lang.deactivate') }}"
+												wire:loading.attr="disabled"
+											/>
+										@else
+											<x-button
+												icon="o-lock-open"
+												class="btn-sm btn-ghost text-success"
+												wire:click="toggleActive({{ $stage->id }})"
+												wire:confirm="هل أنت متأكد من تفعيل المرحلة ({{ $stage->name }})؟"
+												tooltip="{{ __('lang.activate') }}"
+												wire:loading.attr="disabled"
+											/>
+										@endif
 									@endcan
 									@can('delete_stage')
 										<x-button icon="o-trash" class="btn-sm btn-ghost text-error"

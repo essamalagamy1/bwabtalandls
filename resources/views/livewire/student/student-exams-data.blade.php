@@ -1,17 +1,31 @@
 <div>
 	<x-header title="{{ __('lang.my_exams') ?? 'امتحاناتي' }}" subtitle="{{ __('lang.all_exams_for_your_grade') ?? 'جميع الامتحانات المخصصة لصفك الدراسي' }}" separator>
 		<x-slot:middle class="!justify-end">
-			@if(!empty($weeks) && count($weeks) > 0)
-				<x-select 
-					icon="o-calendar-days" 
-					:options="$weeks" 
-					option-value="id" 
-					option-label="title" 
-					placeholder="{{ __('lang.all_weeks') ?? 'جميع الأسابيع' }}" 
-					wire:model.live="selectedWeek" 
-					class="w-full lg:w-auto" 
-				/>
-			@endif
+			<div class="flex gap-2 w-full lg:w-auto">
+				@if(isset($semesters) && count($semesters) > 0)
+					<x-select 
+						icon="o-calendar" 
+						:options="$semesters" 
+						option-value="id" 
+						option-label="name" 
+						placeholder="{{ __('lang.all_semesters') ?? 'الفصول المتاحة' }}" 
+						wire:model.live="selectedSemester" 
+						class="w-full lg:w-auto" 
+					/>
+				@endif
+
+				@if(!empty($weeks) && count($weeks) > 0)
+					<x-select 
+						icon="o-calendar-days" 
+						:options="$weeks" 
+						option-value="id" 
+						option-label="title" 
+						placeholder="{{ __('lang.all_weeks') ?? 'جميع الأسابيع' }}" 
+						wire:model.live="selectedWeek" 
+						class="w-full lg:w-auto" 
+					/>
+				@endif
+			</div>
 		</x-slot:middle>
 	</x-header>
 
