@@ -68,7 +68,7 @@
 												icon="o-lock-closed"
 												class="btn-sm btn-ghost text-warning"
 												wire:click="toggleActive({{ $exam->id }})"
-												wire:confirm="هل أنت متأكد من إلغاء تفعيل الامتحان ({{ $exam->title }})؟"
+												wire:confirm="أكيد تبي من إلغاء تفعيل الامتحان ({{ $exam->title }})؟"
 												tooltip="{{ __('lang.deactivate') }}"
 												wire:loading.attr="disabled"
 											/>
@@ -77,7 +77,7 @@
 												icon="o-lock-open"
 												class="btn-sm btn-ghost text-success"
 												wire:click="toggleActive({{ $exam->id }})"
-												wire:confirm="هل أنت متأكد من تفعيل الامتحان ({{ $exam->title }})؟"
+												wire:confirm="أكيد تبي من تفعيل الامتحان ({{ $exam->title }})؟"
 												tooltip="{{ __('lang.activate') }}"
 												wire:loading.attr="disabled"
 											/>

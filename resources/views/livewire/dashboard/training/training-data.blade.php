@@ -69,7 +69,7 @@
 												icon="o-lock-closed"
 												class="btn-sm btn-ghost text-warning"
 												wire:click="toggleActive({{ $training->id }})"
-												wire:confirm="هل أنت متأكد من إلغاء تفعيل التدريب ({{ $training->title }})؟"
+												wire:confirm="أكيد تبي من إلغاء تفعيل التدريب ({{ $training->title }})؟"
 												tooltip="{{ __('lang.deactivate') }}"
 												wire:loading.attr="disabled"
 											/>
@@ -78,7 +78,7 @@
 												icon="o-lock-open"
 												class="btn-sm btn-ghost text-success"
 												wire:click="toggleActive({{ $training->id }})"
-												wire:confirm="هل أنت متأكد من تفعيل التدريب ({{ $training->title }})؟"
+												wire:confirm="أكيد تبي من تفعيل التدريب ({{ $training->title }})؟"
 												tooltip="{{ __('lang.activate') }}"
 												wire:loading.attr="disabled"
 											/>

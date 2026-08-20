@@ -51,7 +51,7 @@
 												icon="o-lock-closed"
 												class="btn-sm btn-ghost text-warning"
 												wire:click="toggleActive({{ $stage->id }})"
-												wire:confirm="هل أنت متأكد من إلغاء تفعيل المرحلة ({{ $stage->name }})؟ سيتم إلغاء تفعيل كافة الصفوف والفصول والأسابيع والتدريبات المرتبطة بها."
+												wire:confirm="أكيد تبي من إلغاء تفعيل المرحلة ({{ $stage->name }})؟ سيتم إلغاء تفعيل كافة الصفوف والفصول والأسابيع والتدريبات المرتبطة بها."
 												tooltip="{{ __('lang.deactivate') }}"
 												wire:loading.attr="disabled"
 											/>
@@ -60,7 +60,7 @@
 												icon="o-lock-open"
 												class="btn-sm btn-ghost text-success"
 												wire:click="toggleActive({{ $stage->id }})"
-												wire:confirm="هل أنت متأكد من تفعيل المرحلة ({{ $stage->name }})؟"
+												wire:confirm="أكيد تبي من تفعيل المرحلة ({{ $stage->name }})؟"
 												tooltip="{{ __('lang.activate') }}"
 												wire:loading.attr="disabled"
 											/>

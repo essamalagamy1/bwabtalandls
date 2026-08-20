@@ -72,7 +72,7 @@
 												icon="o-lock-closed"
 												class="btn-sm btn-ghost text-warning"
 												wire:click="toggleActive({{ $week->id }})"
-												wire:confirm="عند الغاء تفعيل الاسبوع ({{ $week->title }}) سوف يتم الغاء تفعيل كافة التدريبات والامتحانات المرتبطة به. هل أنت متأكد من الإلغاء؟"
+												wire:confirm="عند الغاء تفعيل الاسبوع ({{ $week->title }}) سوف يتم الغاء تفعيل كافة التدريبات والامتحانات المرتبطة به. أكيد تبي من الإلغاء؟"
 												tooltip="{{ __('lang.deactivate') }}"
 												wire:loading.attr="disabled"
 											/>
@@ -81,7 +81,7 @@
 												icon="o-lock-open"
 												class="btn-sm btn-ghost text-success"
 												wire:click="toggleActive({{ $week->id }})"
-												wire:confirm="هل أنت متأكد من تفعيل الاسبوع ({{ $week->title }})؟"
+												wire:confirm="أكيد تبي من تفعيل الاسبوع ({{ $week->title }})؟"
 												tooltip="{{ __('lang.activate') }}"
 												wire:loading.attr="disabled"
 											/>

@@ -15,20 +15,29 @@ new #[Layout('components.layouts.auth', ['title' => 'register'])] class extends 
     public string $password_confirmation = '';
     public string $phone = '';
     public string $phone_key = '';
+    public $stage_id = null;
     public $grade_id = null;
+    public array $all_stages = [];
     public array $all_grades = [];
 
     public function mount(): void
     {
-        $this->all_grades = \App\Models\Grade::with('stage:id,name')->where('is_active', true)
-            ->get(['id', 'name', 'stage_id'])
-            ->map(function ($grade) {
-                return [
-                    'id' => $grade->id,
-                    'name' => $grade->name,
-                    'full_path_name' => $grade->stage?->name ?? ''
-                ];
-            })->toArray();
+        $this->all_stages = \App\Models\Stage::where('is_active', true)
+            ->get(['id', 'name'])
+            ->toArray();
+    }
+
+    public function updatedStageId(): void
+    {
+        $this->grade_id = null;
+        if ($this->stage_id) {
+            $this->all_grades = \App\Models\Grade::where('stage_id', $this->stage_id)
+                ->where('is_active', true)
+                ->get(['id', 'name'])
+                ->toArray();
+        } else {
+            $this->all_grades = [];
+        }
     }
 
     /**
@@ -42,8 +51,11 @@ new #[Layout('components.layouts.auth', ['title' => 'register'])] class extends 
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
             'phone' => ['required', 'string', 'max:20'],
             'phone_key' => ['required', 'string', 'max:5'],
+            'stage_id' => ['required', 'exists:stages,id'],
             'grade_id' => ['required', 'exists:grades,id'],
         ]);
+
+        unset($validated['stage_id']);
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['status'] = 'pending';
@@ -119,8 +131,11 @@ new #[Layout('components.layouts.auth', ['title' => 'register'])] class extends 
             <!-- Phone -->
             <x-phone-input required label="{{ __('lang.phone') }}" phoneProperty="phone" keyProperty="phone_key"/>
 
+            <!-- Stage -->
+            <x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="stage_id" :options="$all_stages" option-value="id" option-label="name" single searchable required/>
+
             <!-- Grade -->
-            <x-choices-offline label="{{ __('lang.grade') }}" wire:model="grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable required/>
+            <x-choices-offline label="{{ __('lang.grade') }}" wire:model="grade_id" :options="$all_grades" option-value="id" option-label="name" single searchable required/>
 
             <div class="flex items-center justify-end">
                 <x-button type="submit" variant="primary" class="w-full" spinner="register">

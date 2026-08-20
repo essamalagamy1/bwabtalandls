@@ -1,198 +1,71 @@
-# دليل إعداد PWA وإشعارات Web Push في مشاريع Laravel
+# Web Push Notifications Implementation Guide (WebPushChannel)
 
-هذا الملف يحتوي على الدليل الشامل والمفصل لكيفية بناء **Progressive Web App (PWA)** ودمج نظام **إشعارات الويب (Web Push Notifications)** في أي مشروع Laravel بالاعتماد على الهيكلية المستخدمة في تطبيقك. يمكنك تزويد الذكاء الاصطناعي بهذا الملف في أي مشروع مستقبلي ليقوم بتوليد الكود اللازم بشكل مطابق.
+## Overview
+This guide covers the implementation of Web Push Notifications in a Laravel application using the `NotificationChannels\WebPush` package, along with a robust Service Worker (PWA) setup that safely handles dynamic applications without causing caching loops.
 
----
+## 1. Prerequisites
+- Install the required package: `composer require laravel-notification-channels/webpush`
+- Publish the configuration and migrations:
+  ```bash
+  php artisan vendor:publish --provider="NotificationChannels\WebPush\WebPushServiceProvider" --tag="migrations"
+  php artisan vendor:publish --provider="NotificationChannels\WebPush\WebPushServiceProvider" --tag="config"
+  php artisan migrate
+  ```
+- Generate VAPID keys:
+  ```bash
+  php artisan webpush:vapid
+  ```
 
-## الجزء الأول: Progressive Web App (PWA)
-
-لتحويل الموقع إلى تطبيق ويب (PWA) يمكن تثبيته على الأجهزة، نحتاج إلى ثلاثة عناصر أساسية: ملف الـ Manifest، الـ Service Worker (لإدارة الكاش والعمل بدون إنترنت)، وزر التثبيت في الواجهة.
-
-### 1. ملف `manifest.json`
-يجب إنشاء هذا الملف في مجلد `public/manifest.json`. هو المسؤول عن تعريف اسم التطبيق، أيقوناته، وألوانه عند تثبيته.
-
-```json
-{
-  "name": "اسم التطبيق",
-  "short_name": "اسم قصير",
-  "start_url": "/dashboard",
-  "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#4A90E2",
-  "description": "وصف التطبيق.",
-  "icons": [
-    {
-      "src": "/logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/logo.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
-```
-
-### 2. تضمين الـ Manifest في الـ Header
-في ملف `resources/views/partials/head.blade.php` (أو أي ملف رئيسي للـ Header)، نضيف رابط الـ Manifest ومعلومات أخرى مهمة:
-
-```html
-<!-- في وسم الـ head -->
-<link rel="apple-touch-icon" href="{{asset('logo.png')}}">
-<link rel="manifest" href="{{ asset('manifest.json') }}">
-<!-- نحتاج هذا الـ meta لاحقاً للإشعارات -->
-<meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
-```
-
-### 3. زر تثبيت التطبيق وتهيئة الـ PWA
-في ملف `resources/views/partials/scripts.blade.php` أو في نهاية ملف الـ Layout الرئيسي:
-
-```html
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        let deferredPrompt;
-        const installContainer = document.getElementById('install-container'); // قم بإنشاء هذا العنصر في الـ HTML ليحتوي على زر التثبيت
-        const installButton = document.getElementById('install-button');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // منع المتصفح من إظهار الإشعار التلقائي
-            e.preventDefault();
-            // حفظ الحدث لاستخدامه لاحقًا
-            deferredPrompt = e;
-            // إظهار الزر المخصص
-            if (installContainer) {
-                installContainer.classList.remove('hidden');
-            }
-        });
-
-        if (installButton) {
-            installButton.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    // إظهار نافذة التثبيت
-                    deferredPrompt.prompt();
-                    // انتظار قرار المستخدم
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log(`User response to the install prompt: ${outcome}`);
-                    deferredPrompt = null;
-                    if (installContainer) {
-                        installContainer.classList.add('hidden');
-                    }
-                }
-            });
-        }
-    });
-</script>
-```
-
----
-
-## الجزء الثاني: إشعارات Web Push Notifications
-
-نعتمد هنا على حزمة `laravel-notification-channels/webpush`.
-
-### 1. التثبيت والإعداد في الـ Backend
-
-**أ) تثبيت الحزمة وإعداد قاعدة البيانات:**
-```bash
-composer require laravel-notification-channels/webpush
-php artisan vendor:publish --provider="NotificationChannels\WebPush\WebPushServiceProvider" --tag="migrations"
-php artisan migrate
-```
-
-**ب) توليد مفاتيح VAPID:**
-```bash
-php artisan webpush:vapid
-```
-سيقوم هذا الأمر بإضافة المفاتيح في ملف `.env`:
-```env
-VAPID_PUBLIC_KEY=...
-VAPID_PRIVATE_KEY=...
-```
-
-**ج) تجهيز موديل User:**
-أضف الـ trait `HasPushSubscriptions` إلى موديل المستخدم:
+## 2. Model Configuration
+Add the `HasPushSubscriptions` trait to the user model:
 ```php
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
-class User extends Authenticatable {
+class User extends Authenticatable
+{
     use HasPushSubscriptions;
     // ...
 }
 ```
 
-### 2. تسجيل الاشتراك في الـ Backend
-
-**أ) إنشاء Controller لحفظ بيانات الاشتراك:**
-`app/Http/Controllers/NotificationManagerController.php`
+## 3. Notification Class
+Create a notification class that implements the `WebPushMessage` logic:
 
 ```php
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-
-class NotificationManagerController extends Controller
-{
-    public function __invoke(Request $request)
-    {
-        $request->validate([
-            'endpoint' => 'required',
-            'keys.auth' => 'required',
-            'keys.p256dh' => 'required',
-        ]);
-
-        $user = auth()->user();
-        $user->updatePushSubscription($request->endpoint, $request->keys['p256dh'], $request->keys['auth']);
-
-        return response()->json(['success' => true], 200);
-    }
-}
-```
-
-**ب) إضافة المسار Route:**
-في `routes/web.php`:
-```php
-use App\Http\Controllers\NotificationManagerController;
-
-Route::post('/save-subscription', NotificationManagerController::class)->name('save-subscription')->middleware('auth');
-```
-
-### 3. إنشاء كلاس الـ Notification
-`app/Notifications/UserNotification.php`
-
-```php
-<?php
-
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
+use NotificationChannels\WebPush\WebPushChannel;
 
-class UserNotification extends Notification
+class GeneralNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public string $title, public string $body, public $url = null)
+    public $title;
+    public $body;
+    public $url;
+
+    public function __construct($title, $body, $url = '/')
     {
-        $this->url = $this->url ?: route('dashboard');
+        $this->title = $title;
+        $this->body = $body;
+        $this->url = $url;
     }
 
-    public function via(object $notifiable): array
+    public function via($notifiable)
     {
-        return ['database', WebPushChannel::class]; // إرسال للإشعارات العادية والمتصفح
+        return ['database', WebPushChannel::class];
     }
 
-    public function toWebPush($notifiable, $notification): WebPushMessage
+    public function toWebPush($notifiable, $notification)
     {
         return (new WebPushMessage)
             ->title($this->title)
             ->body($this->body)
-            ->data(['url' => $this->url, 'sound' => '/sounds/notification.mp3'])
+            ->action('عرض التفاصيل', $this->url)
+            ->data(['url' => $this->url])
             ->icon('/logo.png')
             ->badge('/favicon.svg')
             ->vibrate([100, 50, 100])
@@ -205,10 +78,11 @@ class UserNotification extends Notification
 }
 ```
 
-### 4. السكريبت المسؤول عن Service Worker والاشتراكات (Frontend JS)
-في ملف `public/js/main.js` (أو أي ملف جافاسكريبت مجمع عندك):
+## 4. السكريبت المسؤول عن Service Worker والاشتراكات (Frontend JS)
+في ملف `public/js/pwa.js` (يجب تغليفه بـ IIFE `(() => { ... })();` لمنع تعارض المتغيرات في تطبيقات الـ SPA مثل Livewire):
 
 ```javascript
+(() => {
 // 1. تسجيل الـ Service Worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(function (registration) {
@@ -223,26 +97,21 @@ if ('Notification' in window) {
     Notification.requestPermission().then(permission => {
         if (permission === 'granted') {
             subscribeUserToPush();
-        } else if (permission === 'default') {
-            // إظهار زر طلب الإشعار يدوياً
-            const btn = document.getElementById('enable-notifications');
-            if(btn) btn.style.display = 'block';
         }
     });
 }
 
-// 3. زر مخصص لتفعيل الإشعارات يدويًا
-const enableNotificationsButton = document.getElementById('enable-notifications');
+// 3. ربط التفعيل بزر الإشعارات (الجرس) في الـ Navbar
+const notificationBell = document.getElementById('notification-bell');
 const vapidMeta = document.head.querySelector('meta[name="vapid-public-key"]');
 const VAPID_PUBLIC_KEY = vapidMeta ? vapidMeta.content : '';
 
-if(enableNotificationsButton) {
-    enableNotificationsButton.addEventListener('click', function () {
-        if ('Notification' in window && 'serviceWorker' in navigator) {
+if (notificationBell) {
+    notificationBell.addEventListener('click', function () {
+        if ('Notification' in window && 'serviceWorker' in navigator && Notification.permission !== 'granted') {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
                     subscribeUserToPush();
-                    enableNotificationsButton.style.display = 'none';
                 }
             });
         }
@@ -296,18 +165,18 @@ function urlBase64ToUint8Array(base64String) {
     }
     return outputArray;
 }
+})();
 ```
 
-### 5. ملف Service Worker (`sw.js`)
-هذا الملف يجب أن يكون في المسار `public/sw.js`. وهو يجمع بين وظائف PWA (الكاش) ووظائف الإشعارات.
+## 5. ملف Service Worker (`sw.js`)
+هذا الملف يجب أن يكون في المسار `public/sw.js`. تم تحديثه لاستخدام استراتيجية **Network Only with Offline Fallback** لتجنب أخطاء `ERR_FAILED` وتعارض الجلسات (Sessions/CSRF) التي تحدث عند عمل Cache كامل للتطبيقات الديناميكية.
 
 ```javascript
 'use strict';
 
 // --- >> الجزء الخاص بـ PWA (الكاشينج) << ---
-const CACHE_NAME = 'app-cache-v1';
+const CACHE_NAME = 'app-cache-v2';
 const urlsToCache = [
-    '/',
     '/offline.html',
 ];
 
@@ -324,19 +193,29 @@ self.addEventListener('activate', event => {
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) return caches.delete(cacheName);
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        return caches.delete(cacheName);
+                    }
                 })
             );
         })
     );
+    // تفعيل السيرفيس وركر فورا لجميع الصفحات المفتوحة
+    return self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
+    
+    // تجاهل الطلبات التي لا تبدأ بـ http/https (مثل إضافات المتصفح)
+    if (!event.request.url.startsWith('http')) return;
+
     event.respondWith(
-        caches.match(event.request).then(cachedResponse => {
-            if (cachedResponse) return cachedResponse;
-            return fetch(event.request).catch(() => caches.match('/offline.html'));
+        fetch(event.request).catch(() => {
+            // في حالة انقطاع الإنترنت وكان الطلب لصفحة HTML، نعرض صفحة offline
+            if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
+                return caches.match('/offline.html');
+            }
         })
     );
 });
@@ -386,25 +265,56 @@ self.addEventListener('notificationclick', function (event) {
 });
 ```
 
-### 6. تفعيل الصوت عند وصول إشعار
-يتم ذلك عن طريق استقبال الرسالة التي أرسلها الـ `sw.js` في الواجهة وتشغيل الصوت.
-في ملف السكريبتات الرئيسي (`resources/views/partials/scripts.blade.php`):
+## 6. تفعيل الصوت وزر تثبيت التطبيق وتجنب تعارض Livewire
+نظراً لأن Livewire يستخدم تقنية SPA (Single Page Application) للـ Navigation، قد يتم تنفيذ السكريبتات أكثر من مرة. لتجنب الأخطاء، نستخدم نمط `IIFE` المتصل بكائن `window` في `resources/views/partials/scripts.blade.php`:
 
 ```html
+<script src="{{ asset('js/pwa.js') }}"></script>
 <script>
-    // تحميل الصوت مسبقاً لمنع التأخير
-    let notificationAudio = null;
+(() => {
+    // تحميل الصوت مسبقاً لمنع التأخير (وربطه بكائن window لتجنب إعادة التعريف)
+    if (!window.notificationAudio) {
+        window.notificationAudio = new Audio('/sounds/notification.mp3');
+        window.notificationAudio.load();
+    }
+
+    let deferredPrompt;
+
     document.addEventListener('DOMContentLoaded', () => {
-        notificationAudio = new Audio('/sounds/notification.mp3');
-        notificationAudio.load();
+        const installContainers = document.querySelectorAll('.pwa-install-container');
+        const installButtons = document.querySelectorAll('.pwa-install-button');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installContainers.forEach(container => {
+                container.classList.remove('hidden');
+            });
+        });
+
+        installButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User response to the install prompt: ${outcome}`);
+                    deferredPrompt = null;
+                    installContainers.forEach(container => {
+                        container.classList.add('hidden');
+                    });
+                }
+            });
+        });
     });
 
-    if ('serviceWorker' in navigator) {
+    // إضافة المستمع لمرة واحدة فقط باستخدام window
+    if ('serviceWorker' in navigator && !window.swMessageListenerAdded) {
+        window.swMessageListenerAdded = true;
         navigator.serviceWorker.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'PLAY_NOTIFICATION_SOUND') {
-                if (notificationAudio) {
-                    notificationAudio.currentTime = 0;
-                    notificationAudio.play().catch(error => {
+                if (window.notificationAudio) {
+                    window.notificationAudio.currentTime = 0;
+                    window.notificationAudio.play().catch(error => {
                         console.error('Error playing sound:', error);
                         new Audio(event.data.soundUrl).play();
                     });
@@ -412,10 +322,24 @@ self.addEventListener('notificationclick', function (event) {
             }
         });
     }
+})();
 </script>
 ```
 
-> **ملاحظة هامة**: تأكد من وجود الملفات التالية في مجلد `public`:
-> - `offline.html` صفحة الخطأ في حال انقطاع الإنترنت.
-> - ملفات الصوت للأشعارات `sounds/notification.mp3`.
-> - أيقونات التطبيق `logo.png` و `favicon.svg`.
+## 7. ضبط إعدادات الـ Cron Jobs للـ Queue في الاستضافة
+حتى تعمل الإشعارات بالخلفية بدون تأخير (عبر `Queueable`)، يفضل استخدام إضافة سطر في ملف `routes/console.php` ليقوم بمعالجة الطابور كجزء من المجدول التلقائي للمهام:
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+// إضافة أمر تشغيل قائمة الانتظار للعمل كل دقيقة وعدم التداخل
+Schedule::command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
+```
+
+ثم من لوحة التحكم (مثل cPanel)، يتم إنشاء Cron Job ليعمل كل دقيقة (`* * * * *`) لتنفيذ الأمر التالي:
+
+```bash
+/usr/bin/php /home/path_to_your_project/artisan schedule:run >> /dev/null 2>&1
+```
+
+*(استبدل `/usr/bin/php` بمسار نسخة الـ PHP المستخدمة و `path_to_your_project` بالمسار الفعلي لمشروعك).*

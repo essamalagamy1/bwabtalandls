@@ -56,7 +56,7 @@
 												icon="o-lock-closed"
 												class="btn-sm btn-ghost text-warning"
 												wire:click="toggleActive({{ $semester->id }})"
-												wire:confirm="عند الغاء تفعيل الفصل الدراسي ({{ $semester->name }}) سوف يتم الغاء تفعيل كافة الاسابيع الدراسيه التابعة له والتدريبات والامتحانات كذلك. هل أنت متأكد من الإلغاء؟"
+												wire:confirm="عند الغاء تفعيل الفصل الدراسي ({{ $semester->name }}) سوف يتم الغاء تفعيل كافة الاسابيع الدراسيه التابعة له والتدريبات والامتحانات كذلك. أكيد تبي من الإلغاء؟"
 												tooltip="{{ __('lang.deactivate') }}"
 												wire:loading.attr="disabled"
 											/>
@@ -65,7 +65,7 @@
 												icon="o-lock-open"
 												class="btn-sm btn-ghost text-success"
 												wire:click="toggleActive({{ $semester->id }})"
-												wire:confirm="هل أنت متأكد من تفعيل الفصل الدراسي ({{ $semester->name }})؟"
+												wire:confirm="أكيد تبي من تفعيل الفصل الدراسي ({{ $semester->name }})؟"
 												tooltip="{{ __('lang.activate') }}"
 												wire:loading.attr="disabled"
 											/>

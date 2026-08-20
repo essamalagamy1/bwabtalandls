@@ -36,6 +36,10 @@ if(notificationBell) {
 
 // 4. الاشتراك في Push Notifications
 function subscribeUserToPush() {
+    if (!VAPID_PUBLIC_KEY) {
+        console.warn('VAPID public key is missing. User might be unauthenticated.');
+        return;
+    }
     navigator.serviceWorker.ready.then(registration => {
         const subscribeOptions = {
             userVisibleOnly: true,
@@ -45,6 +49,8 @@ function subscribeUserToPush() {
     }).then(pushSubscription => {
         sendSubscriptionToBackEnd(pushSubscription);
         return pushSubscription;
+    }).catch(error => {
+        console.error('Failed to subscribe to push notifications:', error);
     });
 }
 

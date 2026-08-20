@@ -3,7 +3,7 @@
 	<div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
 		<div>
 			<h1 class="text-3xl font-bold mb-2">
-				{{ __('lang.welcome') ?? 'مرحباً' }}، <span class="text-primary">{{ $user->name }}</span>!
+				{{ __('lang.welcome') ?? 'هلا والله' }}، <span class="text-primary">{{ $user->name }}</span>!
 			</h1>
 			<p class="text-base-content/70">
 				{{ now()->locale(app()->getLocale())->translatedFormat('l, j F Y h:i A') }}

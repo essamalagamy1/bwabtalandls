@@ -52,7 +52,7 @@
 												icon="o-lock-closed"
 												class="btn-sm btn-ghost text-warning"
 												wire:click="toggleActive({{ $grade->id }})"
-												wire:confirm="هل أنت متأكد من إلغاء تفعيل الصف ({{ $grade->name }})؟ سيتم إلغاء تفعيل كافة الفصول والأسابيع والتدريبات المرتبطة به."
+												wire:confirm="أكيد تبي من إلغاء تفعيل الصف ({{ $grade->name }})؟ سيتم إلغاء تفعيل كافة الفصول والأسابيع والتدريبات المرتبطة به."
 												tooltip="{{ __('lang.deactivate') }}"
 												wire:loading.attr="disabled"
 											/>
@@ -61,7 +61,7 @@
 												icon="o-lock-open"
 												class="btn-sm btn-ghost text-success"
 												wire:click="toggleActive({{ $grade->id }})"
-												wire:confirm="هل أنت متأكد من تفعيل الصف ({{ $grade->name }})؟"
+												wire:confirm="أكيد تبي من تفعيل الصف ({{ $grade->name }})؟"
 												tooltip="{{ __('lang.activate') }}"
 												wire:loading.attr="disabled"
 											/>
