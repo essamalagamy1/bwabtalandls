@@ -63,6 +63,7 @@ class CreateAdmin extends Component
             'phone' => $this->phone,
             'phone_key' => $this->phone_key,
             'email_verified_at' => now(),
+            'status' => 'active',
         ]);
         if ($this->image) {
             $user->addMedia($this->image->getRealPath())->toMediaCollection('image');
