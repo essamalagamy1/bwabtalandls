@@ -135,7 +135,7 @@ new #[Layout('components.layouts.auth', ['title' => 'register'])] class extends 
             <x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="stage_id" :options="$all_stages" option-value="id" option-label="name" single searchable required/>
 
             <!-- Grade -->
-            <x-choices-offline label="{{ __('lang.grade') }}" wire:model="grade_id" :options="$all_grades" option-value="id" option-label="name" single searchable required/>
+            <x-select label="{{ __('lang.grade') }}" wire:model="grade_id" :options="$all_grades" option-value="id" option-label="name" required placeholder="{{ __('lang.grade') }}"/>
 
             <div class="flex items-center justify-end">
                 <x-button type="submit" variant="primary" class="w-full" spinner="register">
