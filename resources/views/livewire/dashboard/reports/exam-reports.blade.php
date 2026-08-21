@@ -1,5 +1,5 @@
 <div>
-	<x-header title="{{ __('lang.exam_reports') }}" subtitle="Deep dive into exam statistics" separator />
+	<x-header title="{{ __('lang.exam_reports') }}" subtitle="تحليل معمق لإحصائيات الامتحانات" separator />
 
 	{{-- Filters --}}
 	<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-base-200 p-4 rounded-xl">

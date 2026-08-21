@@ -26,11 +26,13 @@ class DatabaseSeeder extends Seeder
             GradeSeeder::class,
             SemesterSeeder::class,
             WeekSeeder::class,
+            StudentSeeder::class,
             TrainingSeeder::class,
             ExamSeeder::class,
             QuestionSeeder::class,
             ExamAttemptSeeder::class,
             StudentAnswerSeeder::class,
+            StudentExamAttemptSeeder::class,
             SiteSettingSeeder::class,
         ]);
     }

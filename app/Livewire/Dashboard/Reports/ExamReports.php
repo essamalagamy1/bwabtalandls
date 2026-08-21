@@ -144,7 +144,7 @@ class ExamReports extends Component
         $labels = [];
         $data = [];
         foreach ($exams as $exam) {
-            $labels[] = substr($exam->title, 0, 15) . "..."; 
+            $labels[] = explode("\n", wordwrap($exam->title, 15, "\n")); 
             $data[] = round($exam->attempts_avg_total_score ?? 0, 2);
         }
 
@@ -159,6 +159,17 @@ class ExamReports extends Component
                         'backgroundColor' => '#25376F',
                     ]
                 ]
+            ],
+            'options' => [
+                'scales' => [
+                    'x' => [
+                        'title' => ['display' => true, 'text' => __('lang.exam')],
+                        'ticks' => ['autoSkip' => false],
+                    ],
+                    'y' => [
+                        'title' => ['display' => true, 'text' => __('lang.average_score')],
+                    ]
+                ],
             ]
         ];
     }

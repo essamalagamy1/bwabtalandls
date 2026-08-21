@@ -130,6 +130,17 @@ class StudentReports extends Component
                         'tension' => 0.4
                     ]
                 ]
+            ],
+            'options' => [
+                'scales' => [
+                    'x' => [
+                        'title' => ['display' => true, 'text' => __('lang.month') ?? 'الشهر'],
+                        'ticks' => ['autoSkip' => false],
+                    ],
+                    'y' => [
+                        'title' => ['display' => true, 'text' => __('lang.average_score')],
+                    ]
+                ],
             ]
         ];
     }

@@ -70,7 +70,23 @@
 							<td class="text-center text-nowrap">{{ formatDate($student->created_at, true) }}</td>
 							<td>
 								<div class="flex gap-2 justify-center">
+									@can('show_student')
+										<x-button 
+											icon="o-chart-bar" 
+											class="btn-sm btn-ghost text-info" 
+											link="{{ route('students.profile', $student->id) }}" 
+											tooltip="{{ __('lang.student_profile') ?? 'ملف الطالب' }}" 
+											wire:navigate 
+										/>
+									@endcan
 									@can('edit_student')
+										<x-button 
+											icon="{{ $student->status === 'active' ? 'o-x-circle' : 'o-check-circle' }}" 
+											class="btn-sm btn-ghost {{ $student->status === 'active' ? 'text-error' : 'text-success' }}" 
+											wire:click="toggleStatus({{ $student->id }})" 
+											spinner="toggleStatus({{ $student->id }})" 
+											tooltip="{{ $student->status === 'active' ? __('lang.inactive') : __('lang.active') }}" 
+										/>
 										<livewire:dashboard.student.update-student :student="$student" :all_grades="$all_grades" :key="\Illuminate\Support\Str::random(10)"/>
 									@endcan
 									@can('delete_student')

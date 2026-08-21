@@ -45,6 +45,16 @@ class CreateSemester extends Component
         $this->authorize('create_semester');
         $this->validate();
 
+        if ($this->is_active) {
+            $exists = Semester::where('grade_id', $this->grade_id)
+                ->where('is_active', true)
+                ->exists();
+            if ($exists) {
+                $this->addError('is_active', 'لا يمكن تفعيل هذا الفصل لوجود فصل آخر مفعل لنفس الصف.');
+                return;
+            }
+        }
+
         $semester = Semester::create([
             'name'       => $this->name,
             'grade_id'   => $this->grade_id,

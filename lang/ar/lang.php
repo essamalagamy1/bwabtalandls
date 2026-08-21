@@ -1028,4 +1028,16 @@ return [
     'time_left' => 'الوقت المتبقي',
     'submit' => 'إرسال',
     'academic_path' => 'المسار الأكاديمي',
+    
+    // Student Analytics / Profile
+    'student_profile' => 'ملف الطالب',
+    'total_exams' => 'إجمالي الامتحانات',
+    'progress_chart' => 'مخطط التقدم',
+    'exam_status' => 'حالة الامتحانات',
+    'recent_exams' => 'أحدث الامتحانات',
+    'score' => 'الدرجة',
+    'passed' => 'ناجح',
+    'failed' => 'راسب',
+    'in_progress' => 'قيد الإجراء',
+    'back' => 'رجوع',
 ];

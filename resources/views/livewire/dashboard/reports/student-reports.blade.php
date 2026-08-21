@@ -1,5 +1,5 @@
 <div>
-	<x-header title="{{ __('lang.student_reports') }}" subtitle="Insights into student performance" separator />
+	<x-header title="{{ __('lang.student_reports') }}" subtitle="نظرة شاملة على أداء الطلاب" separator />
 
 	{{-- Filters --}}
 	<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-base-200 p-4 rounded-xl">

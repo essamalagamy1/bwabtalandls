@@ -40,6 +40,7 @@ Route::middleware(['web-language'])->group(function () {
             Route::livewire('/{role}/edit', UpdateRole::class)->name('roles.edit')->middleware('permission:edit_role');
         });
         Route::livewire('students', StudentData::class)->name('students')->middleware('permission:show_student');
+        Route::livewire('students/{user}/profile', \App\Livewire\Dashboard\Student\StudentProfile::class)->name('students.profile')->middleware('permission:show_student');
         Route::livewire('admins', AdminData::class)->name('admins')->middleware('permission:show_admin'); // users
         Route::livewire('stages', StageData::class)->name('stages')->middleware('permission:show_stage');
         Route::livewire('grades', GradeData::class)->name('grades')->middleware('permission:show_grade');

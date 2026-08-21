@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light" class="light" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 @include('partials.head')
 <body class="min-h-screen bg-neutral-100 antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">

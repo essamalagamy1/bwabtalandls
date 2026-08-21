@@ -24,7 +24,6 @@ new class extends Component {
 	{
 		auth()->user()->unreadNotifications->markAsRead();
 		$this->unread_notifications = 0;
-		$this->render();
 	}
 
 	public function loadMore(): void

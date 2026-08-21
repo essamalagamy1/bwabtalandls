@@ -182,7 +182,7 @@ class Dashboard extends Component
         $this->studentsPerGradeChart = [
             'type' => 'bar',
             'data' => [
-                'labels' => $grades->pluck('name')->toArray(),
+                'labels' => $grades->map(fn($g) => explode("\n", wordwrap($g->name, 15, "\n")))->toArray(),
                 'datasets' => [
                     [
                         'label' => __('lang.students'),
@@ -199,6 +199,15 @@ class Dashboard extends Component
             'options' => [
                 'plugins' => [
                     'legend' => ['display' => false],
+                ],
+                'scales' => [
+                    'x' => [
+                        'title' => ['display' => true, 'text' => __('lang.grade')],
+                        'ticks' => ['autoSkip' => false],
+                    ],
+                    'y' => [
+                        'title' => ['display' => true, 'text' => __('lang.students')],
+                    ]
                 ],
             ],
         ];
@@ -236,7 +245,7 @@ class Dashboard extends Component
         $this->examScoresChart = [
             'type' => 'bar',
             'data' => [
-                'labels' => $exams->map(fn($e) => mb_substr($e->title, 0, 15))->toArray(),
+                'labels' => $exams->map(fn($e) => explode("\n", wordwrap($e->title, 15, "\n")))->toArray(),
                 'datasets' => [
                     [
                         'label' => __('lang.average_score'),
@@ -249,6 +258,15 @@ class Dashboard extends Component
             'options' => [
                 'plugins' => [
                     'legend' => ['display' => false],
+                ],
+                'scales' => [
+                    'x' => [
+                        'title' => ['display' => true, 'text' => __('lang.exam')],
+                        'ticks' => ['autoSkip' => false],
+                    ],
+                    'y' => [
+                        'title' => ['display' => true, 'text' => __('lang.average_score')],
+                    ]
                 ],
             ],
         ];
@@ -284,6 +302,17 @@ class Dashboard extends Component
                         'pointBackgroundColor' => '#6366f1',
                         'pointRadius' => 5,
                     ],
+                ],
+            ],
+            'options' => [
+                'scales' => [
+                    'x' => [
+                        'title' => ['display' => true, 'text' => __('lang.month') ?? 'الشهر'],
+                        'ticks' => ['autoSkip' => false],
+                    ],
+                    'y' => [
+                        'title' => ['display' => true, 'text' => __('lang.students') ?? 'الطلاب'],
+                    ]
                 ],
             ],
         ];

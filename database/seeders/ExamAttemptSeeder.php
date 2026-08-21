@@ -17,14 +17,8 @@ class ExamAttemptSeeder extends Seeder
         })->get();
 
         if ($students->count() === 0) {
-            // أنشئ بعض الطلاب الوهميين
-            $grades = \App\Models\Grade::pluck('id');
-            $students = User::factory()->count(10)->create()->each(function ($user) use ($grades) {
-                $user->assignRole('student');
-                if ($grades->isNotEmpty()) {
-                    $user->update(['grade_id' => $grades->random()]);
-                }
-            });
+            // No students available to take exams.
+            return;
         }
 
         $exams = Exam::all();

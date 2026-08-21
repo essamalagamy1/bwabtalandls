@@ -8,6 +8,8 @@ use App\Models\Semester;
 use App\Models\Stage;
 use App\Models\User;
 use App\Models\Week;
+use App\Mail\AccountStatusNotification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Lazy;
@@ -261,6 +263,24 @@ class StudentData extends Component
             ->paginate(10);
 
         return view('livewire.dashboard.student.student-data', $data);
+    }
+
+    public function toggleStatus($id): void
+    {
+        $this->authorize('edit_student');
+        
+        $student = User::findOrFail($id);
+        $newStatus = $student->status === 'active' ? 'inactive' : 'active';
+        
+        $student->update(['status' => $newStatus]);
+        
+        try {
+            Mail::to($student->email)->send(new AccountStatusNotification($student, $newStatus));
+            $this->success(__('lang.updated_successfully', ['attribute' => __('lang.status')]));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send status email to ' . $student->email . ': ' . $e->getMessage());
+            $this->warning('تم تحديث الحالة، لكن تعذر إرسال البريد الإلكتروني للمستخدم.');
+        }
     }
 
     public function delete($id): void

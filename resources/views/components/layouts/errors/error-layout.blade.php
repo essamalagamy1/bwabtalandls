@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale()}}" class="scroll-smooth dark" dir="{{app()->getLocale() === 'ar' ? 'rtl' : 'ltr'}}" data-theme="dark">
+<html lang="{{ app()->getLocale()}}" class="scroll-smooth light" dir="{{app()->getLocale() === 'ar' ? 'rtl' : 'ltr'}}" data-theme="light">
 @include('partials.head')
 <body class="min-h-screen antialiased dark:bg-linear-to-b  font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300 relative">
 <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-indigo-950 -z-10"></div>
