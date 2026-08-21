@@ -67,8 +67,19 @@ class UpdateStudent extends Component
         if (!empty($this->password)) {
             $data['password'] = Hash::make($this->password);
         }
+        $oldStatus = $this->student->status;
 
         $this->student->update($data);
+
+        // Notify student about account status change
+        if ($oldStatus !== $this->status && in_array($this->status, ['active', 'inactive'])) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($this->student->email)
+                    ->send(new \App\Mail\AccountStatusNotification($this->student, $this->status));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send account status email: ' . $e->getMessage());
+            }
+        }
 
         if ($this->image) {
             $this->student->addMedia($this->image->getRealPath())->toMediaCollection('image');

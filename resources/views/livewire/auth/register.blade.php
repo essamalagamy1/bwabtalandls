@@ -68,7 +68,7 @@ new #[Layout('components.layouts.auth', ['title' => 'register'])] class extends 
 
         \App\Jobs\NotifyAdminsOfNewStudentJob::dispatch($user);
 
-        session()->flash('status', __('lang.created_successfully', ['attribute' => __('lang.student')]) . ' - البيانات جاري المراجعة والموافقة عليها');
+        session()->flash('status', 'تم تسجيل بياناتك بنجاح، وجاري مراجعتها. وبعد الموافقة، بنرسل لك رسالة على بريدك الإلكتروني.');
 
         $this->redirect(route('login'), navigate: true);
     }
@@ -77,7 +77,7 @@ new #[Layout('components.layouts.auth', ['title' => 'register'])] class extends 
 <div>
     <x-card class="flex flex-col gap-6 border border-gray-300 dark:border-gray-700 text-lg font-medium rounded-xl dark:text-gray-300  dark:bg-gray-900  transition-colors duration-200 " shadow separator>
 
-        <x-auth-header :title="__('lang.create_account') . ' - ' . __('lang.student')" :description="__('lang.enter_your_details_below_to_create_your_account')"/>
+        <x-auth-header title="سجل معنا - طالب" description="لا هنت إدخال تفاصيلك أدناه عشان تفتح حسابك"/>
 
         @session('status')
         <x-alert title="{{ session('status') }}" class="text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 my-4 text-center"/>
