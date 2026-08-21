@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: '/api/v1',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
         $middleware->api(prepend: [LanguageMiddleware::class]);
         $middleware->alias([
             'web-language' => LanguageMiddleware::class,
