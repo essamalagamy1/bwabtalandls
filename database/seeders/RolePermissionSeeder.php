@@ -10,13 +10,8 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // roles
-        $roles = ['student', 'admin'];
-        foreach ($roles as $role) {
-            Role::firstOrCreate(['name' => $role], ['is_main' => true]);
-        }
-        // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // permissions
+        $adminRole = Role::firstOrCreate(['name' => 'admin'], ['is_main' => true]);
+        Role::firstOrCreate(['name' => 'student'], ['is_main' => true]);
 
         $modules = [
             'role' => 'roles_mng',
@@ -24,6 +19,7 @@ class RolePermissionSeeder extends Seeder
             'student' => 'students_mng',
             'stage' => 'stages_mng',
             'grade' => 'grades_mng',
+            'section' => 'sections_mng',
             'semester' => 'semesters_mng',
             'week' => 'weeks_mng',
             'training' => 'trainings_mng',
@@ -38,7 +34,8 @@ class RolePermissionSeeder extends Seeder
 
         foreach ($modules as $module => $type) {
             foreach (['create', 'show', 'edit', 'delete'] as $action) {
-                Permission::firstOrCreate(['name' => $action . '_' . $module], ['type' => $type]);
+                $permission = Permission::firstOrCreate(['name' => $action . '_' . $module], ['type' => $type]);
+                $adminRole->givePermissionTo($permission);
             }
         }
     }

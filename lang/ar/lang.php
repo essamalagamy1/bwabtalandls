@@ -581,6 +581,14 @@ return [
     'grades' => 'الصفوف',
     'grade' => 'صف',
 
+    'sections_mng' => 'إدارة الشعب الدراسية',
+    'create_section' => 'إضافة شعبة دراسية',
+    'show_section' => 'عرض شعبة دراسية',
+    'edit_section' => 'تعديل شعبة دراسية',
+    'delete_section' => 'حذف شعبة دراسية',
+    'sections' => 'الشعب الدراسية',
+    'section' => 'شعبة دراسية',
+
     'semesters_mng' => 'إدارة الفصول الدراسية',
     'create_semester' => 'إنشاء فصل دراسي',
     'show_semester' => 'عرض فصل دراسي',

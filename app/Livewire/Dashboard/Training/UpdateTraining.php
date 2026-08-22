@@ -124,7 +124,21 @@ class UpdateTraining extends Component
         if (!$wasActive && $this->training->is_active) {
             $gradeId = \App\Models\Semester::find($this->training->semester_id)?->grade_id;
             if ($gradeId) {
-                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $this->training->title, 'training');
+                $typeLabels = [
+                    'video' => 'فيديو',
+                    'pdf'   => 'PDF',
+                    'file'  => 'ملف',
+                    'link'  => 'رابط',
+                ];
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch(
+                    $gradeId,
+                    $this->training->title,
+                    'training',
+                    $this->training->description,
+                    [
+                        'نوع التدريب' => $typeLabels[$this->training->type] ?? $this->training->type,
+                    ]
+                );
             }
         }
 

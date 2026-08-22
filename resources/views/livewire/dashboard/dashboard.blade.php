@@ -6,7 +6,7 @@
 
 			{{-- ═══════════════════════ Filters ═══════════════════════ --}}
 			<x-card shadow class="!pb-2">
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 					<x-select
 						label="{{ __('lang.stages') }}"
 						wire:model.live="stage_id"
@@ -25,6 +25,16 @@
 						placeholder="{{ __('lang.all') }}"
 						icon="o-bookmark"
 						:disabled="!$stage_id"
+					/>
+					<x-select
+						label="{{ __('lang.sections') }}"
+						wire:model.live="section_id"
+						:options="$sections"
+						option-value="id"
+						option-label="name"
+						placeholder="{{ __('lang.all') }}"
+						icon="o-user-group"
+						:disabled="!$grade_id"
 					/>
 					<x-select
 						label="{{ __('lang.semesters') }}"

@@ -32,7 +32,7 @@ class StudentProfile extends Component
             abort(404, 'User is not a student.');
         }
 
-        $this->user = $user->load('grade.stage');
+        $this->user = $user->load(['grade.stage', 'section']);
         view()->share('breadcrumbs', $this->breadcrumbs());
         $this->loadAnalytics();
     }

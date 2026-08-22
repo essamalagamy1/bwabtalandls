@@ -27,6 +27,7 @@ class ExamData extends Component
 
     public $all_stages;
     public $all_grades;
+    public $all_sections;
     public $all_semesters;
     public $all_weeks;
     public $search_title;
@@ -35,6 +36,8 @@ class ExamData extends Component
     public $search_stage_id;
     #[Url]
     public $search_grade_id;
+    #[Url]
+    public $search_section_id;
     #[Url]
     public $search_semester_id;
     #[Url]
@@ -45,17 +48,21 @@ class ExamData extends Component
     public function updatedSearchStageId($value)
     {
         $this->search_grade_id = null;
+        $this->search_section_id = null;
         $this->search_semester_id = null;
         $this->search_week_id = null;
         $this->loadGrades();
+        $this->loadSections();
         $this->loadSemesters();
         $this->loadWeeks();
     }
 
     public function updatedSearchGradeId($value)
     {
+        $this->search_section_id = null;
         $this->search_semester_id = null;
         $this->search_week_id = null;
+        $this->loadSections();
         $this->loadSemesters();
         $this->loadWeeks();
     }
@@ -81,6 +88,23 @@ class ExamData extends Component
                     'id' => $grade->id,
                     'name' => $grade->name,
                     'full_path_name' => $grade->stage?->name ?? ''
+                ];
+            })->toArray();
+    }
+
+    public function loadSections() {
+        $query = \App\Models\Section::with('grade.stage')->where('is_active', true);
+        if ($this->search_grade_id) {
+            $query->where('grade_id', $this->search_grade_id);
+        } elseif ($this->search_stage_id) {
+            $query->whereHas('grade', fn($q) => $q->where('stage_id', $this->search_stage_id));
+        }
+        $this->all_sections = $query->get(['id', 'name', 'grade_id'])
+            ->map(function ($section) {
+                return [
+                    'id' => $section->id,
+                    'name' => $section->name,
+                    'full_path_name' => ($section->grade?->stage?->name ?? '') . ' - ' . ($section->grade?->name ?? ''),
                 ];
             })->toArray();
     }
@@ -138,6 +162,7 @@ class ExamData extends Component
     {
         $this->loadStages();
         $this->loadGrades();
+        $this->loadSections();
         $this->loadSemesters();
         $this->loadWeeks();
         view()->share('breadcrumbs', $this->breadcrumbs());
@@ -155,12 +180,13 @@ class ExamData extends Component
     {
         $data['exams'] = Exam::query()
             ->when($this->search_title, fn(Builder $q) => $q->where('title', 'like', "%{$this->search_title}%"))
-            ->when($this->search_stage_id, fn(Builder $q) => $q->whereHas('week.semester.grade.stage', fn($q2) => $q2->where('id', $this->search_stage_id)))
+            ->when($this->search_stage_id && !$this->search_grade_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($q2) => $q2->where('stage_id', $this->search_stage_id)))
             ->when($this->search_grade_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($q2) => $q2->where('id', $this->search_grade_id)))
+            ->when($this->search_section_id, fn(Builder $q) => $q->whereHas('week.semester.grade.sections', fn($q2) => $q2->where('id', $this->search_section_id)))
             ->when($this->search_semester_id, fn(Builder $q) => $q->whereHas('week.semester', fn($q2) => $q2->where('id', $this->search_semester_id)))
             ->when($this->search_week_id, fn(Builder $q) => $q->where('week_id', $this->search_week_id))
             ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
-            ->with(['week.semester'])
+            ->with(['week.semester.grade.stage'])
             ->withCount('questions')
             ->latest()
             ->paginate(10);
@@ -184,7 +210,16 @@ class ExamData extends Component
         if ($exam->is_active) {
             $gradeId = \App\Models\Semester::find($exam->semester_id)?->grade_id;
             if ($gradeId) {
-                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $exam->title, 'exam');
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch(
+                    $gradeId,
+                    $exam->title,
+                    'exam',
+                    $exam->description,
+                    [
+                        'مدة الاختبار' => $exam->duration_minutes . ' دقيقة',
+                        'درجة النجاح' => $exam->passing_score . '%',
+                    ]
+                );
             }
         }
 

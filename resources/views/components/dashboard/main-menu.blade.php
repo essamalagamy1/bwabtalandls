@@ -35,7 +35,7 @@
 	@endcanany
 
 	{{-- المحتوى الأكاديمي --}}
-	@canany(['show_stage', 'show_grade', 'show_semester', 'show_week', 'show_training', 'show_exam', 'show_question'])
+	@canany(['show_stage', 'show_grade', 'show_section', 'show_semester', 'show_week', 'show_training', 'show_exam', 'show_question'])
 		<x-menu-title title="{{ __('lang.academic_content') }}" />
 
 		@can('show_stage')
@@ -44,6 +44,10 @@
 
 		@can('show_grade')
 			<x-menu-item  title="{{ __('lang.grades') }}" icon-classes="text-primary" icon="o-rectangle-group" link="{{ route('grades') }}" />
+		@endcan
+
+		@can('show_section')
+			<x-menu-item  title="{{ __('lang.sections') }}" icon-classes="text-primary" icon="o-user-group" link="{{ route('sections') }}" />
 		@endcan
 
 		@can('show_semester')

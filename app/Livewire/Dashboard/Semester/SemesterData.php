@@ -27,14 +27,17 @@ class SemesterData extends Component
     public $all_stages = [];
     public $search_stage_id;
     public $all_grades;
+    public $all_sections = [];
     public $search_name;
     public $search_grade_id;
+    public $search_section_id;
     public $search_is_active = '';
 
     public function mount(): void
     {
         $this->all_stages = \App\Models\Stage::where('is_active', true)->get(['id', 'name'])->toArray();
         $this->loadGrades();
+        $this->loadSections();
         view()->share('breadcrumbs', $this->breadcrumbs());
     }
 
@@ -52,10 +55,36 @@ class SemesterData extends Component
             })->toArray();
     }
 
+    public function loadSections(): void
+    {
+        $query = \App\Models\Section::with('grade.stage')->where('is_active', true);
+        if ($this->search_grade_id) {
+            $query->where('grade_id', $this->search_grade_id);
+        } elseif ($this->search_stage_id) {
+            $query->whereHas('grade', fn($q) => $q->where('stage_id', $this->search_stage_id));
+        }
+        $this->all_sections = $query->get(['id', 'name', 'grade_id'])
+            ->map(function ($section) {
+                return [
+                    'id' => $section->id,
+                    'name' => $section->name,
+                    'full_path_name' => ($section->grade?->stage?->name ?? '') . ' - ' . ($section->grade?->name ?? ''),
+                ];
+            })->toArray();
+    }
+
     public function updatedSearchStageId(): void
     {
         $this->search_grade_id = null;
+        $this->search_section_id = null;
         $this->loadGrades();
+        $this->loadSections();
+    }
+
+    public function updatedSearchGradeId(): void
+    {
+        $this->search_section_id = null;
+        $this->loadSections();
     }
 
     public function breadcrumbs(): array
@@ -72,6 +101,7 @@ class SemesterData extends Component
             ->when($this->search_name, fn(Builder $q) => $q->where('name', 'like', "%{$this->search_name}%"))
             ->when($this->search_stage_id && !$this->search_grade_id, fn(Builder $q) => $q->whereHas('grade', fn($gq) => $gq->where('stage_id', $this->search_stage_id)))
             ->when($this->search_grade_id, fn(Builder $q) => $q->where('grade_id', $this->search_grade_id))
+            ->when($this->search_section_id, fn(Builder $q) => $q->whereHas('grade.sections', fn($sq) => $sq->where('id', $this->search_section_id)))
             ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
             ->with(['grade.stage'])
             ->withCount('weeks')

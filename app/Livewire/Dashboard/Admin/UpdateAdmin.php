@@ -32,31 +32,35 @@ class UpdateAdmin extends Component
 
     public $phone_key;
 
+    public $status;
+
     public $roles = [];
 
     public $all_roles;
 
     public function mount(): void
     {
-        $this->name = $this->user->name;
-        $this->email = $this->user->email;
-        $this->phone = $this->user->phone;
+        $this->name      = $this->user->name;
+        $this->email     = $this->user->email;
+        $this->phone     = $this->user->phone;
         $this->phone_key = $this->user->phone_key;
+        $this->status    = $this->user->status;
         // Use the already loaded roles relationship to avoid N+1 queries
-        $this->roles = $this->user->roles->where('name', '!=', 'admin')->pluck('id')->toArray();
+        $this->roles     = $this->user->roles->where('name', '!=', 'admin')->pluck('id')->toArray();
     }
 
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email:filter|max:255|unique:users,email,'.$this->user->id,
-            'phone' => 'nullable|string|max:20|unique:users,phone,'.$this->user->id,
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|email:filter|max:255|unique:users,email,'.$this->user->id,
+            'phone'     => 'nullable|string|max:20|unique:users,phone,'.$this->user->id,
             'phone_key' => 'nullable|string|max:10',
-            'password' => 'nullable|string|min:8|confirmed',
-            'image' => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
-            'roles' => 'required|array|min:1',
-            'roles.*' => 'exists:roles,id',
+            'status'    => 'required|in:active,inactive,pending',
+            'password'  => 'nullable|string|min:8|confirmed',
+            'image'     => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+            'roles'     => 'required|array|min:1',
+            'roles.*'   => 'exists:roles,id',
         ];
     }
 
@@ -65,10 +69,11 @@ class UpdateAdmin extends Component
         $this->authorize('edit_admin');
         $this->validate();
         $this->user->update([
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
+            'name'      => $this->name,
+            'email'     => $this->email,
+            'phone'     => $this->phone,
             'phone_key' => $this->phone_key,
+            'status'    => $this->status,
         ]);
         if ($this->image) {
             $this->user->addMedia($this->image->getRealPath())->toMediaCollection('image');

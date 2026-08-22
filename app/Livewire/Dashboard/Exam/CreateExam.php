@@ -93,7 +93,16 @@ class CreateExam extends Component
         if ($exam->is_active) {
             $gradeId = \App\Models\Semester::find($exam->semester_id)?->grade_id;
             if ($gradeId) {
-                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $exam->title, 'exam');
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch(
+                    $gradeId,
+                    $exam->title,
+                    'exam',
+                    $exam->description,
+                    [
+                        'مدة الاختبار' => $exam->duration_minutes . ' دقيقة',
+                        'درجة النجاح' => $exam->passing_score . '%',
+                    ]
+                );
             }
         }
 

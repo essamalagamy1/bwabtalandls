@@ -29,6 +29,8 @@ class CreateAdmin extends Component
 
     public $password_confirmation;
 
+    public $status = 'active';
+
     public $roles = [];
 
     public $all_roles;
@@ -47,6 +49,7 @@ class CreateAdmin extends Component
             'image' => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
             'phone' => 'required|string|max:20|unique:users,phone',
             'phone_key' => 'required|string|max:5',
+            'status' => 'required|in:active,inactive,pending',
             'roles' => 'required|array|min:1',
             'roles.*' => 'exists:roles,id',
         ];
@@ -63,7 +66,7 @@ class CreateAdmin extends Component
             'phone' => $this->phone,
             'phone_key' => $this->phone_key,
             'email_verified_at' => now(),
-            'status' => 'active',
+            'status' => $this->status,
         ]);
         if ($this->image) {
             $user->addMedia($this->image->getRealPath())->toMediaCollection('image');
@@ -82,6 +85,7 @@ class CreateAdmin extends Component
     public function resetData(): void
     {
         $this->reset(['name', 'email', 'password', 'image', 'password_confirmation', 'phone', 'phone_key', 'roles']);
+        $this->status = 'active';
         $this->resetErrorBag();
         $this->resetValidation();
     }

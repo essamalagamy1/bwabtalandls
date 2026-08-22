@@ -101,7 +101,21 @@ class CreateTraining extends Component
         if ($training->is_active) {
             $gradeId = \App\Models\Semester::find($training->semester_id)?->grade_id;
             if ($gradeId) {
-                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $training->title, 'training');
+                $typeLabels = [
+                    'video' => 'فيديو',
+                    'pdf'   => 'PDF',
+                    'file'  => 'ملف',
+                    'link'  => 'رابط',
+                ];
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch(
+                    $gradeId,
+                    $training->title,
+                    'training',
+                    $training->description,
+                    [
+                        'نوع التدريب' => $typeLabels[$training->type] ?? $training->type,
+                    ]
+                );
             }
         }
 

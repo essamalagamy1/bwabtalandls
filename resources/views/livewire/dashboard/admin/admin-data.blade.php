@@ -20,6 +20,7 @@
 						<th class="text-center">{{__('lang.name')}}</th>
 						<th class="text-center">{{__('lang.email')}}</th>
 						<th class="text-center">{{__('lang.roles')}}</th>
+						<th class="text-center">{{__('lang.status')}}</th>
 						<th class="text-center">{{__('lang.created_at')}}</th>
 						<th class="text-center">{{__('lang.action')}}</th>
 					</tr>
@@ -39,10 +40,26 @@
 									@endif
 								@endforeach
 							</th>
+							<th class="text-center">
+								@if($admin->status === 'active')
+									<x-badge value="{{ __('lang.active') }}" class="badge-success"/>
+								@elseif($admin->status === 'inactive')
+									<x-badge value="{{ __('lang.inactive') }}" class="badge-error"/>
+								@else
+									<x-badge value="{{ __('lang.pending') }}" class="badge-warning"/>
+								@endif
+							</th>
 							<th class="text-center text-nowrap">{{formatDate($admin->created_at,true) }}</th>
 							<td>
 								<div class="flex gap-2 justify-center">
 									@can('edit_admin')
+										<x-button 
+											icon="{{ $admin->status === 'active' ? 'o-x-circle' : 'o-check-circle' }}" 
+											class="btn-sm btn-ghost {{ $admin->status === 'active' ? 'text-error' : 'text-success' }}" 
+											wire:click="toggleStatus({{ $admin->id }})" 
+											spinner="toggleStatus({{ $admin->id }})" 
+											tooltip="{{ $admin->status === 'active' ? __('lang.inactive') : __('lang.active') }}" 
+										/>
 										<livewire:dashboard.admin.update-admin :all_roles="$all_roles" :user="$admin" :key="\Illuminate\Support\Str::random(10)"/>
 									@endcan
 									@can('delete_admin')
@@ -56,7 +73,7 @@
 						</tr>
 					@empty
 						<tr class="bg-base-200">
-							<th colspan="6" class="text-center">{{__('lang.no_data')}}</th>
+							<th colspan="7" class="text-center">{{__('lang.no_data')}}</th>
 						</tr>
 					@endforelse
 					</tbody>
@@ -72,4 +89,3 @@
 		</div>
 	</x-card>
 </div>
-

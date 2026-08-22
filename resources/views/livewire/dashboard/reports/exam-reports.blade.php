@@ -2,9 +2,10 @@
 	<x-header title="{{ __('lang.exam_reports') }}" subtitle="تحليل معمق لإحصائيات الامتحانات" separator />
 
 	{{-- Filters --}}
-	<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-base-200 p-4 rounded-xl">
+	<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-base-200 p-4 rounded-xl">
 		<x-select label="{{ __('lang.stages') }}" wire:model.live="stage_id" :options="$stages" option-value="id" option-label="name" placeholder="{{ __('lang.stages') }}" />
 		<x-select label="{{ __('lang.grades') }}" wire:model.live="grade_id" :options="$grades" option-value="id" option-label="name" placeholder="{{ __('lang.grades') }}" :disabled="!$stage_id" />
+		<x-select label="{{ __('lang.sections') }}" wire:model.live="section_id" :options="$sections" option-value="id" option-label="name" placeholder="{{ __('lang.sections') }}" :disabled="!$grade_id" />
 		<x-select label="{{ __('lang.semesters') }}" wire:model.live="semester_id" :options="$semesters" option-value="id" option-label="name" placeholder="{{ __('lang.semesters') }}" :disabled="!$grade_id" />
 	</div>
 

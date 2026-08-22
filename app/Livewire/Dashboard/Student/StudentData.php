@@ -4,6 +4,7 @@ namespace App\Livewire\Dashboard\Student;
 
 use App\Exports\StudentsExport;
 use App\Models\Grade;
+use App\Models\Section;
 use App\Models\Semester;
 use App\Models\Stage;
 use App\Models\User;
@@ -36,6 +37,8 @@ class StudentData extends Component
 
     public $all_grades = [];
 
+    public $all_sections = [];
+
     public $all_semesters = [];
 
     public $all_weeks = [];
@@ -50,6 +53,9 @@ class StudentData extends Component
     public $search_grade_id;
 
     #[Url]
+    public $search_section_id;
+
+    #[Url]
     public $search_semester_id;
 
     #[Url]
@@ -60,17 +66,21 @@ class StudentData extends Component
     public function updatedSearchStageId($value)
     {
         $this->search_grade_id = null;
+        $this->search_section_id = null;
         $this->search_semester_id = null;
         $this->search_week_id = null;
         $this->loadGrades();
+        $this->loadSections();
         $this->loadSemesters();
         $this->loadWeeks();
     }
 
     public function updatedSearchGradeId($value)
     {
+        $this->search_section_id = null;
         $this->search_semester_id = null;
         $this->search_week_id = null;
+        $this->loadSections();
         $this->loadSemesters();
         $this->loadWeeks();
     }
@@ -98,6 +108,24 @@ class StudentData extends Component
                     'id' => $grade->id,
                     'name' => $grade->name,
                     'full_path_name' => $grade->stage?->name ?? '',
+                ];
+            })->toArray();
+    }
+
+    public function loadSections()
+    {
+        $query = Section::with('grade.stage')->where('is_active', true);
+        if ($this->search_grade_id) {
+            $query->where('grade_id', $this->search_grade_id);
+        } elseif ($this->search_stage_id) {
+            $query->whereHas('grade', fn ($q) => $q->where('stage_id', $this->search_stage_id));
+        }
+        $this->all_sections = $query->get(['id', 'name', 'grade_id'])
+            ->map(function ($section) {
+                return [
+                    'id' => $section->id,
+                    'name' => $section->name,
+                    'full_path_name' => ($section->grade?->stage?->name ?? '').' - '.($section->grade?->name ?? ''),
                 ];
             })->toArray();
     }
@@ -157,6 +185,7 @@ class StudentData extends Component
     {
         $this->loadStages();
         $this->loadGrades();
+        $this->loadSections();
         $this->loadSemesters();
         $this->loadWeeks();
         view()->share('breadcrumbs', $this->breadcrumbs());
@@ -185,6 +214,7 @@ class StudentData extends Component
         return User::role('student')
             ->when($this->search_name, fn (Builder $q) => $q->where(fn ($q2) => $q2->where('name', 'like', "%{$this->search_name}%")->orWhere('email', 'like', "%{$this->search_name}%")))
             ->when($gradeIds !== null, fn (Builder $q) => $q->whereIn('grade_id', $gradeIds))
+            ->when($this->search_section_id, fn (Builder $q) => $q->where('section_id', $this->search_section_id))
             ->when($this->search_status !== '', fn (Builder $q) => $q->where('status', $this->search_status));
     }
 
@@ -258,7 +288,7 @@ class StudentData extends Component
         $data['active_students'] = (clone $statsQuery)->where('status', 'active')->count();
         $data['inactive_students'] = (clone $statsQuery)->where('status', 'inactive')->count();
 
-        $data['students'] = $query->with('grade.stage')
+        $data['students'] = $query->with(['grade.stage', 'section'])
             ->latest()
             ->paginate(10);
 

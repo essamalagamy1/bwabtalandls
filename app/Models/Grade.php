@@ -26,6 +26,11 @@ class Grade extends Model
         return $this->hasMany(Semester::class);
     }
 
+    public function sections()
+    {
+        return $this->hasMany(Section::class);
+    }
+
     public function users()
     {
         return $this->hasMany(User::class);
@@ -37,6 +42,9 @@ class Grade extends Model
             if ($grade->wasChanged('is_active') && !$grade->is_active) {
                 $grade->semesters->each(function ($semester) {
                     $semester->update(['is_active' => false]);
+                });
+                $grade->sections->each(function ($section) {
+                    $section->update(['is_active' => false]);
                 });
             }
         });

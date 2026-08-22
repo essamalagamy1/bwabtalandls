@@ -68,6 +68,15 @@ class AdminData extends Component
         return view('livewire.dashboard.admin.admin-data', $data);
     }
 
+    public function toggleStatus($id): void
+    {
+        $this->authorize('edit_admin');
+        $admin = User::findOrFail($id);
+        $newStatus = $admin->status === 'active' ? 'inactive' : 'active';
+        $admin->update(['status' => $newStatus]);
+        $this->success(__('lang.updated_successfully', ['attribute' => __('lang.status')]));
+    }
+
     public function delete($id): void
     {
         $this->authorize('delete_admin');

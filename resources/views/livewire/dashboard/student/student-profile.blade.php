@@ -29,6 +29,10 @@
                         <span class="font-bold text-gray-500">{{ __('lang.grade') ?? 'الصف' }}</span>
                         <span>{{ $user->grade?->name ?? '---' }}</span>
                     </div>
+                    <div class="flex justify-between border-b border-base-300 pb-2">
+                        <span class="font-bold text-gray-500">{{ __('lang.section') ?? 'الشعبة' }}</span>
+                        <span>{{ $user->section?->name ?? '---' }}</span>
+                    </div>
                 </div>
             </div>
         </div>

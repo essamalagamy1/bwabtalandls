@@ -7,6 +7,7 @@ use App\Models\ExamAttempt;
 use App\Models\StudentAnswer;
 use App\Models\Stage;
 use App\Models\Grade;
+use App\Models\Section;
 use App\Models\Semester;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,7 @@ class ExamReports extends Component
 
     public $stage_id;
     public $grade_id;
+    public $section_id;
     public $semester_id;
 
     public function placeholder(): View
@@ -46,13 +48,20 @@ class ExamReports extends Component
     public function updatedStageId()
     {
         $this->grade_id = null;
+        $this->section_id = null;
         $this->semester_id = null;
         $this->loadCharts();
     }
 
     public function updatedGradeId()
     {
+        $this->section_id = null;
         $this->semester_id = null;
+        $this->loadCharts();
+    }
+
+    public function updatedSectionId()
+    {
         $this->loadCharts();
     }
 
@@ -209,8 +218,9 @@ class ExamReports extends Component
 
         $stages = Stage::where('is_active', true)->get();
         $grades = $this->stage_id ? Grade::where('stage_id', $this->stage_id)->where('is_active', true)->get() : collect();
+        $sections = $this->grade_id ? Section::where('grade_id', $this->grade_id)->where('is_active', true)->get() : collect();
         $semesters = $this->grade_id ? Semester::where('grade_id', $this->grade_id)->where('is_active', true)->get() : collect();
 
-        return view('livewire.dashboard.reports.exam-reports', compact('totalExams', 'totalAttempts', 'hardestQuestions', 'easiestQuestions', 'difficultExams', 'stages', 'grades', 'semesters'));
+        return view('livewire.dashboard.reports.exam-reports', compact('totalExams', 'totalAttempts', 'hardestQuestions', 'easiestQuestions', 'difficultExams', 'stages', 'grades', 'sections', 'semesters'));
     }
 }

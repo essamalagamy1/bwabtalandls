@@ -13,6 +13,7 @@ use App\Livewire\Dashboard\Reports\StudentReports;
 use App\Livewire\Dashboard\Role\CreateRole;
 use App\Livewire\Dashboard\Role\RoleData;
 use App\Livewire\Dashboard\Role\UpdateRole;
+use App\Livewire\Dashboard\Section\SectionData;
 use App\Livewire\Dashboard\Semester\SemesterData;
 use App\Livewire\Dashboard\SiteSetting\UpdateSiteSetting;
 use App\Livewire\Dashboard\Stage\StageData;
@@ -44,6 +45,7 @@ Route::middleware(['web-language'])->group(function () {
         Route::livewire('admins', AdminData::class)->name('admins')->middleware('permission:show_admin'); // users
         Route::livewire('stages', StageData::class)->name('stages')->middleware('permission:show_stage');
         Route::livewire('grades', GradeData::class)->name('grades')->middleware('permission:show_grade');
+        Route::livewire('sections', SectionData::class)->name('sections')->middleware('permission:show_section');
         Route::livewire('semesters', SemesterData::class)->name('semesters')->middleware('permission:show_semester');
         Route::livewire('weeks', WeekData::class)->name('weeks')->middleware('permission:show_week');
         Route::livewire('trainings', TrainingData::class)->name('trainings')->middleware('permission:show_training');

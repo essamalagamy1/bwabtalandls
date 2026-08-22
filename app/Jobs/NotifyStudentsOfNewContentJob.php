@@ -18,7 +18,9 @@ class NotifyStudentsOfNewContentJob implements ShouldQueue
     public function __construct(
         public int $gradeId,
         public string $title,
-        public string $contentType // 'exam' or 'training'
+        public string $contentType, // 'exam' or 'training'
+        public ?string $description = null,
+        public array $extraDetails = []
     ) {}
 
     public function handle(): void
@@ -30,15 +32,28 @@ class NotifyStudentsOfNewContentJob implements ShouldQueue
 
         if ($students->isNotEmpty()) {
             $notificationTitle = $this->contentType === 'exam' 
-                ? 'اختبار جديد متاح' 
-                : 'تدريب جديد متاح';
+                ? 'اختبار جديد متاح: ' . $this->title
+                : 'تدريب جديد متاح: ' . $this->title;
             
-            $notificationBody = $this->contentType === 'exam'
-                ? "تمت إضافة اختبار جديد بعنوان: {$this->title}"
-                : "تمت إضافة تدريب جديد بعنوان: {$this->title}";
+            $bodyLines = [];
+            if ($this->contentType === 'exam') {
+                $bodyLines[] = "تمت إضافة وتفعيل اختبار جديد بعنوان: {$this->title}";
+            } else {
+                $bodyLines[] = "تمت إضافة وتفعيل تدريب جديد بعنوان: {$this->title}";
+            }
 
-            // The URL could direct them to their dashboard or the specific section
-            $url = route('dashboard');
+            if ($this->description) {
+                $bodyLines[] = "الوصف: {$this->description}";
+            }
+
+            foreach ($this->extraDetails as $label => $value) {
+                if ($value !== null && $value !== '') {
+                    $bodyLines[] = "{$label}: {$value}";
+                }
+            }
+
+            $notificationBody = implode("\n", $bodyLines);
+            $url = $this->contentType === 'exam' ? route('student.exams') : route('student.trainings');
 
             Notification::send($students, new UserNotification(
                 $notificationTitle,

@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
@@ -13,12 +14,21 @@ class UserNotification extends Notification
 
     public function __construct(public string $title, public string $body, public $url = null)
     {
-        //
     }
 
     public function via(object $notifiable): array
     {
-        return ['database', WebPushChannel::class];
+        return ['mail', 'database', WebPushChannel::class];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject($this->title)
+            ->greeting("هلا والله {$notifiable->name}،")
+            ->line($this->body)
+            ->action('عرض التفاصيل', $this->url ?: route('dashboard'))
+            ->salutation('مع خالص التحية،');
     }
 
     public function toWebPush($notifiable, $notification): WebPushMessage
@@ -41,8 +51,8 @@ class UserNotification extends Notification
     {
         return [
             'title' => $this->title,
-            'body' => $this->body,
-            'url' => $this->url ?: route('dashboard'),
+            'body'  => $this->body,
+            'url'   => $this->url ?: route('dashboard'),
         ];
     }
 }

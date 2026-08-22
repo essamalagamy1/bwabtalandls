@@ -6,6 +6,7 @@ use App\Models\ExamAttempt;
 use App\Models\User;
 use App\Models\Stage;
 use App\Models\Grade;
+use App\Models\Section;
 use App\Models\Semester;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
@@ -22,6 +23,7 @@ class StudentReports extends Component
 
     public $stage_id;
     public $grade_id;
+    public $section_id;
     public $semester_id;
 
     public function placeholder(): View
@@ -46,13 +48,20 @@ class StudentReports extends Component
     public function updatedStageId()
     {
         $this->grade_id = null;
+        $this->section_id = null;
         $this->semester_id = null;
         $this->loadCharts();
     }
 
     public function updatedGradeId()
     {
+        $this->section_id = null;
         $this->semester_id = null;
+        $this->loadCharts();
+    }
+
+    public function updatedSectionId()
+    {
         $this->loadCharts();
     }
 
@@ -75,6 +84,11 @@ class StudentReports extends Component
         if ($this->grade_id) {
             $query->whereHas('exam.week.semester', function($q) {
                 $q->where('grade_id', $this->grade_id);
+            });
+        }
+        if ($this->section_id) {
+            $query->whereHas('user', function($q) {
+                $q->where('section_id', $this->section_id);
             });
         }
         if ($this->semester_id) {
@@ -157,6 +171,9 @@ class StudentReports extends Component
         if ($this->grade_id) {
             $topStudents->where('grade_id', $this->grade_id);
         }
+        if ($this->section_id) {
+            $topStudents->where('section_id', $this->section_id);
+        }
 
         $weakStudents = clone $topStudents;
 
@@ -182,8 +199,9 @@ class StudentReports extends Component
 
         $stages = Stage::where('is_active', true)->get();
         $grades = $this->stage_id ? Grade::where('stage_id', $this->stage_id)->where('is_active', true)->get() : collect();
+        $sections = $this->grade_id ? Section::where('grade_id', $this->grade_id)->where('is_active', true)->get() : collect();
         $semesters = $this->grade_id ? Semester::where('grade_id', $this->grade_id)->where('is_active', true)->get() : collect();
 
-        return view('livewire.dashboard.reports.student-reports', compact('totalAttempts', 'avgScore', 'topStudents', 'weakStudents', 'stages', 'grades', 'semesters'));
+        return view('livewire.dashboard.reports.student-reports', compact('totalAttempts', 'avgScore', 'topStudents', 'weakStudents', 'stages', 'grades', 'sections', 'semesters'));
     }
 }

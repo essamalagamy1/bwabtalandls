@@ -8,6 +8,10 @@
 			<x-input label="{{__('lang.email')}}" type="email" wire:model="email"/>
 			<x-input label="{{__('lang.password')}}" type="password" wire:model="password"/>
 			<x-input label="{{__('lang.password_confirmation')}}" type="password" wire:model="password_confirmation"/>
+			<x-select label="{{ __('lang.status') }}" wire:model="status" :options="[
+                ['id' => 'active', 'name' => __('lang.active')],
+                ['id' => 'inactive', 'name' => __('lang.inactive')],
+            ]" option-value="id" option-label="name"/>
 			<div>
 				<x-choices-offline clearable  label="{{__('lang.roles')}}" wire:model="roles" :options="$all_roles" option-value="id" option-label="name" searchable multiple/>
 			</div>
@@ -22,4 +26,3 @@
 		</x-form>
 	</x-modal>
 </div>
-

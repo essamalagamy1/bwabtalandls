@@ -14,8 +14,13 @@
 			
 			<x-phone-input required label="{{ __('lang.phone') }}" phoneProperty="phone" keyProperty="phone_key"/>
 			
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model="grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable/>
-			
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<x-select label="{{ __('lang.stage') }}" wire:model.live="stage_id" :options="$all_stages" option-value="id" option-label="name" placeholder="{{ __('lang.select') }}..." />
+				<x-select label="{{ __('lang.grade') }}" wire:model.live="grade_id" :options="$all_grades" option-value="id" option-label="name" placeholder="{{ __('lang.select') }}..." />
+			</div>
+
+			<x-select label="{{ __('lang.section') }}" wire:model="section_id" :options="$all_sections" option-value="id" option-label="name" placeholder="{{ count($all_sections) > 0 ? __('lang.select') : 'لا توجد شعب متاحة لهذا الصف (اختياري)' }}" clearable />
+
 			<x-select label="{{ __('lang.status') }}" wire:model="status" :options="[
                 ['id' => 'active', 'name' => __('lang.active')],
                 ['id' => 'inactive', 'name' => __('lang.inactive')],

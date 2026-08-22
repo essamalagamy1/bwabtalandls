@@ -87,6 +87,11 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         return $this->belongsTo(Grade::class, 'grade_id');
     }
 
+    public function section(): BelongsTo
+    {
+        return $this->belongsTo(Section::class, 'section_id');
+    }
+
     public function examAttempts(): HasMany
     {
         return $this->hasMany(ExamAttempt::class, 'user_id');

@@ -687,6 +687,14 @@ return [
     'grades' => 'Grades',
     'grade' => 'Grade',
 
+    'sections_mng' => 'Sections Management',
+    'create_section' => 'Create Section',
+    'show_section' => 'View Section',
+    'edit_section' => 'Edit Section',
+    'delete_section' => 'Delete Section',
+    'sections' => 'Sections',
+    'section' => 'Section',
+
     'semesters_mng' => 'Semesters Management',
     'create_semester' => 'Create Semester',
     'show_semester' => 'View Semester',

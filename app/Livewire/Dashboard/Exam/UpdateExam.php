@@ -116,7 +116,16 @@ class UpdateExam extends Component
         if (!$wasActive && $this->exam->is_active) {
             $gradeId = \App\Models\Semester::find($this->exam->semester_id)?->grade_id;
             if ($gradeId) {
-                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch($gradeId, $this->exam->title, 'exam');
+                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch(
+                    $gradeId,
+                    $this->exam->title,
+                    'exam',
+                    $this->exam->description,
+                    [
+                        'مدة الاختبار' => $this->exam->duration_minutes . ' دقيقة',
+                        'درجة النجاح' => $this->exam->passing_score . '%',
+                    ]
+                );
             }
         }
 

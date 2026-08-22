@@ -6,6 +6,7 @@ use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Grade;
 use App\Models\Question;
+use App\Models\Section;
 use App\Models\Semester;
 use App\Models\Stage;
 use App\Models\Training;
@@ -27,11 +28,13 @@ class Dashboard extends Component
     // Filters
     public $stage_id;
     public $grade_id;
+    public $section_id;
     public $semester_id;
 
     // Filter options
     public array $stages = [];
     public array $grades = [];
+    public array $sections = [];
     public array $semesters = [];
 
     // Charts
@@ -60,20 +63,31 @@ class Dashboard extends Component
     public function updatedStageId(): void
     {
         $this->grade_id = null;
+        $this->section_id = null;
         $this->semester_id = null;
         $this->grades = $this->stage_id
             ? Grade::where('stage_id', $this->stage_id)->where('is_active', true)->get(['id', 'name'])->toArray()
             : [];
+        $this->sections = [];
         $this->semesters = [];
         $this->loadCharts();
     }
 
     public function updatedGradeId(): void
     {
+        $this->section_id = null;
         $this->semester_id = null;
+        $this->sections = $this->grade_id
+            ? Section::where('grade_id', $this->grade_id)->where('is_active', true)->get(['id', 'name'])->toArray()
+            : [];
         $this->semesters = $this->grade_id
             ? Semester::where('grade_id', $this->grade_id)->where('is_active', true)->get(['id', 'name'])->toArray()
             : [];
+        $this->loadCharts();
+    }
+
+    public function updatedSectionId(): void
+    {
         $this->loadCharts();
     }
 
@@ -88,7 +102,8 @@ class Dashboard extends Component
     {
         return User::role('student')
             ->when($this->stage_id, fn(Builder $q) => $q->whereHas('grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
-            ->when($this->grade_id, fn(Builder $q) => $q->where('grade_id', $this->grade_id));
+            ->when($this->grade_id, fn(Builder $q) => $q->where('grade_id', $this->grade_id))
+            ->when($this->section_id, fn(Builder $q) => $q->where('section_id', $this->section_id));
     }
 
     private function filteredStudentQuery(): Builder

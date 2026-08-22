@@ -4,7 +4,7 @@
 			<x-button icon="o-document-arrow-down" class="btn-success btn-sm" wire:click="exportExcel" tooltip="تصدير Excel" spinner="exportExcel" />
 			<x-button icon="o-document-arrow-down" class="btn-error btn-sm" wire:click="exportPdf" tooltip="تصدير PDF" spinner="exportPdf" />
 			@can('create_student')
-				<livewire:dashboard.student.create-student :all_grades="$all_grades" wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
+				<livewire:dashboard.student.create-student wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
 			@endcan
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
@@ -17,6 +17,7 @@
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_name" placeholder="{{ __('lang.search') }}..." clearable/>
 			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-sub-label="full_path_name" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.section') }}" wire:model.live="search_section_id" :options="$all_sections" option-sub-label="full_path_name" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
 			<x-select label="{{ __('lang.status') }}" wire:model.live="search_status" :options="[
@@ -35,6 +36,7 @@
 						<th class="text-center">{{ __('lang.name') }}</th>
 						<th class="text-center">{{ __('lang.email') }}</th>
 						<th class="text-center">{{ __('lang.grade') }}</th>
+						<th class="text-center">{{ __('lang.section') }}</th>
 						<th class="text-center">{{ __('lang.status') }}</th>
 						<th class="text-center">{{ __('lang.created_at') }}</th>
 						<th class="text-center">{{ __('lang.action') }}</th>
@@ -58,6 +60,7 @@
 							</td>
 							<td class="text-center text-nowrap">{{ $student->email }}</td>
 							<td class="text-center text-nowrap">{{ $student->grade?->name ?? '-' }}</td>
+							<td class="text-center text-nowrap">{{ $student->section?->name ?? '-' }}</td>
 							<td class="text-center">
 								@if($student->status === 'active')
 									<x-badge value="{{ __('lang.active') }}" class="badge-success"/>
@@ -87,7 +90,7 @@
 											spinner="toggleStatus({{ $student->id }})" 
 											tooltip="{{ $student->status === 'active' ? __('lang.inactive') : __('lang.active') }}" 
 										/>
-										<livewire:dashboard.student.update-student :student="$student" :all_grades="$all_grades" :key="\Illuminate\Support\Str::random(10)"/>
+										<livewire:dashboard.student.update-student :student="$student" :key="\Illuminate\Support\Str::random(10)"/>
 									@endcan
 									@can('delete_student')
 										<x-button icon="o-trash" class="btn-sm btn-ghost text-error"
