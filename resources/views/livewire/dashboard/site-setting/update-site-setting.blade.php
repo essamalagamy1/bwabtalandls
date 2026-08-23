@@ -115,7 +115,7 @@
             </div>
 
             {{-- Google OAuth Settings --}}
-            <div class="mb-6">
+            {{-- <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-3">{{ __('lang.google_oauth_settings') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <x-input dir="ltr" label="{{ __('lang.google_client_id') }}" wire:model="google_client_id"
@@ -125,10 +125,10 @@
                     <x-input dir="ltr" label="{{ __('lang.google_redirect_uri') }}"
                              wire:model="google_redirect_uri" hint="{{ __('lang.google_redirect_uri_hint') }}"/>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- About Us --}}
-            <div class="mb-6">
+            {{-- <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-3">{{ __('lang.about_us') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <x-trix required wire:model="about_us_ar" label="{{ __('lang.about_us_ar') }}"
@@ -136,10 +136,10 @@
                     <x-trix dir="ltr" required wire:model="about_us_en" label="{{ __('lang.about_us_en') }}"
                             key="{{ \Illuminate\Support\Str::random(20) }}"></x-trix>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- Shipping & Returns --}}
-            <div class="mb-6">
+            {{-- <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-3">{{ __('lang.shipping_returns') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <x-trix required wire:model="shipping_returns_ar" label="{{ __('lang.shipping_returns_ar') }}"
@@ -148,10 +148,10 @@
                             label="{{ __('lang.shipping_returns_en') }}"
                             key="{{ \Illuminate\Support\Str::random(20) }}"></x-trix>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- Privacy Policy --}}
-            <div class="mb-6">
+            {{-- <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-3">{{ __('lang.privacy_policy') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <x-trix required wire:model="privacy_policy_ar" label="{{ __('lang.privacy_policy_ar') }}"
@@ -160,10 +160,10 @@
                             label="{{ __('lang.privacy_policy_en') }}"
                             key="{{ \Illuminate\Support\Str::random(20) }}"></x-trix>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- Terms and Conditions --}}
-            <div class="mb-6">
+            {{-- <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-3">{{ __('lang.terms_and_conditions') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <x-trix required wire:model="terms_and_conditions_ar"
@@ -173,11 +173,11 @@
                             label="{{ __('lang.terms_and_conditions_en') }}"
                             key="{{ \Illuminate\Support\Str::random(20) }}"></x-trix>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- refund policy --}}
 
-            <div class="mb-6">
+            {{-- <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-3">{{ __('lang.refund_policy') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <x-trix required wire:model="refund_policy_ar" label="{{ __('lang.refund_policy_ar') }}"
@@ -186,10 +186,10 @@
                             label="{{ __('lang.refund_policy_en') }}"
                             key="{{ \Illuminate\Support\Str::random(20) }}"></x-trix>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- shipping policy --}}
-            <div class="mb-6">
+            {{-- <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-3">{{ __('lang.shipping_policy') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <x-trix required wire:model="shipping_policy_ar" label="{{ __('lang.shipping_policy_ar') }}"
@@ -198,7 +198,7 @@
                             label="{{ __('lang.shipping_policy_en') }}"
                             key="{{ \Illuminate\Support\Str::random(20) }}"></x-trix>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="flex justify-end">
                 @can('edit_site_setting')
