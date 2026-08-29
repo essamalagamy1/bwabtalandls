@@ -4,8 +4,34 @@
 	@else
 		<div class="flex h-full w-full flex-1 flex-col gap-6 rounded-xl">
 
-			{{-- ═══════════════════════ Filters ═══════════════════════ --}}
-			<x-card shadow class="!pb-2">
+			{{-- Header with Print Action --}}
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
+				<div>
+					<h1 class="text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-100">{{ __('lang.dashboard') }}</h1>
+					<p class="text-sm text-neutral-500">{{ __('lang.overview_analytics') }}</p>
+				</div>
+				<div class="flex items-center gap-2">
+					<x-button 
+						icon="o-printer" 
+						label="{{ __('lang.print_report') }}" 
+						wire:click="printReport" 
+						spinner="printReport" 
+						class="btn-primary btn-outline shadow-sm hover:scale-105 transition-transform" 
+					/>
+				</div>
+			</div>
+
+			{{-- Print-Only Header with Logo, Metadata, and Applied Filters --}}
+			<x-report-print-header 
+				title="تقرير لوحة التحكم والإحصائيات العامة" 
+				:selected-stage="$selectedStage" 
+				:selected-grade="$selectedGrade" 
+				:selected-section="$selectedSection" 
+				:selected-semester="$selectedSemester" 
+			/>
+
+			{{-- ═══════════════════════ Filters (Screen Only) ═══════════════════════ --}}
+			<x-card shadow class="!pb-2 no-print">
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 					<x-select
 						label="{{ __('lang.stages') }}"
@@ -34,7 +60,7 @@
 						option-label="name"
 						placeholder="{{ __('lang.all') }}"
 						icon="o-user-group"
-						:disabled="!$grade_id"
+						:disabled="!$stage_id"
 					/>
 					<x-select
 						label="{{ __('lang.semesters') }}"
@@ -44,7 +70,7 @@
 						option-label="name"
 						placeholder="{{ __('lang.all') }}"
 						icon="o-calendar-days"
-						:disabled="!$grade_id"
+						:disabled="!$stage_id"
 					/>
 				</div>
 			</x-card>

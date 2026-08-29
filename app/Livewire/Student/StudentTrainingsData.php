@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Student;
 
+use App\Models\Semester;
 use App\Models\Training;
+use App\Models\Week;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Lazy;
@@ -17,7 +19,9 @@ class StudentTrainingsData extends Component
     use WithPagination;
 
     public string $search = '';
+
     public $selectedSemester = '';
+
     public $selectedWeek = '';
 
     public function updatedSelectedSemester()
@@ -58,7 +62,7 @@ class StudentTrainingsData extends Component
         $user = Auth::user();
         $gradeId = $user->grade_id;
 
-        $semesters = \App\Models\Semester::where('grade_id', $gradeId)
+        $semesters = Semester::where('grade_id', $gradeId)
             ->where('is_active', true)
             ->get();
 
@@ -67,8 +71,8 @@ class StudentTrainingsData extends Component
         }
 
         $weeks = [];
-        if (!empty($this->selectedSemester)) {
-            $weeks = \App\Models\Week::where('semester_id', $this->selectedSemester)
+        if (! empty($this->selectedSemester)) {
+            $weeks = Week::where('semester_id', $this->selectedSemester)
                 ->where('is_active', true)
                 ->get();
         }
@@ -79,24 +83,24 @@ class StudentTrainingsData extends Component
             });
         });
 
-        if (!empty($this->selectedSemester)) {
-            $trainingsQuery->whereHas('week', function($q) {
+        if (! empty($this->selectedSemester)) {
+            $trainingsQuery->whereHas('week', function ($q) {
                 $q->where('semester_id', $this->selectedSemester);
             });
         }
 
-        if (!empty($this->selectedWeek)) {
+        if (! empty($this->selectedWeek)) {
             $trainingsQuery->where('week_id', $this->selectedWeek);
         }
 
         $trainings = $trainingsQuery->with('week.semester')
-        ->where('is_active', true)
-        ->when($this->search, function ($query) {
-            $query->where('title', 'like', '%' . $this->search . '%')
-                  ->orWhere('description', 'like', '%' . $this->search . '%');
-        })
-        ->latest()
-        ->paginate(12);
+            ->where('is_active', true)
+            ->when($this->search, function ($query) {
+                $query->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('description', 'like', '%'.$this->search.'%');
+            })
+            ->latest()
+            ->paginate(12);
 
         return view('livewire.student.student-trainings-data', compact('trainings', 'semesters', 'weeks'));
     }

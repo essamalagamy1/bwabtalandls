@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Dashboard\Week;
 
+use App\Models\Semester;
 use App\Models\Week;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Mary\Traits\Toast;
 
@@ -11,12 +13,19 @@ class CreateWeek extends Component
     use Toast;
 
     public bool $modalAdd = false;
+
     public $title;
+
     public $order;
+
     public $semester_id;
+
     public bool $is_active = true;
+
     public $start_date;
+
     public $end_date;
+
     public $all_semesters;
 
     public function render()
@@ -27,21 +36,21 @@ class CreateWeek extends Component
     public function rules(): array
     {
         return [
-            'title'       => [
+            'title' => [
                 'required',
                 'string',
                 'max:255',
-                \Illuminate\Validation\Rule::unique('weeks', 'title')->where('semester_id', $this->semester_id)
+                Rule::unique('weeks', 'title')->where('semester_id', $this->semester_id),
             ],
-            'order'       => 'required|integer|min:1',
+            'order' => 'required|integer|min:1',
             'semester_id' => 'required|exists:semesters,id',
-            'is_active'   => 'boolean',
-            'start_date'  => [
+            'is_active' => 'boolean',
+            'start_date' => [
                 'nullable',
                 'date',
                 function (string $attribute, mixed $value, \Closure $fail) {
                     if ($this->semester_id && $value) {
-                        $semester = \App\Models\Semester::find($this->semester_id);
+                        $semester = Semester::find($this->semester_id);
                         if ($semester && $semester->start_date && $value < $semester->start_date->format('Y-m-d')) {
                             $fail("تاريخ البداية يجب أن يكون بعد أو يساوي بداية الفصل الدراسي ({$semester->start_date->format('Y-m-d')})");
                         }
@@ -49,15 +58,15 @@ class CreateWeek extends Component
                             $fail("تاريخ البداية يجب أن يكون قبل أو يساوي نهاية الفصل الدراسي ({$semester->end_date->format('Y-m-d')})");
                         }
                     }
-                }
+                },
             ],
-            'end_date'    => [
+            'end_date' => [
                 'nullable',
                 'date',
                 'after_or_equal:start_date',
                 function (string $attribute, mixed $value, \Closure $fail) {
                     if ($this->semester_id && $value) {
-                        $semester = \App\Models\Semester::find($this->semester_id);
+                        $semester = Semester::find($this->semester_id);
                         if ($semester && $semester->start_date && $value < $semester->start_date->format('Y-m-d')) {
                             $fail("تاريخ النهاية يجب أن يكون بعد أو يساوي بداية الفصل الدراسي ({$semester->start_date->format('Y-m-d')})");
                         }
@@ -65,7 +74,7 @@ class CreateWeek extends Component
                             $fail("تاريخ النهاية يجب أن يكون قبل أو يساوي نهاية الفصل الدراسي ({$semester->end_date->format('Y-m-d')})");
                         }
                     }
-                }
+                },
             ],
         ];
     }
@@ -76,12 +85,12 @@ class CreateWeek extends Component
         $this->validate();
 
         Week::create([
-            'title'       => $this->title,
-            'order'       => $this->order,
+            'title' => $this->title,
+            'order' => $this->order,
             'semester_id' => $this->semester_id,
-            'is_active'   => $this->is_active,
-            'start_date'  => $this->start_date,
-            'end_date'    => $this->end_date,
+            'is_active' => $this->is_active,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
         ]);
 
         $this->modalAdd = false;

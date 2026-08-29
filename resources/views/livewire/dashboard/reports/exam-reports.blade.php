@@ -1,12 +1,31 @@
 <div>
-	<x-header title="{{ __('lang.exam_reports') }}" subtitle="تحليل معمق لإحصائيات الامتحانات" separator />
+	<x-header title="{{ __('lang.exam_reports') }}" subtitle="{{ __('lang.exams_overview') }}" separator class="no-print">
+		<x-slot:actions>
+			<x-button 
+				icon="o-printer" 
+				label="{{ __('lang.print_report') }}" 
+				wire:click="printReport" 
+				spinner="printReport" 
+				class="btn-primary btn-outline shadow-sm hover:scale-105 transition-transform" 
+			/>
+		</x-slot:actions>
+	</x-header>
 
-	{{-- Filters --}}
-	<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-base-200 p-4 rounded-xl">
+	{{-- Print-Only Header with Logo, Metadata, and Applied Filters --}}
+	<x-report-print-header 
+		title="{{ __('lang.exam_reports') }} - تقرير تحليلي لإحصائيات الامتحانات" 
+		:selected-stage="$selectedStage" 
+		:selected-grade="$selectedGrade" 
+		:selected-section="$selectedSection" 
+		:selected-semester="$selectedSemester" 
+	/>
+
+	{{-- Filters (Screen Only) --}}
+	<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-base-200 p-4 rounded-xl no-print">
 		<x-select label="{{ __('lang.stages') }}" wire:model.live="stage_id" :options="$stages" option-value="id" option-label="name" placeholder="{{ __('lang.stages') }}" />
 		<x-select label="{{ __('lang.grades') }}" wire:model.live="grade_id" :options="$grades" option-value="id" option-label="name" placeholder="{{ __('lang.grades') }}" :disabled="!$stage_id" />
-		<x-select label="{{ __('lang.sections') }}" wire:model.live="section_id" :options="$sections" option-value="id" option-label="name" placeholder="{{ __('lang.sections') }}" :disabled="!$grade_id" />
-		<x-select label="{{ __('lang.semesters') }}" wire:model.live="semester_id" :options="$semesters" option-value="id" option-label="name" placeholder="{{ __('lang.semesters') }}" :disabled="!$grade_id" />
+		<x-select label="{{ __('lang.sections') }}" wire:model.live="section_id" :options="$sections" option-value="id" option-label="name" placeholder="{{ __('lang.sections') }}" :disabled="!$stage_id" />
+		<x-select label="{{ __('lang.semesters') }}" wire:model.live="semester_id" :options="$semesters" option-value="id" option-label="name" placeholder="{{ __('lang.semesters') }}" :disabled="!$stage_id" />
 	</div>
 
 	{{-- Top Stats --}}
@@ -17,7 +36,7 @@
 
 	{{-- Charts --}}
 	<div class="mb-8">
-		<x-card title="{{ __('lang.average_score') }} (Top 10 Recent Exams)" class="shadow-md">
+		<x-card title="{{ __('lang.average_score') }} ({{ __('lang.recent_10_exams') }})" class="shadow-md">
 			<x-chart wire:model="averageScoreChart" />
 		</x-card>
 	</div>
@@ -71,7 +90,7 @@
 		</x-card>
 	</div>
 
-	<x-card title="{{ __('lang.exam_difficulty') }} (Ranked by Failure)" class="shadow-md mb-8">
+	<x-card title="{{ __('lang.exam_difficulty') }} ({{ __('lang.ranked_by_failure') }})" class="shadow-md mb-8">
 		<table class="table w-full">
 			<thead>
 				<tr>
@@ -85,7 +104,7 @@
 					<tr>
 						<td>{{ $index + 1 }}</td>
 						<td>{{ $exam->title }}</td>
-						<td class="font-bold text-warning">{{ round(($exam->pass_count / $exam->attempts_count) * 100) }}% ({{ $exam->attempts_count }} {{ __('lang.attempts') ?? 'attempts' }})</td>
+						<td class="font-bold text-warning">{{ round(($exam->pass_count / $exam->attempts_count) * 100) }}% ({{ $exam->attempts_count }} {{ __('lang.attempts') }})</td>
 					</tr>
 				@empty
 					<tr><td colspan="3" class="text-center">{{ __('lang.no_data') }}</td></tr>

@@ -12,7 +12,7 @@ class WeekSeeder extends Seeder
     {
         $semesters = Semester::all();
         $weeks = ['الأسبوع الأول', 'الأسبوع الثاني', 'الأسبوع الثالث', 'الأسبوع الرابع'];
-        
+
         foreach ($semesters as $semester) {
             foreach ($weeks as $index => $weekTitle) {
                 Week::create([

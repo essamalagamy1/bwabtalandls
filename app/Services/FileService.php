@@ -56,7 +56,7 @@ class FileService
 
         // Check if file is an image and convert to WebP
         if (self::getType($file) === 'image') {
-            $path = \App\Services\ImageConversionService::convertToWebP($path, $folder, self::DISK);
+            $path = ImageConversionService::convertToWebP($path, $folder, self::DISK);
         }
 
         return $path;
@@ -71,7 +71,7 @@ class FileService
 
             // Check if file is an image and convert to WebP
             if (self::getType($file) === 'image') {
-                $path = \App\Services\ImageConversionService::convertToWebP($path, $folder, self::DISK);
+                $path = ImageConversionService::convertToWebP($path, $folder, self::DISK);
             }
 
             return $path;

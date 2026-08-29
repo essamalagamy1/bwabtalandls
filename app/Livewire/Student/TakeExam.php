@@ -17,9 +17,14 @@ class TakeExam extends Component
     use Toast;
 
     public Exam $exam;
+
     public ExamAttempt $attempt;
+
     public array $answers = [];
+
     public int $timeLeft = 0;
+
+    public bool $isMediaOpen = false;
 
     public function mount(Exam $exam): void
     {
@@ -33,6 +38,7 @@ class TakeExam extends Component
         if ($existingAttempt) {
             if ($existingAttempt->status !== null) {
                 $this->redirect(route('student.exams.result', $exam->id), navigate: true);
+
                 return;
             }
             $this->attempt = $existingAttempt;
@@ -45,6 +51,10 @@ class TakeExam extends Component
             ]);
         }
 
+        if ($this->exam->isUnlimitedMediaViews()) {
+            $this->isMediaOpen = true;
+        }
+
         foreach ($this->exam->questions as $question) {
             $this->answers[$question->id] = null;
         }
@@ -54,11 +64,35 @@ class TakeExam extends Component
             $this->timeLeft = max(0, ($this->exam->duration_minutes * 60) - $elapsedSeconds);
             if ($this->timeLeft <= 0) {
                 $this->submitExam();
+
                 return;
             }
         } else {
-            $this->timeLeft = -1; 
+            $this->timeLeft = -1;
         }
+    }
+
+    public function openMedia(): void
+    {
+        if ($this->exam->isUnlimitedMediaViews()) {
+            $this->isMediaOpen = true;
+
+            return;
+        }
+
+        if ($this->attempt->canViewMedia()) {
+            $this->attempt->increment('media_views_count');
+            $this->attempt->refresh();
+            $this->isMediaOpen = true;
+        } else {
+            $this->isMediaOpen = false;
+            $this->error(__('lang.views_exhausted'));
+        }
+    }
+
+    public function closeMedia(): void
+    {
+        $this->isMediaOpen = false;
     }
 
     public function submitExam(): void

@@ -3,16 +3,16 @@
 namespace App\Livewire\Dashboard\Student;
 
 use App\Exports\StudentsExport;
+use App\Mail\AccountStatusNotification;
 use App\Models\Grade;
 use App\Models\Section;
 use App\Models\Semester;
 use App\Models\Stage;
 use App\Models\User;
 use App\Models\Week;
-use App\Mail\AccountStatusNotification;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -138,11 +138,11 @@ class StudentData extends Component
         } elseif ($this->search_stage_id) {
             $query->whereHas('grade', fn ($q) => $q->where('stage_id', $this->search_stage_id));
         }
-        $this->all_semesters = $query->get(['id', 'name', 'grade_id'])
+        $this->all_semesters = $query->get()
             ->map(function ($semester) {
                 return [
                     'id' => $semester->id,
-                    'name' => $semester->name,
+                    'name' => $semester->name_with_academic_year,
                     'full_path_name' => ($semester->grade?->stage?->name ?? '').' - '.($semester->grade?->name ?? ''),
                 ];
             })->toArray();
@@ -175,10 +175,19 @@ class StudentData extends Component
                 return [
                     'id' => $week->id,
                     'name' => $week->name,
-                    'full_path_name' => ($week->semester?->grade?->stage?->name ?? '').' - '.($week->semester?->grade?->name ?? '').' - '.($week->semester?->name ?? ''),
+                    'full_path_name' => ($week->semester?->grade?->stage?->name ?? '').' - '.($week->semester?->grade?->name ?? '').' - '.($week->semester?->name_with_academic_year ?? ''),
                 ];
             })
             ->toArray();
+    }
+
+    public function rendering(): void
+    {
+        $this->loadStages();
+        $this->loadGrades();
+        $this->loadSections();
+        $this->loadSemesters();
+        $this->loadWeeks();
     }
 
     public function mount(): void
@@ -298,17 +307,17 @@ class StudentData extends Component
     public function toggleStatus($id): void
     {
         $this->authorize('edit_student');
-        
+
         $student = User::findOrFail($id);
         $newStatus = $student->status === 'active' ? 'inactive' : 'active';
-        
+
         $student->update(['status' => $newStatus]);
-        
+
         try {
             Mail::to($student->email)->send(new AccountStatusNotification($student, $newStatus));
             $this->success(__('lang.updated_successfully', ['attribute' => __('lang.status')]));
         } catch (\Exception $e) {
-            \Log::error('Failed to send status email to ' . $student->email . ': ' . $e->getMessage());
+            \Log::error('Failed to send status email to '.$student->email.': '.$e->getMessage());
             $this->warning('تم تحديث الحالة، لكن تعذر إرسال البريد الإلكتروني للمستخدم.');
         }
     }

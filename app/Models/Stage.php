@@ -15,7 +15,6 @@ class Stage extends Model
         'is_active' => 'boolean',
     ];
 
-
     public function grades()
     {
         return $this->hasMany(Grade::class);
@@ -24,12 +23,11 @@ class Stage extends Model
     protected static function booted()
     {
         static::updated(function ($stage) {
-            if ($stage->wasChanged('is_active') && !$stage->is_active) {
+            if ($stage->wasChanged('is_active') && ! $stage->is_active) {
                 $stage->grades->each(function ($grade) {
                     $grade->update(['is_active' => false]);
                 });
             }
         });
     }
-
 }

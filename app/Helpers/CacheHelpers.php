@@ -5,6 +5,7 @@ use App\Models\Banner;
 use App\Models\Category;
 use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Cache;
+use Spatie\Permission\Models\Role;
 
 if (! function_exists('siteSetting')) {
     function siteSetting()
@@ -45,7 +46,7 @@ if (! function_exists('adminRoles')) {
     function adminRoles()
     {
         return Cache::remember('admin_roles_list', 3600, function () {
-            return \Spatie\Permission\Models\Role::where('is_main', false)
+            return Role::where('is_main', false)
                 ->get(['id', 'name'])
                 ->toArray();
         });

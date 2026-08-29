@@ -7,17 +7,16 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use NotificationChannels\WebPush\HasPushSubscriptions;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
 
 /**
  * @property int $id
@@ -26,15 +25,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $phone_key
  * @property string|null $phone
  * @property int|null $university_id
- * @property-read \App\Models\University|null $university
+ * @property-read University|null $university
  * @property int|null $grade_id
  * @property string $status
- * @property-read \App\Models\Grade|null $grade
+ * @property-read Grade|null $grade
  */
 #[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, HasRoles, \Illuminate\Auth\MustVerifyEmail, InteractsWithMedia, Notifiable, SoftDeletes, HasPushSubscriptions;
+    use HasApiTokens, HasFactory, HasPushSubscriptions, HasRoles, \Illuminate\Auth\MustVerifyEmail, InteractsWithMedia, Notifiable, SoftDeletes;
 
     protected $table = 'users';
 

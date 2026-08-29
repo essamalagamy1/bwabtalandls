@@ -25,8 +25,11 @@ class GradeData extends Component
     }
 
     public $all_stages;
+
     public $search_name;
+
     public $search_stage_id;
+
     public $search_is_active = '';
 
     public function mount(): void
@@ -46,9 +49,9 @@ class GradeData extends Component
     public function render(): View
     {
         $data['grades'] = Grade::query()
-            ->when($this->search_name, fn(Builder $q) => $q->where('name', 'like', "%{$this->search_name}%"))
-            ->when($this->search_stage_id, fn(Builder $q) => $q->where('stage_id', $this->search_stage_id))
-            ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
+            ->when($this->search_name, fn (Builder $q) => $q->where('name', 'like', "%{$this->search_name}%"))
+            ->when($this->search_stage_id, fn (Builder $q) => $q->where('stage_id', $this->search_stage_id))
+            ->when($this->search_is_active !== '', fn (Builder $q) => $q->where('is_active', (bool) $this->search_is_active))
             ->with('stage')
             ->withCount('semesters')
             ->latest()
@@ -61,7 +64,7 @@ class GradeData extends Component
     {
         $this->authorize('edit_grade');
         $grade = Grade::findOrFail($id);
-        $grade->update(['is_active' => !$grade->is_active]);
+        $grade->update(['is_active' => ! $grade->is_active]);
         $this->success(__('lang.updated_successfully', ['attribute' => __('lang.grade')]));
         $this->dispatch('render')->component(GradeData::class);
     }

@@ -2,7 +2,17 @@
 	<x-button icon="o-plus" class="btn-primary btn-sm mt-2 md:mt-0" label="{{ __('lang.add') }}" @click="$wire.modalAdd = true" wire:click="resetData"/>
 	<x-modal wire:model="modalAdd" title="{{ __('lang.add') }} {{ __('lang.question') }}" box-class="modal-box-800">
 		<x-form wire:submit="saveAdd">
-			<x-choices-offline label="{{ __('lang.exam') }}" wire:model="exam_id" :options="$all_exams" option-value="id" option-label="name" single searchable/>
+			@if($fixed_exam_id)
+				<div class="p-3 bg-base-200/80 rounded-xl border border-base-300 mb-3 flex items-center justify-between">
+					<div>
+						<div class="text-xs text-base-content/60">{{ __('lang.exam') }}</div>
+						<div class="font-bold text-primary text-base">{{ \App\Models\Exam::find($fixed_exam_id)?->title }}</div>
+					</div>
+					<x-badge value="محدد تلقائياً" class="badge-neutral text-xs"/>
+				</div>
+			@else
+				<x-choices-offline label="{{ __('lang.exam') }}" wire:model="exam_id" :options="$all_exams" option-value="id" option-label="name" single searchable/>
+			@endif
 			<x-textarea label="{{ __('lang.question_text') }}" wire:model="question_text" rows="3"/>
 			
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">

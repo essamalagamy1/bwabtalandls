@@ -11,9 +11,13 @@ class CreateGrade extends Component
     use Toast;
 
     public bool $modalAdd = false;
+
     public $name;
+
     public $stage_id;
+
     public bool $is_active = true;
+
     public $all_stages;
 
     public function render()
@@ -24,8 +28,8 @@ class CreateGrade extends Component
     public function rules(): array
     {
         return [
-            'name'      => 'required|string|max:255|unique:grades,name',
-            'stage_id'  => 'required|exists:stages,id',
+            'name' => 'required|string|max:255|unique:grades,name',
+            'stage_id' => 'required|exists:stages,id',
             'is_active' => 'boolean',
         ];
     }
@@ -36,8 +40,8 @@ class CreateGrade extends Component
         $this->validate();
 
         Grade::create([
-            'name'      => $this->name,
-            'stage_id'  => $this->stage_id,
+            'name' => $this->name,
+            'stage_id' => $this->stage_id,
             'is_active' => $this->is_active,
         ]);
 
@@ -54,4 +58,3 @@ class CreateGrade extends Component
         $this->resetValidation();
     }
 }
-

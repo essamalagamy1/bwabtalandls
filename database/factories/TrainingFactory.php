@@ -13,7 +13,7 @@ class TrainingFactory extends Factory
         return [
             'week_id' => Week::factory(),
             'semester_id' => Semester::factory(),
-            'title' => 'تدريب على الدرس ' . $this->faker->numberBetween(1, 10),
+            'title' => 'تدريب على الدرس '.$this->faker->numberBetween(1, 10),
             'description' => $this->faker->realText(200),
             'type' => $this->faker->randomElement(['video', 'pdf', 'file', 'link']),
             'url' => $this->faker->url,

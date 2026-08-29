@@ -24,6 +24,7 @@ class StageData extends Component
     }
 
     public $search_name;
+
     public $search_is_active = '';
 
     public function mount(): void
@@ -42,8 +43,8 @@ class StageData extends Component
     public function render(): View
     {
         $data['stages'] = Stage::query()
-            ->when($this->search_name, fn(Builder $q) => $q->where('name', 'like', "%{$this->search_name}%"))
-            ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
+            ->when($this->search_name, fn (Builder $q) => $q->where('name', 'like', "%{$this->search_name}%"))
+            ->when($this->search_is_active !== '', fn (Builder $q) => $q->where('is_active', (bool) $this->search_is_active))
             ->withCount('grades')
             ->latest()
             ->paginate(10);
@@ -55,7 +56,7 @@ class StageData extends Component
     {
         $this->authorize('edit_stage');
         $stage = Stage::findOrFail($id);
-        $stage->update(['is_active' => !$stage->is_active]);
+        $stage->update(['is_active' => ! $stage->is_active]);
         $this->success(__('lang.updated_successfully', ['attribute' => __('lang.stage')]));
         $this->dispatch('render')->component(StageData::class);
     }

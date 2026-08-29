@@ -13,7 +13,7 @@ class ExamFactory extends Factory
         return [
             'week_id' => Week::factory(),
             'semester_id' => Semester::factory(),
-            'title' => 'اختبار الأسبوع ' . $this->faker->numberBetween(1, 10),
+            'title' => 'اختبار الأسبوع '.$this->faker->numberBetween(1, 10),
             'description' => 'الرجاء قراءة الأسئلة بعناية قبل الإجابة',
             'duration_minutes' => $this->faker->randomElement([30, 45, 60, 90]),
             'passing_score' => $this->faker->numberBetween(50, 70),

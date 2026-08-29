@@ -13,6 +13,7 @@ use Livewire\Component;
 class ExamResult extends Component
 {
     public Exam $exam;
+
     public ExamAttempt $attempt;
 
     public function mount(Exam $exam): void
@@ -24,8 +25,9 @@ class ExamResult extends Component
             ->where('user_id', $user->id)
             ->first();
 
-        if (!$existingAttempt || $existingAttempt->status === null) {
+        if (! $existingAttempt || $existingAttempt->status === null) {
             $this->redirect(route('student.exams.take', $exam->id), navigate: true);
+
             return;
         }
 
@@ -35,6 +37,7 @@ class ExamResult extends Component
     public function render(): View
     {
         $this->attempt->load('answers.question');
+
         return view('livewire.student.exam-result');
     }
 }

@@ -4,6 +4,8 @@ namespace App\Livewire\Dashboard\SiteSetting;
 
 use App\Models\SiteSetting;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -162,13 +164,13 @@ class UpdateSiteSetting extends Component
     {
         $this->authorize('edit_site_setting');
 
-        if ($this->logo_white && (! $this->logo_white instanceof \Illuminate\Http\UploadedFile || ! file_exists($this->logo_white->getRealPath()))) {
+        if ($this->logo_white && (! $this->logo_white instanceof UploadedFile || ! file_exists($this->logo_white->getRealPath()))) {
             $this->logo_white = null;
         }
-        if ($this->logo_black && (! $this->logo_black instanceof \Illuminate\Http\UploadedFile || ! file_exists($this->logo_black->getRealPath()))) {
+        if ($this->logo_black && (! $this->logo_black instanceof UploadedFile || ! file_exists($this->logo_black->getRealPath()))) {
             $this->logo_black = null;
         }
-        if ($this->favicon && (! $this->favicon instanceof \Illuminate\Http\UploadedFile || ! file_exists($this->favicon->getRealPath()))) {
+        if ($this->favicon && (! $this->favicon instanceof UploadedFile || ! file_exists($this->favicon->getRealPath()))) {
             $this->favicon = null;
         }
 
@@ -231,27 +233,27 @@ class UpdateSiteSetting extends Component
         $mediaChanged = false;
 
         // Handle logo_white
-        if ($this->logo_white && $this->logo_white instanceof \Illuminate\Http\UploadedFile && file_exists($this->logo_white->getRealPath())) {
+        if ($this->logo_white && $this->logo_white instanceof UploadedFile && file_exists($this->logo_white->getRealPath())) {
             $this->setting->addMedia($this->logo_white->getRealPath())->toMediaCollection('logo_white');
             $this->logo_white = null;
             $mediaChanged = true;
         }
 
         // Handle logo_black
-        if ($this->logo_black && $this->logo_black instanceof \Illuminate\Http\UploadedFile && file_exists($this->logo_black->getRealPath())) {
+        if ($this->logo_black && $this->logo_black instanceof UploadedFile && file_exists($this->logo_black->getRealPath())) {
             $this->setting->addMedia($this->logo_black->getRealPath())->toMediaCollection('logo_black');
             $this->logo_black = null;
             $mediaChanged = true;
         }
 
         // Handle favicon
-        if ($this->favicon && $this->favicon instanceof \Illuminate\Http\UploadedFile && file_exists($this->favicon->getRealPath())) {
+        if ($this->favicon && $this->favicon instanceof UploadedFile && file_exists($this->favicon->getRealPath())) {
             $this->setting->addMedia($this->favicon->getRealPath())->toMediaCollection('favicon');
             $this->favicon = null;
             $mediaChanged = true;
         }
 
-        \Illuminate\Support\Facades\Cache::forget('site_setting');
+        Cache::forget('site_setting');
         $this->setting = SiteSetting::getSetting();
 
         $this->success(__('lang.updated_successfully', ['attribute' => __('lang.site_settings')]));

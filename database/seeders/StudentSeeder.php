@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Grade;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class StudentSeeder extends Seeder
@@ -20,11 +20,11 @@ class StudentSeeder extends Seeder
                 $user->assignRole('student');
                 $status = ['active', 'active', 'pending', 'inactive'][rand(0, 3)]; // Higher chance of active
                 $updateData = ['status' => $status];
-                
+
                 if ($grades->isNotEmpty()) {
                     $updateData['grade_id'] = $grades->random();
                 }
-                
+
                 $user->update($updateData);
             });
         }

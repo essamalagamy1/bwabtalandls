@@ -2,7 +2,12 @@
 
 namespace App\Livewire\Dashboard\Exam;
 
+use App\Jobs\NotifyStudentsOfNewContentJob;
 use App\Models\Exam;
+use App\Models\Grade;
+use App\Models\Section;
+use App\Models\Semester;
+use App\Models\Stage;
 use App\Models\Week;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,23 +31,32 @@ class ExamData extends Component
     }
 
     public $all_stages;
+
     public $all_grades;
+
     public $all_sections;
+
     public $all_semesters;
+
     public $all_weeks;
+
     public $search_title;
-    
+
     #[Url]
     public $search_stage_id;
+
     #[Url]
     public $search_grade_id;
+
     #[Url]
     public $search_section_id;
+
     #[Url]
     public $search_semester_id;
+
     #[Url]
     public $search_week_id;
-    
+
     public $search_is_active = '';
 
     public function updatedSearchStageId($value)
@@ -73,12 +87,14 @@ class ExamData extends Component
         $this->loadWeeks();
     }
 
-    public function loadStages() {
-        $this->all_stages = \App\Models\Stage::where('is_active', true)->get(['id', 'name'])->toArray();
+    public function loadStages()
+    {
+        $this->all_stages = Stage::where('is_active', true)->get(['id', 'name'])->toArray();
     }
 
-    public function loadGrades() {
-        $query = \App\Models\Grade::with('stage:id,name')->where('is_active', true);
+    public function loadGrades()
+    {
+        $query = Grade::with('stage:id,name')->where('is_active', true);
         if ($this->search_stage_id) {
             $query->where('stage_id', $this->search_stage_id);
         }
@@ -87,75 +103,87 @@ class ExamData extends Component
                 return [
                     'id' => $grade->id,
                     'name' => $grade->name,
-                    'full_path_name' => $grade->stage?->name ?? ''
+                    'full_path_name' => $grade->stage?->name ?? '',
                 ];
             })->toArray();
     }
 
-    public function loadSections() {
-        $query = \App\Models\Section::with('grade.stage')->where('is_active', true);
+    public function loadSections()
+    {
+        $query = Section::with('grade.stage')->where('is_active', true);
         if ($this->search_grade_id) {
             $query->where('grade_id', $this->search_grade_id);
         } elseif ($this->search_stage_id) {
-            $query->whereHas('grade', fn($q) => $q->where('stage_id', $this->search_stage_id));
+            $query->whereHas('grade', fn ($q) => $q->where('stage_id', $this->search_stage_id));
         }
         $this->all_sections = $query->get(['id', 'name', 'grade_id'])
             ->map(function ($section) {
                 return [
                     'id' => $section->id,
                     'name' => $section->name,
-                    'full_path_name' => ($section->grade?->stage?->name ?? '') . ' - ' . ($section->grade?->name ?? ''),
+                    'full_path_name' => ($section->grade?->stage?->name ?? '').' - '.($section->grade?->name ?? ''),
                 ];
             })->toArray();
     }
 
-    public function loadSemesters() {
-        $query = \App\Models\Semester::with('grade.stage')->where('is_active', true);
+    public function loadSemesters()
+    {
+        $query = Semester::with('grade.stage')->where('is_active', true);
         if ($this->search_grade_id) {
             $query->where('grade_id', $this->search_grade_id);
         } elseif ($this->search_stage_id) {
-            $query->whereHas('grade', fn($q) => $q->where('stage_id', $this->search_stage_id));
+            $query->whereHas('grade', fn ($q) => $q->where('stage_id', $this->search_stage_id));
         }
-        $this->all_semesters = $query->get(['id', 'name', 'grade_id'])
+        $this->all_semesters = $query->get()
             ->map(function ($semester) {
                 return [
                     'id' => $semester->id,
-                    'name' => $semester->name,
-                    'full_path_name' => ($semester->grade?->stage?->name ?? '') . ' - ' . ($semester->grade?->name ?? '')
+                    'name' => $semester->name_with_academic_year,
+                    'full_path_name' => ($semester->grade?->stage?->name ?? '').' - '.($semester->grade?->name ?? ''),
                 ];
             })->toArray();
     }
 
-    public function loadWeeks() {
+    public function loadWeeks()
+    {
         $query = Week::with('semester.grade.stage')
             ->where('is_active', true)
             ->whereHas('semester', function ($q) {
                 $q->where('is_active', true)
-                  ->whereHas('grade', function ($q2) {
-                      $q2->where('is_active', true)
-                         ->whereHas('stage', function ($q3) {
-                             $q3->where('is_active', true);
-                         });
-                  });
+                    ->whereHas('grade', function ($q2) {
+                        $q2->where('is_active', true)
+                            ->whereHas('stage', function ($q3) {
+                                $q3->where('is_active', true);
+                            });
+                    });
             });
 
         if ($this->search_semester_id) {
             $query->where('semester_id', $this->search_semester_id);
         } elseif ($this->search_grade_id) {
-            $query->whereHas('semester', fn($q) => $q->where('grade_id', $this->search_grade_id));
+            $query->whereHas('semester', fn ($q) => $q->where('grade_id', $this->search_grade_id));
         } elseif ($this->search_stage_id) {
-            $query->whereHas('semester.grade', fn($q) => $q->where('stage_id', $this->search_stage_id));
+            $query->whereHas('semester.grade', fn ($q) => $q->where('stage_id', $this->search_stage_id));
         }
-        
+
         $this->all_weeks = $query->get(['id', 'title as name', 'semester_id'])
             ->map(function ($week) {
                 return [
                     'id' => $week->id,
                     'name' => $week->name,
-                    'full_path_name' => ($week->semester?->grade?->stage?->name ?? '') . ' - ' . ($week->semester?->grade?->name ?? '') . ' - ' . ($week->semester?->name ?? '')
+                    'full_path_name' => ($week->semester?->grade?->stage?->name ?? '').' - '.($week->semester?->grade?->name ?? '').' - '.($week->semester?->name_with_academic_year ?? ''),
                 ];
             })
             ->toArray();
+    }
+
+    public function rendering(): void
+    {
+        $this->loadStages();
+        $this->loadGrades();
+        $this->loadSections();
+        $this->loadSemesters();
+        $this->loadWeeks();
     }
 
     public function mount(): void
@@ -179,13 +207,13 @@ class ExamData extends Component
     public function render(): View
     {
         $data['exams'] = Exam::query()
-            ->when($this->search_title, fn(Builder $q) => $q->where('title', 'like', "%{$this->search_title}%"))
-            ->when($this->search_stage_id && !$this->search_grade_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($q2) => $q2->where('stage_id', $this->search_stage_id)))
-            ->when($this->search_grade_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($q2) => $q2->where('id', $this->search_grade_id)))
-            ->when($this->search_section_id, fn(Builder $q) => $q->whereHas('week.semester.grade.sections', fn($q2) => $q2->where('id', $this->search_section_id)))
-            ->when($this->search_semester_id, fn(Builder $q) => $q->whereHas('week.semester', fn($q2) => $q2->where('id', $this->search_semester_id)))
-            ->when($this->search_week_id, fn(Builder $q) => $q->where('week_id', $this->search_week_id))
-            ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
+            ->when($this->search_title, fn (Builder $q) => $q->where('title', 'like', "%{$this->search_title}%"))
+            ->when($this->search_stage_id && ! $this->search_grade_id, fn (Builder $q) => $q->whereHas('week.semester.grade', fn ($q2) => $q2->where('stage_id', $this->search_stage_id)))
+            ->when($this->search_grade_id, fn (Builder $q) => $q->whereHas('week.semester.grade', fn ($q2) => $q2->where('id', $this->search_grade_id)))
+            ->when($this->search_section_id, fn (Builder $q) => $q->whereHas('week.semester.grade.sections', fn ($q2) => $q2->where('id', $this->search_section_id)))
+            ->when($this->search_semester_id, fn (Builder $q) => $q->whereHas('week.semester', fn ($q2) => $q2->where('id', $this->search_semester_id)))
+            ->when($this->search_week_id, fn (Builder $q) => $q->where('week_id', $this->search_week_id))
+            ->when($this->search_is_active !== '', fn (Builder $q) => $q->where('is_active', (bool) $this->search_is_active))
             ->with(['week.semester.grade.stage'])
             ->withCount('questions')
             ->latest()
@@ -205,19 +233,19 @@ class ExamData extends Component
     {
         $this->authorize('edit_exam');
         $exam = Exam::findOrFail($id);
-        $exam->update(['is_active' => !$exam->is_active]);
+        $exam->update(['is_active' => ! $exam->is_active]);
 
         if ($exam->is_active) {
-            $gradeId = \App\Models\Semester::find($exam->semester_id)?->grade_id;
+            $gradeId = Semester::find($exam->semester_id)?->grade_id;
             if ($gradeId) {
-                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch(
+                NotifyStudentsOfNewContentJob::dispatch(
                     $gradeId,
                     $exam->title,
                     'exam',
                     $exam->description,
                     [
-                        'مدة الاختبار' => $exam->duration_minutes . ' دقيقة',
-                        'درجة النجاح' => $exam->passing_score . '%',
+                        'مدة الاختبار' => $exam->duration_minutes.' دقيقة',
+                        'درجة النجاح' => $exam->passing_score.'%',
                     ]
                 );
             }

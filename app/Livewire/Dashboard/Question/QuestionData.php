@@ -25,12 +25,17 @@ class QuestionData extends Component
         return view('livewire.placeholders.page-loading');
     }
 
-    public $all_exams;
+    public $all_exams = [];
 
     public $search_text;
 
     #[Url]
     public $search_exam_id;
+
+    public function rendering(): void
+    {
+        $this->all_exams = Exam::get(['id', 'title as name'])->toArray();
+    }
 
     public function mount(): void
     {
@@ -40,6 +45,16 @@ class QuestionData extends Component
 
     public function breadcrumbs(): array
     {
+        if ($this->search_exam_id) {
+            $exam = Exam::find($this->search_exam_id);
+            if ($exam) {
+                return [
+                    ['label' => __('lang.exams'), 'icon' => 'o-document-text', 'link' => route('exams')],
+                    ['label' => __('lang.questions').' ('.$exam->title.')', 'icon' => 'o-question-mark-circle'],
+                ];
+            }
+        }
+
         return [
             ['label' => __('lang.questions'), 'icon' => 'o-question-mark-circle'],
         ];
@@ -48,6 +63,9 @@ class QuestionData extends Component
     #[On('render')]
     public function render(): View
     {
+        $selected_exam = $this->search_exam_id ? Exam::with('week.semester.grade.stage')->find($this->search_exam_id) : null;
+
+        $data['selected_exam'] = $selected_exam;
         $data['questions'] = Question::query()
             ->when($this->search_text, fn (Builder $q) => $q->where('question_text', 'like', "%{$this->search_text}%"))
             ->when($this->search_exam_id, fn (Builder $q) => $q->where('exam_id', $this->search_exam_id))

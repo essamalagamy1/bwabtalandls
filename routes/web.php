@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\NotificationManagerController;
+use App\Http\Controllers\ReportPrintController;
 use App\Livewire\Dashboard\Admin\AdminData;
 use App\Livewire\Dashboard\Dashboard;
 use App\Livewire\Dashboard\Exam\ExamData;
@@ -18,12 +20,13 @@ use App\Livewire\Dashboard\Semester\SemesterData;
 use App\Livewire\Dashboard\SiteSetting\UpdateSiteSetting;
 use App\Livewire\Dashboard\Stage\StageData;
 use App\Livewire\Dashboard\Student\StudentData;
+use App\Livewire\Dashboard\Student\StudentProfile;
 use App\Livewire\Dashboard\Training\TrainingData;
 use App\Livewire\Dashboard\Week\WeekData;
 use App\Livewire\Student\ExamResult;
 use App\Livewire\Student\StudentExamsData;
+use App\Livewire\Student\StudentTrainingsData;
 use App\Livewire\Student\TakeExam;
-use App\Http\Controllers\NotificationManagerController;
 use Illuminate\Support\Facades\Route;
 
 // getFirstMediaUrl('image')
@@ -41,7 +44,7 @@ Route::middleware(['web-language'])->group(function () {
             Route::livewire('/{role}/edit', UpdateRole::class)->name('roles.edit')->middleware('permission:edit_role');
         });
         Route::livewire('students', StudentData::class)->name('students')->middleware('permission:show_student');
-        Route::livewire('students/{user}/profile', \App\Livewire\Dashboard\Student\StudentProfile::class)->name('students.profile')->middleware('permission:show_student');
+        Route::livewire('students/{user}/profile', StudentProfile::class)->name('students.profile')->middleware('permission:show_student');
         Route::livewire('admins', AdminData::class)->name('admins')->middleware('permission:show_admin'); // users
         Route::livewire('stages', StageData::class)->name('stages')->middleware('permission:show_stage');
         Route::livewire('grades', GradeData::class)->name('grades')->middleware('permission:show_grade');
@@ -55,7 +58,12 @@ Route::middleware(['web-language'])->group(function () {
         Route::livewire('reports/students', StudentReports::class)->name('reports.students')->middleware('permission:show_student_report');
         Route::livewire('reports/exams', ExamReports::class)->name('reports.exams')->middleware('permission:show_exam_report');
         Route::livewire('site-settings', UpdateSiteSetting::class)->name('site-settings')->middleware('permission:show_site_setting'); // site settings
-        
+
+        // Print Report Routes
+        Route::get('dashboard/print', [ReportPrintController::class, 'dashboard'])->name('dashboard.print');
+        Route::get('reports/students/print', [ReportPrintController::class, 'students'])->name('reports.students.print')->middleware('permission:show_student_report');
+        Route::get('reports/exams/print', [ReportPrintController::class, 'exams'])->name('reports.exams.print')->middleware('permission:show_exam_report');
+
         // Push notification subscription
         Route::post('/save-subscription', NotificationManagerController::class)->name('save-subscription');
     });
@@ -65,7 +73,7 @@ Route::middleware(['web-language'])->group(function () {
         Route::livewire('student/exams', StudentExamsData::class)->name('student.exams');
         Route::livewire('student/exams/{exam}/take', TakeExam::class)->name('student.exams.take');
         Route::livewire('student/exams/{exam}/result', ExamResult::class)->name('student.exams.result');
-        Route::livewire('student/trainings', \App\Livewire\Student\StudentTrainingsData::class)->name('student.trainings');
+        Route::livewire('student/trainings', StudentTrainingsData::class)->name('student.trainings');
     });
 
     // guest routes

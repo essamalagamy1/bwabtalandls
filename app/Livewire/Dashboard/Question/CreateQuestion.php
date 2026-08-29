@@ -12,15 +12,33 @@ class CreateQuestion extends Component
     use Toast, WithFileUploads;
 
     public bool $modalAdd = false;
+
     public $exam_id;
+
     public $question_text;
+
     public $option_a;
+
     public $option_b;
+
     public $option_c;
+
     public $option_d;
+
     public $correct_answer;
+
     public $image;
+
     public $all_exams;
+
+    public $fixed_exam_id;
+
+    public function mount(): void
+    {
+        if ($this->fixed_exam_id) {
+            $this->exam_id = $this->fixed_exam_id;
+        }
+    }
 
     public function render()
     {
@@ -30,14 +48,14 @@ class CreateQuestion extends Component
     public function rules(): array
     {
         return [
-            'exam_id'        => 'required|exists:exams,id',
-            'question_text'  => 'required|string',
-            'option_a'       => 'required|string|max:255',
-            'option_b'       => 'required|string|max:255',
-            'option_c'       => 'required|string|max:255',
-            'option_d'       => 'required|string|max:255',
+            'exam_id' => 'required|exists:exams,id',
+            'question_text' => 'required|string',
+            'option_a' => 'required|string|max:255',
+            'option_b' => 'required|string|max:255',
+            'option_c' => 'required|string|max:255',
+            'option_d' => 'required|string|max:255',
             'correct_answer' => 'required|in:a,b,c,d',
-            'image'          => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+            'image' => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
         ];
     }
 
@@ -47,12 +65,12 @@ class CreateQuestion extends Component
         $this->validate();
 
         $question = Question::create([
-            'exam_id'        => $this->exam_id,
-            'question_text'  => $this->question_text,
-            'option_a'       => $this->option_a,
-            'option_b'       => $this->option_b,
-            'option_c'       => $this->option_c,
-            'option_d'       => $this->option_d,
+            'exam_id' => $this->exam_id,
+            'question_text' => $this->question_text,
+            'option_a' => $this->option_a,
+            'option_b' => $this->option_b,
+            'option_c' => $this->option_c,
+            'option_d' => $this->option_d,
             'correct_answer' => $this->correct_answer,
         ]);
 
@@ -67,7 +85,12 @@ class CreateQuestion extends Component
 
     public function resetData(): void
     {
-        $this->reset(['exam_id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'image']);
+        $this->reset(['question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'image']);
+        if ($this->fixed_exam_id) {
+            $this->exam_id = $this->fixed_exam_id;
+        } else {
+            $this->exam_id = null;
+        }
         $this->resetErrorBag();
         $this->resetValidation();
     }

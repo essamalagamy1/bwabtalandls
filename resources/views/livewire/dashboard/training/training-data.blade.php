@@ -7,23 +7,23 @@
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_title" placeholder="{{ __('lang.search') }}..." clearable/>
-			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-			<x-choices-offline label="{{ __('lang.section') }}" wire:model.live="search_section_id" :options="$all_sections" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-training-stage-select"/>
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-training-grade-select-{{ $search_stage_id ?? 'all' }}"/>
+			<x-choices-offline label="{{ __('lang.section') }}" wire:model.live="search_section_id" :options="$all_sections" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-training-section-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}"/>
+			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-training-semester-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}"/>
+			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-training-week-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}-{{ $search_semester_id ?? 'all' }}"/>
 			<x-select label="{{ __('lang.type') }}" wire:model.live="search_type" :options="[
                 ['id' => '', 'name' => __('lang.all')],
                 ['id' => 'video', 'name' => __('lang.video')],
                 ['id' => 'pdf', 'name' => 'PDF'],
                 ['id' => 'file', 'name' => __('lang.file')],
                 ['id' => 'link', 'name' => __('lang.link')],
-            ]" option-value="id" option-label="name"/>
+            ]" option-value="id" option-label="name" wire:key="filter-training-type-select"/>
 			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[
                 ['id' => '', 'name' => __('lang.all')],
                 ['id' => '1', 'name' => __('lang.active')],
                 ['id' => '0', 'name' => __('lang.inactive')],
-            ]" option-value="id" option-label="name"/>
+            ]" option-value="id" option-label="name" wire:key="filter-training-status-select"/>
 		</div>
 		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 			<div class="overflow-x-auto">

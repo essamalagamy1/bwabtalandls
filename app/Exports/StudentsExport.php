@@ -2,16 +2,17 @@
 
 namespace App\Exports;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
+class StudentsExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping
 {
     protected $query;
+
     protected $filtersText;
 
     public function __construct(Builder $query, string $filtersText = '')
@@ -20,7 +21,7 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         $this->filtersText = $filtersText;
     }
 
-    public function query(): \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation
+    public function query(): \Illuminate\Database\Query\Builder|Builder|Relation
     {
         // Add eager loading for relationships
         return $this->query->with('grade.stage');
@@ -29,8 +30,8 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
     public function headings(): array
     {
         return [
-            ['تاريخ التصدير: ' . now()->format('Y-m-d H:i')],
-            ['الفلاتر المستخدمة: ' . $this->filtersText],
+            ['تاريخ التصدير: '.now()->format('Y-m-d H:i')],
+            ['الفلاتر المستخدمة: '.$this->filtersText],
             [],
             [
                 __('lang.name'),
@@ -40,7 +41,7 @@ class StudentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
                 __('lang.grade'),
                 __('lang.status'),
                 __('lang.created_at'),
-            ]
+            ],
         ];
     }
 

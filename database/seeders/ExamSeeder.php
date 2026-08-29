@@ -11,7 +11,7 @@ class ExamSeeder extends Seeder
     public function run(): void
     {
         $weeks = Week::all();
-        
+
         foreach ($weeks as $week) {
             // اختبار واحد لكل أسبوع
             Exam::factory()->create([

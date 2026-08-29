@@ -15,7 +15,6 @@ use App\Models\Week;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -27,26 +26,35 @@ class Dashboard extends Component
 
     // Filters
     public $stage_id;
+
     public $grade_id;
+
     public $section_id;
+
     public $semester_id;
 
     // Filter options
     public array $stages = [];
+
     public array $grades = [];
+
     public array $sections = [];
+
     public array $semesters = [];
 
     // Charts
     public array $studentsPerGradeChart = [];
+
     public array $studentStatusChart = [];
+
     public array $examScoresChart = [];
+
     public array $newStudentsMonthlyChart = [];
 
     public function mount(): void
     {
         view()->share('breadcrumbs', $this->breadcrumbs());
-        $this->stages = Stage::where('is_active', true)->get(['id', 'name'])->toArray();
+        $this->stages = Stage::get(['id', 'name'])->toArray();
         $this->loadCharts();
     }
 
@@ -65,11 +73,27 @@ class Dashboard extends Component
         $this->grade_id = null;
         $this->section_id = null;
         $this->semester_id = null;
-        $this->grades = $this->stage_id
-            ? Grade::where('stage_id', $this->stage_id)->where('is_active', true)->get(['id', 'name'])->toArray()
-            : [];
-        $this->sections = [];
-        $this->semesters = [];
+        if ($this->stage_id) {
+            $this->grades = Grade::where('stage_id', $this->stage_id)->get(['id', 'name'])->toArray();
+            $this->sections = Section::with('grade.stage')
+                ->whereHas('grade', fn ($q) => $q->where('stage_id', $this->stage_id))
+                ->get()
+                ->map(fn ($section) => [
+                    'id' => $section->id,
+                    'name' => $section->name.($section->grade ? ' ('.$section->grade->name.($section->grade->stage ? ' - '.$section->grade->stage->name : '').')' : ''),
+                ])->toArray();
+            $this->semesters = Semester::with('grade.stage')
+                ->whereHas('grade', fn ($q) => $q->where('stage_id', $this->stage_id))
+                ->get()
+                ->map(fn ($semester) => [
+                    'id' => $semester->id,
+                    'name' => $semester->name_with_academic_year.($semester->grade ? ' ('.$semester->grade->name.($semester->grade->stage ? ' - '.$semester->grade->stage->name : '').')' : ''),
+                ])->toArray();
+        } else {
+            $this->grades = [];
+            $this->sections = [];
+            $this->semesters = [];
+        }
         $this->loadCharts();
     }
 
@@ -77,12 +101,40 @@ class Dashboard extends Component
     {
         $this->section_id = null;
         $this->semester_id = null;
-        $this->sections = $this->grade_id
-            ? Section::where('grade_id', $this->grade_id)->where('is_active', true)->get(['id', 'name'])->toArray()
-            : [];
-        $this->semesters = $this->grade_id
-            ? Semester::where('grade_id', $this->grade_id)->where('is_active', true)->get(['id', 'name'])->toArray()
-            : [];
+        if ($this->grade_id) {
+            $this->sections = Section::with('grade.stage')
+                ->where('grade_id', $this->grade_id)
+                ->get()
+                ->map(fn ($section) => [
+                    'id' => $section->id,
+                    'name' => $section->name.($section->grade ? ' ('.$section->grade->name.($section->grade->stage ? ' - '.$section->grade->stage->name : '').')' : ''),
+                ])->toArray();
+            $this->semesters = Semester::with('grade.stage')
+                ->where('grade_id', $this->grade_id)
+                ->get()
+                ->map(fn ($semester) => [
+                    'id' => $semester->id,
+                    'name' => $semester->name_with_academic_year.($semester->grade ? ' ('.$semester->grade->name.($semester->grade->stage ? ' - '.$semester->grade->stage->name : '').')' : ''),
+                ])->toArray();
+        } elseif ($this->stage_id) {
+            $this->sections = Section::with('grade.stage')
+                ->whereHas('grade', fn ($q) => $q->where('stage_id', $this->stage_id))
+                ->get()
+                ->map(fn ($section) => [
+                    'id' => $section->id,
+                    'name' => $section->name.($section->grade ? ' ('.$section->grade->name.($section->grade->stage ? ' - '.$section->grade->stage->name : '').')' : ''),
+                ])->toArray();
+            $this->semesters = Semester::with('grade.stage')
+                ->whereHas('grade', fn ($q) => $q->where('stage_id', $this->stage_id))
+                ->get()
+                ->map(fn ($semester) => [
+                    'id' => $semester->id,
+                    'name' => $semester->name_with_academic_year.($semester->grade ? ' ('.$semester->grade->name.($semester->grade->stage ? ' - '.$semester->grade->stage->name : '').')' : ''),
+                ])->toArray();
+        } else {
+            $this->sections = [];
+            $this->semesters = [];
+        }
         $this->loadCharts();
     }
 
@@ -101,79 +153,70 @@ class Dashboard extends Component
     private function baseFilteredStudentQuery(): Builder
     {
         return User::role('student')
-            ->when($this->stage_id, fn(Builder $q) => $q->whereHas('grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
-            ->when($this->grade_id, fn(Builder $q) => $q->where('grade_id', $this->grade_id))
-            ->when($this->section_id, fn(Builder $q) => $q->where('section_id', $this->section_id));
+            ->when($this->stage_id, fn (Builder $q) => $q->whereHas('grade', fn ($gq) => $gq->where('stage_id', $this->stage_id)))
+            ->when($this->grade_id, fn (Builder $q) => $q->where('grade_id', $this->grade_id))
+            ->when($this->section_id, fn (Builder $q) => $q->where('section_id', $this->section_id));
     }
 
     private function filteredStudentQuery(): Builder
     {
-        return $this->baseFilteredStudentQuery()->where('status', 'active');
+        return $this->baseFilteredStudentQuery();
     }
 
     private function filteredGradeQuery(): Builder
     {
         return Grade::query()
-            ->where('is_active', true)
-            ->when($this->stage_id, fn(Builder $q) => $q->where('stage_id', $this->stage_id))
-            ->when($this->grade_id, fn(Builder $q) => $q->where('id', $this->grade_id));
+            ->when($this->stage_id, fn (Builder $q) => $q->where('stage_id', $this->stage_id))
+            ->when($this->grade_id, fn (Builder $q) => $q->where('id', $this->grade_id));
     }
 
     private function filteredSemesterQuery(): Builder
     {
         return Semester::query()
-            ->where('is_active', true)
-            ->when($this->stage_id, fn(Builder $q) => $q->whereHas('grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
-            ->when($this->grade_id, fn(Builder $q) => $q->where('grade_id', $this->grade_id))
-            ->when($this->semester_id, fn(Builder $q) => $q->where('id', $this->semester_id));
+            ->when($this->stage_id, fn (Builder $q) => $q->whereHas('grade', fn ($gq) => $gq->where('stage_id', $this->stage_id)))
+            ->when($this->grade_id, fn (Builder $q) => $q->where('grade_id', $this->grade_id))
+            ->when($this->semester_id, fn (Builder $q) => $q->where('id', $this->semester_id));
     }
 
     private function filteredWeekQuery(): Builder
     {
         return Week::query()
-            ->where('is_active', true)
-            ->when($this->stage_id, fn(Builder $q) => $q->whereHas('semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
-            ->when($this->grade_id, fn(Builder $q) => $q->whereHas('semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
-            ->when($this->semester_id, fn(Builder $q) => $q->where('semester_id', $this->semester_id));
+            ->when($this->stage_id, fn (Builder $q) => $q->whereHas('semester.grade', fn ($gq) => $gq->where('stage_id', $this->stage_id)))
+            ->when($this->grade_id, fn (Builder $q) => $q->whereHas('semester', fn ($sq) => $sq->where('grade_id', $this->grade_id)))
+            ->when($this->semester_id, fn (Builder $q) => $q->where('semester_id', $this->semester_id));
     }
 
     private function filteredExamQuery(): Builder
     {
         return Exam::query()
-            ->where('is_active', true)
-            ->whereHas('week', fn($q) => $q->where('is_active', true))
-            ->when($this->stage_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
-            ->when($this->grade_id, fn(Builder $q) => $q->whereHas('week.semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
-            ->when($this->semester_id, fn(Builder $q) => $q->whereHas('week', fn($wq) => $wq->where('semester_id', $this->semester_id)));
+            ->when($this->stage_id, fn (Builder $q) => $q->whereHas('week.semester.grade', fn ($gq) => $gq->where('stage_id', $this->stage_id)))
+            ->when($this->grade_id, fn (Builder $q) => $q->whereHas('week.semester', fn ($sq) => $sq->where('grade_id', $this->grade_id)))
+            ->when($this->semester_id, fn (Builder $q) => $q->whereHas('week', fn ($wq) => $wq->where('semester_id', $this->semester_id)));
     }
 
     private function filteredTrainingQuery(): Builder
     {
         return Training::query()
-            ->where('is_active', true)
-            ->whereHas('week', fn($q) => $q->where('is_active', true))
-            ->when($this->stage_id, fn(Builder $q) => $q->whereHas('week.semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
-            ->when($this->grade_id, fn(Builder $q) => $q->whereHas('week.semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
-            ->when($this->semester_id, fn(Builder $q) => $q->whereHas('week', fn($wq) => $wq->where('semester_id', $this->semester_id)));
+            ->when($this->stage_id, fn (Builder $q) => $q->whereHas('week.semester.grade', fn ($gq) => $gq->where('stage_id', $this->stage_id)))
+            ->when($this->grade_id, fn (Builder $q) => $q->whereHas('week.semester', fn ($sq) => $sq->where('grade_id', $this->grade_id)))
+            ->when($this->semester_id, fn (Builder $q) => $q->whereHas('week', fn ($wq) => $wq->where('semester_id', $this->semester_id)));
     }
 
     private function filteredQuestionQuery(): Builder
     {
         return Question::query()
-            ->whereHas('exam', fn($q) => $q->where('is_active', true)->whereHas('week', fn($wq) => $wq->where('is_active', true)))
-            ->when($this->stage_id, fn(Builder $q) => $q->whereHas('exam.week.semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
-            ->when($this->grade_id, fn(Builder $q) => $q->whereHas('exam.week.semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
-            ->when($this->semester_id, fn(Builder $q) => $q->whereHas('exam.week', fn($wq) => $wq->where('semester_id', $this->semester_id)));
+            ->when($this->stage_id, fn (Builder $q) => $q->whereHas('exam.week.semester.grade', fn ($gq) => $gq->where('stage_id', $this->stage_id)))
+            ->when($this->grade_id, fn (Builder $q) => $q->whereHas('exam.week.semester', fn ($sq) => $sq->where('grade_id', $this->grade_id)))
+            ->when($this->semester_id, fn (Builder $q) => $q->whereHas('exam.week', fn ($wq) => $wq->where('semester_id', $this->semester_id)));
     }
 
     private function filteredAttemptQuery(): Builder
     {
         return ExamAttempt::query()
-            ->whereHas('user', fn($q) => $q->where('status', 'active'))
-            ->whereHas('exam', fn($q) => $q->where('is_active', true)->whereHas('week', fn($wq) => $wq->where('is_active', true)))
-            ->when($this->stage_id, fn(Builder $q) => $q->whereHas('exam.week.semester.grade', fn($gq) => $gq->where('stage_id', $this->stage_id)))
-            ->when($this->grade_id, fn(Builder $q) => $q->whereHas('exam.week.semester', fn($sq) => $sq->where('grade_id', $this->grade_id)))
-            ->when($this->semester_id, fn(Builder $q) => $q->whereHas('exam.week', fn($wq) => $wq->where('semester_id', $this->semester_id)));
+            ->when($this->stage_id, fn (Builder $q) => $q->whereHas('exam.week.semester.grade', fn ($gq) => $gq->where('stage_id', $this->stage_id)))
+            ->when($this->grade_id, fn (Builder $q) => $q->whereHas('exam.week.semester', fn ($sq) => $sq->where('grade_id', $this->grade_id)))
+            ->when($this->semester_id, fn (Builder $q) => $q->whereHas('exam.week', fn ($wq) => $wq->where('semester_id', $this->semester_id)))
+            ->when($this->section_id, fn (Builder $q) => $q->whereHas('user', fn ($uq) => $uq->where('section_id', $this->section_id)));
     }
 
     // ─── Charts ────────────────────────────────────────────────────────
@@ -189,15 +232,15 @@ class Dashboard extends Component
     private function loadStudentsPerGradeChart(): void
     {
         $grades = Grade::query()
-            ->when($this->stage_id, fn(Builder $q) => $q->where('stage_id', $this->stage_id))
-            ->when($this->grade_id, fn(Builder $q) => $q->where('id', $this->grade_id))
-            ->withCount(['users' => fn($q) => $q->role('student')])
+            ->when($this->stage_id, fn (Builder $q) => $q->where('stage_id', $this->stage_id))
+            ->when($this->grade_id, fn (Builder $q) => $q->where('id', $this->grade_id))
+            ->withCount(['users' => fn ($q) => $q->role('student')])
             ->get();
 
         $this->studentsPerGradeChart = [
             'type' => 'bar',
             'data' => [
-                'labels' => $grades->map(fn($g) => explode("\n", wordwrap($g->name, 15, "\n")))->toArray(),
+                'labels' => $grades->map(fn ($g) => explode("\n", wordwrap($g->name, 15, "\n")))->toArray(),
                 'datasets' => [
                     [
                         'label' => __('lang.students'),
@@ -222,7 +265,7 @@ class Dashboard extends Component
                     ],
                     'y' => [
                         'title' => ['display' => true, 'text' => __('lang.students')],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -260,11 +303,11 @@ class Dashboard extends Component
         $this->examScoresChart = [
             'type' => 'bar',
             'data' => [
-                'labels' => $exams->map(fn($e) => explode("\n", wordwrap($e->title, 15, "\n")))->toArray(),
+                'labels' => $exams->map(fn ($e) => explode("\n", wordwrap($e->title, 15, "\n")))->toArray(),
                 'datasets' => [
                     [
                         'label' => __('lang.average_score'),
-                        'data' => $exams->map(fn($e) => round($e->attempts_avg_total_score ?? 0, 1))->toArray(),
+                        'data' => $exams->map(fn ($e) => round($e->attempts_avg_total_score ?? 0, 1))->toArray(),
                         'backgroundColor' => '#25376F',
                         'borderRadius' => 8,
                     ],
@@ -281,7 +324,7 @@ class Dashboard extends Component
                     ],
                     'y' => [
                         'title' => ['display' => true, 'text' => __('lang.average_score')],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -327,10 +370,22 @@ class Dashboard extends Component
                     ],
                     'y' => [
                         'title' => ['display' => true, 'text' => __('lang.students') ?? 'الطلاب'],
-                    ]
+                    ],
                 ],
             ],
         ];
+    }
+
+    public function printReport()
+    {
+        $url = route('dashboard.print', array_filter([
+            'stage_id' => $this->stage_id,
+            'grade_id' => $this->grade_id,
+            'section_id' => $this->section_id,
+            'semester_id' => $this->semester_id,
+        ]));
+
+        $this->js("window.open('{$url}', '_blank')");
     }
 
     // ─── Render ─────────────────────────────────────────────────────────
@@ -341,7 +396,7 @@ class Dashboard extends Component
         $totalStudents = (clone $this->baseFilteredStudentQuery())->count();
         $activeStudents = (clone $this->baseFilteredStudentQuery())->where('status', 'active')->count();
         $inactiveStudents = (clone $this->baseFilteredStudentQuery())->whereIn('status', ['inactive', 'pending'])->count();
-        $totalStages = Stage::when($this->stage_id, fn($q) => $q->where('id', $this->stage_id))->where('is_active', true)->count();
+        $totalStages = Stage::when($this->stage_id, fn ($q) => $q->where('id', $this->stage_id))->count();
         $totalGrades = (clone $this->filteredGradeQuery())->count();
 
         // Stats row 2
@@ -357,7 +412,7 @@ class Dashboard extends Component
         $passRate = $totalAttempts > 0
             ? round(((clone $this->filteredAttemptQuery())->where('status', 'passed')->count() / $totalAttempts) * 100, 1)
             : 0;
-        $totalInstructors = User::whereHas('roles', fn($q) => $q->where('name', 'instructor'))->count();
+        $totalInstructors = User::whereHas('roles', fn ($q) => $q->where('name', 'instructor'))->count();
 
         // Latest students
         $latestStudents = (clone $this->filteredStudentQuery())
@@ -366,11 +421,18 @@ class Dashboard extends Component
             ->take(5)
             ->get();
 
+        // Selected filter names for printing
+        $selectedStage = $this->stage_id ? (Stage::find($this->stage_id)?->name ?? null) : null;
+        $selectedGrade = $this->grade_id ? (Grade::find($this->grade_id)?->name ?? null) : null;
+        $selectedSection = $this->section_id ? (Section::find($this->section_id)?->name ?? null) : null;
+        $selectedSemester = $this->semester_id ? (Semester::find($this->semester_id)?->name_with_academic_year ?? null) : null;
+
         return view('livewire.dashboard.dashboard', compact(
             'totalStudents', 'activeStudents', 'inactiveStudents', 'totalStages', 'totalGrades',
             'totalSemesters', 'totalWeeks', 'totalTrainings', 'totalExams',
             'totalQuestions', 'totalAttempts', 'avgScore', 'passRate', 'totalInstructors',
             'latestStudents',
+            'selectedStage', 'selectedGrade', 'selectedSection', 'selectedSemester',
         ));
     }
 }

@@ -15,19 +15,25 @@ class UpdateSection extends Component
     use Toast;
 
     public bool $modalUpdate = false;
+
     public Section $section;
+
     public $stage_id;
+
     public $grade_id;
+
     public $name;
+
     public bool $is_active;
 
     public $all_stages = [];
+
     public $all_grades = [];
 
     public function mount(): void
     {
-        $this->name      = $this->section->name;
-        $this->grade_id  = $this->section->grade_id;
+        $this->name = $this->section->name;
+        $this->grade_id = $this->section->grade_id;
         $this->is_active = $this->section->is_active;
 
         $grade = Grade::find($this->grade_id);
@@ -50,8 +56,8 @@ class UpdateSection extends Component
     public function rules(): array
     {
         return [
-            'stage_id'  => 'required|exists:stages,id',
-            'grade_id'  => 'required|exists:grades,id',
+            'stage_id' => 'required|exists:stages,id',
+            'grade_id' => 'required|exists:grades,id',
             'name' => [
                 'required',
                 'string',
@@ -68,8 +74,8 @@ class UpdateSection extends Component
         $this->validate();
 
         $this->section->update([
-            'name'      => $this->name,
-            'grade_id'  => $this->grade_id,
+            'name' => $this->name,
+            'grade_id' => $this->grade_id,
             'is_active' => $this->is_active,
         ]);
 

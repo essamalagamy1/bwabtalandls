@@ -12,9 +12,7 @@ class UserNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public string $title, public string $body, public $url = null)
-    {
-    }
+    public function __construct(public string $title, public string $body, public $url = null) {}
 
     public function via(object $notifiable): array
     {
@@ -51,8 +49,8 @@ class UserNotification extends Notification
     {
         return [
             'title' => $this->title,
-            'body'  => $this->body,
-            'url'   => $this->url ?: route('dashboard'),
+            'body' => $this->body,
+            'url' => $this->url ?: route('dashboard'),
         ];
     }
 }

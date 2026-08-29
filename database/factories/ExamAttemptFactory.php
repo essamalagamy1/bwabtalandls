@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Exam;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ExamAttemptFactory extends Factory
@@ -18,7 +19,7 @@ class ExamAttemptFactory extends Factory
             'started_at' => $this->faker->dateTimeBetween('-1 week', 'now'),
             'completed_at' => function (array $attributes) {
                 // وقت الانتهاء بعد وقت البدء
-                return \Carbon\Carbon::parse($attributes['started_at'])->addMinutes($this->faker->numberBetween(10, 60));
+                return Carbon::parse($attributes['started_at'])->addMinutes($this->faker->numberBetween(10, 60));
             },
         ];
     }

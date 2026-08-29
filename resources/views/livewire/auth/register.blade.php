@@ -77,7 +77,7 @@ new #[Layout('components.layouts.auth', ['title' => 'register'])] class extends 
 <div>
     <x-card class="flex flex-col gap-6 border border-gray-300 dark:border-gray-700 text-lg font-medium rounded-xl dark:text-gray-300  dark:bg-gray-900  transition-colors duration-200 " shadow separator>
 
-        <x-auth-header title="سجل معنا - طالب" description="لا هنت إدخال تفاصيلك أدناه عشان تفتح حسابك"/>
+        <x-auth-header title="سجل معنا - طالب" description="سجّل بياناتك أدناه وأنشئ حسابك بسهولة"/>
 
         @session('status')
         <x-alert title="{{ session('status') }}" class="text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 my-4 text-center"/>

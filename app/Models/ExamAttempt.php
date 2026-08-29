@@ -14,14 +14,34 @@ class ExamAttempt extends Model
         'user_id',
         'total_score',
         'status',
+        'media_views_count',
         'started_at',
         'completed_at',
     ];
 
     protected $casts = [
+        'media_views_count' => 'integer',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
+
+    public function remainingMediaViews(): int
+    {
+        if ($this->exam?->isUnlimitedMediaViews()) {
+            return -1; // unlimited
+        }
+
+        return max(0, ($this->exam?->media_views_limit ?? 0) - $this->media_views_count);
+    }
+
+    public function canViewMedia(): bool
+    {
+        if ($this->exam?->isUnlimitedMediaViews()) {
+            return true;
+        }
+
+        return $this->media_views_count < ($this->exam?->media_views_limit ?? 0);
+    }
 
     public function exam()
     {

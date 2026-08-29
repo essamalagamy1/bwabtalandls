@@ -25,7 +25,9 @@ class ExamAttemptData extends Component
     }
 
     public $all_exams;
+
     public $search_student_name;
+
     #[Url]
     public $search_exam_id;
 
@@ -51,7 +53,7 @@ class ExamAttemptData extends Component
                     $uq->where('name', 'like', "%{$this->search_student_name}%");
                 });
             })
-            ->when($this->search_exam_id, fn(Builder $q) => $q->where('exam_id', $this->search_exam_id))
+            ->when($this->search_exam_id, fn (Builder $q) => $q->where('exam_id', $this->search_exam_id))
             ->with(['exam', 'user'])
             ->latest()
             ->paginate(10);

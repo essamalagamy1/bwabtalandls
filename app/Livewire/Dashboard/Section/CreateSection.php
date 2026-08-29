@@ -14,12 +14,17 @@ class CreateSection extends Component
     use Toast;
 
     public bool $modalAdd = false;
+
     public $stage_id;
+
     public $grade_id;
+
     public $name;
+
     public bool $is_active = true;
 
     public $all_stages = [];
+
     public $all_grades = [];
 
     public function mount(): void
@@ -41,8 +46,8 @@ class CreateSection extends Component
     public function rules(): array
     {
         return [
-            'stage_id'  => 'required|exists:stages,id',
-            'grade_id'  => 'required|exists:grades,id',
+            'stage_id' => 'required|exists:stages,id',
+            'grade_id' => 'required|exists:grades,id',
             'name' => [
                 'required',
                 'string',
@@ -59,8 +64,8 @@ class CreateSection extends Component
         $this->validate();
 
         Section::create([
-            'name'      => $this->name,
-            'grade_id'  => $this->grade_id,
+            'name' => $this->name,
+            'grade_id' => $this->grade_id,
             'is_active' => $this->is_active,
         ]);
 

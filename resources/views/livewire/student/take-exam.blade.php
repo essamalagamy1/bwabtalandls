@@ -20,6 +20,126 @@
 		@endif
 	</div>
 
+	@if($exam->hasAttachment())
+		<div class="mb-6">
+			@if($exam->isUnlimitedMediaViews())
+				{{-- Unlimited Media Section --}}
+				<x-card class="border-2 border-primary/20 bg-base-100 shadow-md">
+					<div class="flex items-center justify-between gap-2 mb-4 pb-2 border-b border-base-200">
+						<div class="flex items-center gap-2">
+							@if($exam->attachment_type === 'audio')
+								<x-icon name="o-speaker-wave" class="w-6 h-6 text-primary animate-pulse"/>
+								<span class="font-bold text-lg">{{ __('lang.attached_audio') }}</span>
+							@else
+								<x-icon name="o-photo" class="w-6 h-6 text-primary"/>
+								<span class="font-bold text-lg">{{ __('lang.attached_image') }}</span>
+							@endif
+						</div>
+						<x-badge value="{{ __('lang.unlimited_views') }}" class="badge-success badge-outline font-medium text-xs"/>
+					</div>
+
+					@if($exam->attachment_type === 'audio')
+						<div class="p-2 bg-base-200/50 rounded-xl">
+							<audio controls class="w-full" src="{{ $exam->getFirstMediaUrl('attachment') }}">
+								متصفحك لا يدعم مشغل الصوت.
+							</audio>
+						</div>
+					@elseif($exam->attachment_type === 'image')
+						<div class="flex justify-center bg-base-200/30 p-2 rounded-xl">
+							<img src="{{ $exam->getFirstMediaUrl('attachment') }}" alt="{{ $exam->title }}" class="max-h-96 rounded-lg object-contain shadow" />
+						</div>
+					@endif
+				</x-card>
+			@else
+				{{-- Limited Views Media Section --}}
+				@php
+					$remaining = $attempt->remainingMediaViews();
+					$canView = $attempt->canViewMedia();
+				@endphp
+
+				<x-card class="border-2 {{ $canView ? 'border-warning/40 bg-warning/5' : 'border-base-300 bg-base-200/50' }} shadow-md transition-all">
+					<div class="flex flex-wrap items-center justify-between gap-3">
+						<div class="flex items-center gap-3">
+							<div class="p-3 {{ $canView ? 'bg-warning/20 text-warning-content' : 'bg-base-300 text-base-content/50' }} rounded-xl">
+								@if($exam->attachment_type === 'audio')
+									<x-icon name="o-speaker-wave" class="w-7 h-7 text-warning"/>
+								@else
+									<x-icon name="o-photo" class="w-7 h-7 text-warning"/>
+								@endif
+							</div>
+							<div>
+								<div class="font-bold text-lg flex items-center gap-2">
+									<span>{{ $exam->attachment_type === 'audio' ? __('lang.attached_audio') : __('lang.attached_image') }}</span>
+								</div>
+								<div class="text-sm text-base-content/70 mt-0.5">
+									العدد المسموح: <span class="font-bold">{{ $exam->media_views_limit }}</span> | المتبقي لك: <span class="font-bold {{ $remaining > 0 ? 'text-primary' : 'text-error' }}">{{ $remaining }}</span>
+								</div>
+							</div>
+						</div>
+
+						<div>
+							@if($isMediaOpen)
+								<x-button 
+									label="{{ $exam->attachment_type === 'audio' ? __('lang.close_audio') : __('lang.close_image') }}" 
+									icon="o-eye-slash" 
+									wire:click="closeMedia" 
+									class="btn-outline btn-sm sm:btn-md text-error" 
+									spinner="closeMedia" 
+								/>
+							@elseif($canView)
+								<x-button 
+									label="{{ $exam->attachment_type === 'audio' ? __('lang.play_audio') : __('lang.view_image') }}" 
+									icon="{{ $exam->attachment_type === 'audio' ? 'o-play' : 'o-eye' }}" 
+									wire:click="openMedia" 
+									wire:confirm="هل أنت متأكد من رغبتك في الاستماع/المشاهدة الآن؟ سيتم احتساب 1 من عدد المرات المتاحة لك."
+									class="btn-warning btn-sm sm:btn-md" 
+									spinner="openMedia" 
+								/>
+							@else
+								<div class="badge badge-error gap-1 p-3 text-xs font-semibold">
+									<x-icon name="o-lock-closed" class="w-4 h-4"/>
+									<span>{{ __('lang.views_exhausted') }}</span>
+								</div>
+							@endif
+						</div>
+					</div>
+
+					@if($isMediaOpen)
+						<div class="mt-4 pt-4 border-t border-base-300">
+							@if($exam->attachment_type === 'audio')
+								<div class="p-3 bg-base-100 rounded-xl border border-warning/30 flex flex-col gap-3" x-data>
+									<div class="flex items-center gap-2 text-warning font-medium text-xs">
+										<x-icon name="o-speaker-wave" class="w-4 h-4 animate-pulse shrink-0"/>
+										<span>{{ __('lang.playing_audio_notice') }}</span>
+									</div>
+									<audio 
+										x-ref="audioEl"
+										x-init="$nextTick(() => { $el.play().catch(e => console.log('Autoplay deferred:', e)); })"
+										@ended="$wire.closeMedia()"
+										controls 
+										autoplay 
+										class="w-full" 
+										src="{{ $exam->getFirstMediaUrl('attachment') }}"
+									>
+										متصفحك لا يدعم مشغل الصوت.
+									</audio>
+									<div class="flex justify-end">
+										<x-button label="{{ __('lang.close_audio') }}" icon="o-stop" wire:click="closeMedia" class="btn-xs btn-ghost text-error" spinner="closeMedia"/>
+									</div>
+								</div>
+							@elseif($exam->attachment_type === 'image')
+								<div class="flex flex-col items-center bg-base-100 p-3 rounded-xl border border-warning/30">
+									<img src="{{ $exam->getFirstMediaUrl('attachment') }}" alt="{{ $exam->title }}" class="max-h-96 rounded-lg object-contain shadow mb-3" />
+									<x-button label="{{ __('lang.close_image') }}" icon="o-eye-slash" wire:click="closeMedia" class="btn-sm btn-ghost text-error" spinner="closeMedia"/>
+								</div>
+							@endif
+						</div>
+					@endif
+				</x-card>
+			@endif
+		</div>
+	@endif
+
 	<div class="space-y-6">
 		@foreach($exam->questions as $index => $question)
 			<x-card class="shadow-md" title="{{ __('lang.question') }} {{ $index + 1 }}">

@@ -2,7 +2,12 @@
 
 namespace App\Livewire\Dashboard\Training;
 
+use App\Jobs\NotifyStudentsOfNewContentJob;
+use App\Models\Grade;
+use App\Models\Semester;
+use App\Models\Stage;
 use App\Models\Training;
+use App\Models\Week;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
@@ -12,26 +17,38 @@ class CreateTraining extends Component
     use Toast, WithFileUploads;
 
     public bool $modalAdd = false;
+
     public $title;
+
     public $description;
+
     public $type = 'video';
+
     public $url;
+
     public $stage_id;
+
     public $grade_id;
+
     public $semester_id;
+
     public $week_id;
-    
+
     public bool $is_active = true;
+
     public $training_file;
-    
+
     public $all_stages = [];
+
     public $all_grades = [];
+
     public $all_semesters = [];
+
     public $all_weeks = [];
 
     public function mount()
     {
-        $this->all_stages = \App\Models\Stage::where('is_active', true)->get();
+        $this->all_stages = Stage::where('is_active', true)->get();
     }
 
     public function updatedStageId($stage_id)
@@ -39,7 +56,7 @@ class CreateTraining extends Component
         $this->grade_id = null;
         $this->semester_id = null;
         $this->week_id = null;
-        $this->all_grades = \App\Models\Grade::where('stage_id', $stage_id)->where('is_active', true)->get();
+        $this->all_grades = Grade::where('stage_id', $stage_id)->where('is_active', true)->get();
         $this->all_semesters = [];
         $this->all_weeks = [];
     }
@@ -48,14 +65,14 @@ class CreateTraining extends Component
     {
         $this->semester_id = null;
         $this->week_id = null;
-        $this->all_semesters = \App\Models\Semester::where('grade_id', $grade_id)->where('is_active', true)->get();
+        $this->all_semesters = Semester::where('grade_id', $grade_id)->where('is_active', true)->get();
         $this->all_weeks = [];
     }
 
     public function updatedSemesterId($semester_id)
     {
         $this->week_id = null;
-        $this->all_weeks = \App\Models\Week::where('semester_id', $semester_id)->where('is_active', true)->get();
+        $this->all_weeks = Week::where('semester_id', $semester_id)->where('is_active', true)->get();
     }
 
     public function render()
@@ -66,13 +83,13 @@ class CreateTraining extends Component
     public function rules(): array
     {
         return [
-            'title'         => 'required|string|max:255',
-            'description'   => 'nullable|string',
-            'type'          => 'required|in:video,pdf,file,link',
-            'url'           => 'nullable|url',
-            'week_id'       => 'required|exists:weeks,id',
-            'semester_id'   => 'required|exists:semesters,id',
-            'is_active'     => 'boolean',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'type' => 'required|in:video,pdf,file,link',
+            'url' => 'nullable|url',
+            'week_id' => 'required|exists:weeks,id',
+            'semester_id' => 'required|exists:semesters,id',
+            'is_active' => 'boolean',
             'training_file' => 'nullable|file|max:51200',
         ];
     }
@@ -83,13 +100,13 @@ class CreateTraining extends Component
         $this->validate();
 
         $training = Training::create([
-            'title'        => $this->title,
-            'description'  => $this->description,
-            'type'         => $this->type,
-            'url'          => $this->url,
-            'week_id'      => $this->week_id,
-            'semester_id'  => $this->semester_id,
-            'is_active'    => $this->is_active,
+            'title' => $this->title,
+            'description' => $this->description,
+            'type' => $this->type,
+            'url' => $this->url,
+            'week_id' => $this->week_id,
+            'semester_id' => $this->semester_id,
+            'is_active' => $this->is_active,
         ]);
 
         if ($this->training_file) {
@@ -99,15 +116,15 @@ class CreateTraining extends Component
         }
 
         if ($training->is_active) {
-            $gradeId = \App\Models\Semester::find($training->semester_id)?->grade_id;
+            $gradeId = Semester::find($training->semester_id)?->grade_id;
             if ($gradeId) {
                 $typeLabels = [
                     'video' => 'فيديو',
-                    'pdf'   => 'PDF',
-                    'file'  => 'ملف',
-                    'link'  => 'رابط',
+                    'pdf' => 'PDF',
+                    'file' => 'ملف',
+                    'link' => 'رابط',
                 ];
-                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch(
+                NotifyStudentsOfNewContentJob::dispatch(
                     $gradeId,
                     $training->title,
                     'training',
@@ -127,7 +144,7 @@ class CreateTraining extends Component
     public function resetData(): void
     {
         $this->reset(['title', 'description', 'url', 'stage_id', 'grade_id', 'week_id', 'semester_id', 'training_file']);
-        $this->type      = 'video';
+        $this->type = 'video';
         $this->is_active = true;
         $this->all_grades = [];
         $this->all_semesters = [];

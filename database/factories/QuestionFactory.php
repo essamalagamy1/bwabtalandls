@@ -11,11 +11,11 @@ class QuestionFactory extends Factory
     {
         return [
             'exam_id' => Exam::factory(),
-            'question_text' => 'ما هو الجواب الصحيح للسؤال رقم ' . $this->faker->numberBetween(1, 100) . '؟',
-            'option_a' => 'الخيار الأول: ' . $this->faker->word,
-            'option_b' => 'الخيار الثاني: ' . $this->faker->word,
-            'option_c' => 'الخيار الثالث: ' . $this->faker->word,
-            'option_d' => 'الخيار الرابع: ' . $this->faker->word,
+            'question_text' => 'ما هو الجواب الصحيح للسؤال رقم '.$this->faker->numberBetween(1, 100).'؟',
+            'option_a' => 'الخيار الأول: '.$this->faker->word,
+            'option_b' => 'الخيار الثاني: '.$this->faker->word,
+            'option_c' => 'الخيار الثالث: '.$this->faker->word,
+            'option_d' => 'الخيار الرابع: '.$this->faker->word,
             'correct_answer' => $this->faker->randomElement(['a', 'b', 'c', 'd']),
         ];
     }

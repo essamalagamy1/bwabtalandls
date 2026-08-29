@@ -12,7 +12,7 @@ class GradeSeeder extends Seeder
     {
         $stages = Stage::all();
         $grades = ['الصف الأول', 'الصف الثاني', 'الصف الثالث'];
-        
+
         foreach ($stages as $stage) {
             foreach ($grades as $gradeName) {
                 Grade::create([

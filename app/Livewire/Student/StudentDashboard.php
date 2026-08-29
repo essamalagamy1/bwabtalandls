@@ -3,6 +3,8 @@
 namespace App\Livewire\Student;
 
 use App\Models\Exam;
+use App\Models\ExamAttempt;
+use App\Models\Semester;
 use App\Models\Training;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +15,7 @@ use Livewire\Component;
 class StudentDashboard extends Component
 {
     public array $progressChart = [];
+
     public array $statusChart = [];
 
     public function placeholder(): View
@@ -26,7 +29,7 @@ class StudentDashboard extends Component
         $user->load('grade.stage');
         $gradeId = $user->grade_id;
 
-        $activeSemester = \App\Models\Semester::where('grade_id', $gradeId)
+        $activeSemester = Semester::where('grade_id', $gradeId)
             ->where('is_active', true)
             ->first();
 
@@ -35,46 +38,46 @@ class StudentDashboard extends Component
                 $q->where('grade_id', $gradeId)->where('is_active', true);
             });
         })
-        ->with(['week.semester', 'attempts' => function($q) use ($user) {
-            $q->where('user_id', $user->id);
-        }])
-        ->withCount('questions')
-        ->latest()
-        ->get();
+            ->with(['week.semester', 'attempts' => function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            }])
+            ->withCount('questions')
+            ->latest()
+            ->get();
 
         $trainings = Training::whereHas('week', function ($query) use ($gradeId) {
             $query->whereHas('semester', function ($q) use ($gradeId) {
                 $q->where('grade_id', $gradeId)->where('is_active', true);
             });
         })
-        ->with('week.semester')
-        ->where('is_active', true)
-        ->latest()
-        ->get();
+            ->with('week.semester')
+            ->where('is_active', true)
+            ->latest()
+            ->get();
 
         // Analytics
-        $allAttempts = \App\Models\ExamAttempt::where('user_id', $user->id)->orderBy('created_at')->get();
-        
+        $allAttempts = ExamAttempt::where('user_id', $user->id)->orderBy('created_at')->get();
+
         $totalExamsTaken = $allAttempts->count();
         $averageScore = $totalExamsTaken > 0 ? $allAttempts->avg('total_score') : 0;
-        
+
         $passedExams = $allAttempts->where('status', 'passed')->count();
         $failedExams = $allAttempts->where('status', 'failed')->count();
         $pendingExams = $allAttempts->where('status', null)->count();
-        
+
         // Progress Chart Data
         $this->progressChart = [
             'type' => 'line',
             'data' => [
-                'labels' => $allAttempts->map(fn($a) => $a->created_at->format('M d'))->toArray(),
+                'labels' => $allAttempts->map(fn ($a) => $a->created_at->format('M d'))->toArray(),
                 'datasets' => [
                     [
                         'label' => __('lang.score') ?? 'الدرجة',
                         'data' => $allAttempts->pluck('total_score')->toArray(),
                         'borderColor' => '#25376F',
-                        'tension' => 0.4
-                    ]
-                ]
+                        'tension' => 0.4,
+                    ],
+                ],
             ],
             'options' => [
                 'scales' => [
@@ -84,9 +87,9 @@ class StudentDashboard extends Component
                     ],
                     'y' => [
                         'title' => ['display' => true, 'text' => __('lang.score') ?? 'الدرجة'],
-                    ]
+                    ],
                 ],
-            ]
+            ],
         ];
 
         $this->statusChart = [
@@ -97,9 +100,9 @@ class StudentDashboard extends Component
                     [
                         'data' => [$passedExams, $failedExams, $pendingExams],
                         'backgroundColor' => ['#10b981', '#ef4444', '#f59e0b'],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         return view('livewire.student.student-dashboard', compact('user', 'activeSemester', 'exams', 'trainings', 'totalExamsTaken', 'averageScore', 'passedExams', 'failedExams'));

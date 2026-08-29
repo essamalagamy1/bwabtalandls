@@ -12,9 +12,9 @@ class Week extends Model
     protected $fillable = ['semester_id', 'title', 'order', 'is_active', 'start_date', 'end_date'];
 
     protected $casts = [
-        'is_active'  => 'boolean',
+        'is_active' => 'boolean',
         'start_date' => 'date',
-        'end_date'   => 'date',
+        'end_date' => 'date',
     ];
 
     public function semester()
@@ -35,7 +35,7 @@ class Week extends Model
     protected static function booted()
     {
         static::updated(function ($week) {
-            if ($week->wasChanged('is_active') && !$week->is_active) {
+            if ($week->wasChanged('is_active') && ! $week->is_active) {
                 $week->trainings->each(function ($training) {
                     $training->update(['is_published' => false]);
                 });

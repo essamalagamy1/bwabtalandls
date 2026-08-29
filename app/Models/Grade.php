@@ -15,7 +15,6 @@ class Grade extends Model
         'is_active' => 'boolean',
     ];
 
-
     public function stage()
     {
         return $this->belongsTo(Stage::class);
@@ -39,7 +38,7 @@ class Grade extends Model
     protected static function booted()
     {
         static::updated(function ($grade) {
-            if ($grade->wasChanged('is_active') && !$grade->is_active) {
+            if ($grade->wasChanged('is_active') && ! $grade->is_active) {
                 $grade->semesters->each(function ($semester) {
                     $semester->update(['is_active' => false]);
                 });
@@ -49,5 +48,4 @@ class Grade extends Model
             }
         });
     }
-
 }

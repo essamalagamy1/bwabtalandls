@@ -38,7 +38,7 @@
 							<td class="text-nowrap">{{ $week->title }}</td>
 							<td class="text-center"><x-badge value="{{ $week->order }}" class="badge-neutral"/></td>
 							<td class="text-center text-nowrap">
-								<div class="font-bold">{{ $week->semester?->name ?? '-' }}</div>
+								<div class="font-bold">{{ $week->semester?->name_with_academic_year ?? '-' }}</div>
 								@if($week->semester)
 									<div class="text-xs text-base-content/70 mt-1">
 										{{ $week->semester->grade?->stage?->name }} - 

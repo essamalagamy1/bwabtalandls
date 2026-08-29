@@ -12,7 +12,7 @@ class SemesterSeeder extends Seeder
     {
         $grades = Grade::all();
         $semesters = ['الفصل الدراسي الأول', 'الفصل الدراسي الثاني'];
-        
+
         foreach ($grades as $grade) {
             foreach ($semesters as $index => $semesterName) {
                 Semester::create([

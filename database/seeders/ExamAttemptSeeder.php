@@ -12,7 +12,7 @@ class ExamAttemptSeeder extends Seeder
     public function run(): void
     {
         // افترض أن لدينا طلاب فقط
-        $students = User::whereHas('roles', function($q) {
+        $students = User::whereHas('roles', function ($q) {
             $q->where('name', 'student');
         })->get();
 
@@ -22,7 +22,7 @@ class ExamAttemptSeeder extends Seeder
         }
 
         $exams = Exam::all();
-        
+
         foreach ($students as $student) {
             foreach ($exams->take(3) as $exam) {
                 // محاولة لكل طالب في 3 اختبارات

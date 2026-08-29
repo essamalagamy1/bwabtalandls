@@ -31,10 +31,10 @@ class NotifyStudentsOfNewContentJob implements ShouldQueue
             ->get();
 
         if ($students->isNotEmpty()) {
-            $notificationTitle = $this->contentType === 'exam' 
-                ? 'اختبار جديد متاح: ' . $this->title
-                : 'تدريب جديد متاح: ' . $this->title;
-            
+            $notificationTitle = $this->contentType === 'exam'
+                ? 'اختبار جديد متاح: '.$this->title
+                : 'تدريب جديد متاح: '.$this->title;
+
             $bodyLines = [];
             if ($this->contentType === 'exam') {
                 $bodyLines[] = "تمت إضافة وتفعيل اختبار جديد بعنوان: {$this->title}";

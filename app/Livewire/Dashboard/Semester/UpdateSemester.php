@@ -2,8 +2,11 @@
 
 namespace App\Livewire\Dashboard\Semester;
 
+use App\Models\Grade;
 use App\Models\Semester;
+use App\Models\Stage;
 use Illuminate\Contracts\View\View;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
@@ -18,6 +21,8 @@ class UpdateSemester extends Component
 
     public $name;
 
+    public $stage_id;
+
     public $grade_id;
 
     public bool $is_active;
@@ -26,15 +31,54 @@ class UpdateSemester extends Component
 
     public $end_date;
 
-    public $all_grades;
+    public $academic_year_from;
+
+    public $academic_year_to;
+
+    public $all_stages = [];
+
+    public $all_grades = [];
 
     public function mount(): void
     {
-        $this->name = $this->semester->name;
+        $this->name = $this->semester->getRawOriginal('name');
         $this->grade_id = $this->semester->grade_id;
+        $this->stage_id = $this->semester->grade?->stage_id;
         $this->is_active = $this->semester->is_active;
         $this->start_date = $this->semester->start_date?->format('Y-m-d');
         $this->end_date = $this->semester->end_date?->format('Y-m-d');
+        $this->academic_year_from = $this->semester->academic_year_from;
+        $this->academic_year_to = $this->semester->academic_year_to;
+
+        $this->all_stages = Stage::where('is_active', true)->get(['id', 'name'])->toArray();
+        $this->loadGrades();
+    }
+
+    public function updatedStageId($value): void
+    {
+        $this->grade_id = null;
+        $this->loadGrades();
+    }
+
+    public function loadGrades(): void
+    {
+        if (! $this->stage_id) {
+            $this->all_grades = [];
+
+            return;
+        }
+
+        $this->all_grades = Grade::with('stage:id,name')
+            ->where('is_active', true)
+            ->where('stage_id', $this->stage_id)
+            ->get(['id', 'name', 'stage_id'])
+            ->map(function ($grade) {
+                return [
+                    'id' => $grade->id,
+                    'name' => $grade->name,
+                    'full_path_name' => $grade->stage?->name ?? '',
+                ];
+            })->toArray();
     }
 
     public function rules(): array
@@ -44,12 +88,15 @@ class UpdateSemester extends Component
                 'required',
                 'string',
                 'max:255',
-                \Illuminate\Validation\Rule::unique('semesters', 'name')->where('grade_id', $this->grade_id)->ignore($this->semester->id)
+                Rule::unique('semesters', 'name')->where('grade_id', $this->grade_id)->ignore($this->semester->id),
             ],
+            'stage_id' => 'nullable|exists:stages,id',
             'grade_id' => 'required|exists:grades,id',
             'is_active' => 'boolean',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'academic_year_from' => 'nullable|integer|min:1900|max:2100',
+            'academic_year_to' => 'nullable|integer|min:1900|max:2100|gte:academic_year_from',
         ];
     }
 
@@ -65,6 +112,7 @@ class UpdateSemester extends Component
                 ->exists();
             if ($exists) {
                 $this->addError('is_active', 'لا يمكن تفعيل هذا الفصل لوجود فصل آخر مفعل لنفس الصف.');
+
                 return;
             }
         }
@@ -75,6 +123,8 @@ class UpdateSemester extends Component
             'is_active' => $this->is_active,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
+            'academic_year_from' => $this->academic_year_from,
+            'academic_year_to' => $this->academic_year_to,
         ]);
 
         $this->modalUpdate = false;

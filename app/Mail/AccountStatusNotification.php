@@ -16,6 +16,7 @@ class AccountStatusNotification extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $student;
+
     public $status;
 
     /**
@@ -32,8 +33,8 @@ class AccountStatusNotification extends Mailable implements ShouldQueue
      */
     public function envelope(): Envelope
     {
-        $subject = $this->status === 'active' 
-            ? 'تم تفعيل حسابك بنجاح' 
+        $subject = $this->status === 'active'
+            ? 'تم تفعيل حسابك بنجاح'
             : 'إشعار بشأن حالة حسابك';
 
         return new Envelope(

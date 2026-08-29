@@ -3,13 +3,13 @@
 namespace App\Livewire\Dashboard\Reports;
 
 use App\Models\ExamAttempt;
-use App\Models\User;
-use App\Models\Stage;
 use App\Models\Grade;
 use App\Models\Section;
 use App\Models\Semester;
+use App\Models\Stage;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -19,12 +19,18 @@ use Livewire\Component;
 class StudentReports extends Component
 {
     public array $passFailChart = [];
+
     public array $performanceChart = [];
 
     public $stage_id;
+
     public $grade_id;
+
     public $section_id;
+
     public $semester_id;
+
+    public $student_id;
 
     public function placeholder(): View
     {
@@ -50,6 +56,7 @@ class StudentReports extends Component
         $this->grade_id = null;
         $this->section_id = null;
         $this->semester_id = null;
+        $this->student_id = null;
         $this->loadCharts();
     }
 
@@ -57,11 +64,13 @@ class StudentReports extends Component
     {
         $this->section_id = null;
         $this->semester_id = null;
+        $this->student_id = null;
         $this->loadCharts();
     }
 
     public function updatedSectionId()
     {
+        $this->student_id = null;
         $this->loadCharts();
     }
 
@@ -70,31 +79,37 @@ class StudentReports extends Component
         $this->loadCharts();
     }
 
+    public function updatedStudentId()
+    {
+        $this->loadCharts();
+    }
+
     private function getFilteredAttemptQuery()
     {
-        $query = ExamAttempt::query()
-            ->whereHas('user', fn($q) => $q->where('status', 'active'))
-            ->whereHas('exam', fn($q) => $q->where('is_active', true)->whereHas('week', fn($wq) => $wq->where('is_active', true)));
+        $query = ExamAttempt::query();
 
         if ($this->stage_id) {
-            $query->whereHas('exam.week.semester.grade', function($q) {
+            $query->whereHas('exam.week.semester.grade', function ($q) {
                 $q->where('stage_id', $this->stage_id);
             });
         }
         if ($this->grade_id) {
-            $query->whereHas('exam.week.semester', function($q) {
+            $query->whereHas('exam.week.semester', function ($q) {
                 $q->where('grade_id', $this->grade_id);
             });
         }
         if ($this->section_id) {
-            $query->whereHas('user', function($q) {
+            $query->whereHas('user', function ($q) {
                 $q->where('section_id', $this->section_id);
             });
         }
         if ($this->semester_id) {
-            $query->whereHas('exam.week', function($q) {
+            $query->whereHas('exam.week', function ($q) {
                 $q->where('semester_id', $this->semester_id);
             });
+        }
+        if ($this->student_id) {
+            $query->where('user_id', $this->student_id);
         }
 
         return $query;
@@ -114,9 +129,9 @@ class StudentReports extends Component
                         'label' => __('lang.students'),
                         'data' => [$passed, $failed],
                         'backgroundColor' => ['#4ade80', '#f87171'],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         $monthlyPerformance = (clone $this->getFilteredAttemptQuery())
@@ -128,7 +143,7 @@ class StudentReports extends Component
         $labels = [];
         $data = [];
         foreach ($monthlyPerformance as $record) {
-            $labels[] = date("F", mktime(0, 0, 0, $record->month, 10));
+            $labels[] = Carbon::create(null, (int) $record->month, 1)->translatedFormat('F');
             $data[] = round($record->avg_score, 2);
         }
 
@@ -141,9 +156,9 @@ class StudentReports extends Component
                         'label' => __('lang.average_score'),
                         'data' => $data,
                         'borderColor' => '#3b82f6',
-                        'tension' => 0.4
-                    ]
-                ]
+                        'tension' => 0.4,
+                    ],
+                ],
             ],
             'options' => [
                 'scales' => [
@@ -153,9 +168,9 @@ class StudentReports extends Component
                     ],
                     'y' => [
                         'title' => ['display' => true, 'text' => __('lang.average_score')],
-                    ]
+                    ],
                 ],
-            ]
+            ],
         ];
     }
 
@@ -163,10 +178,10 @@ class StudentReports extends Component
     {
         $totalAttempts = (clone $this->getFilteredAttemptQuery())->count();
         $avgScore = (clone $this->getFilteredAttemptQuery())->avg('total_score') ?? 0;
-        
-        $topStudents = User::role('student')->where('status', 'active');
+
+        $topStudents = User::role('student');
         if ($this->stage_id) {
-            $topStudents->whereHas('grade', fn($q) => $q->where('stage_id', $this->stage_id));
+            $topStudents->whereHas('grade', fn ($q) => $q->where('stage_id', $this->stage_id));
         }
         if ($this->grade_id) {
             $topStudents->where('grade_id', $this->grade_id);
@@ -175,33 +190,118 @@ class StudentReports extends Component
             $topStudents->where('section_id', $this->section_id);
         }
 
+        if ($this->student_id) {
+            $topStudents->where('id', $this->student_id);
+        }
+
         $weakStudents = clone $topStudents;
 
-        $topStudents = $topStudents->withAvg(['examAttempts' => function($q) {
-                if ($this->semester_id) {
-                    $q->whereHas('exam.week', fn($query) => $query->where('semester_id', $this->semester_id));
-                }
-            }], 'total_score')
+        $topStudents = $topStudents->withAvg(['examAttempts' => function ($q) {
+            if ($this->semester_id) {
+                $q->whereHas('exam.week', fn ($query) => $query->where('semester_id', $this->semester_id));
+            }
+        }], 'total_score')
             ->orderByDesc('exam_attempts_avg_total_score')
             ->take(5)
             ->get();
 
-        $weakStudents = $weakStudents->withAvg(['examAttempts' => function($q) {
-                if ($this->semester_id) {
-                    $q->whereHas('exam.week', fn($query) => $query->where('semester_id', $this->semester_id));
-                }
-            }], 'total_score')
+        $weakStudents = $weakStudents->withAvg(['examAttempts' => function ($q) {
+            if ($this->semester_id) {
+                $q->whereHas('exam.week', fn ($query) => $query->where('semester_id', $this->semester_id));
+            }
+        }], 'total_score')
             ->having('exam_attempts_avg_total_score', '<', 60)
             ->having('exam_attempts_avg_total_score', '>', 0)
             ->orderBy('exam_attempts_avg_total_score')
             ->take(5)
             ->get();
 
-        $stages = Stage::where('is_active', true)->get();
-        $grades = $this->stage_id ? Grade::where('stage_id', $this->stage_id)->where('is_active', true)->get() : collect();
-        $sections = $this->grade_id ? Section::where('grade_id', $this->grade_id)->where('is_active', true)->get() : collect();
-        $semesters = $this->grade_id ? Semester::where('grade_id', $this->grade_id)->where('is_active', true)->get() : collect();
+        $stages = Stage::all();
+        $grades = $this->stage_id ? Grade::where('stage_id', $this->stage_id)->get() : collect();
 
-        return view('livewire.dashboard.reports.student-reports', compact('totalAttempts', 'avgScore', 'topStudents', 'weakStudents', 'stages', 'grades', 'sections', 'semesters'));
+        $sectionsQuery = Section::with('grade.stage');
+        if ($this->grade_id) {
+            $sectionsQuery->where('grade_id', $this->grade_id);
+        } elseif ($this->stage_id) {
+            $sectionsQuery->whereHas('grade', fn ($q) => $q->where('stage_id', $this->stage_id));
+        }
+        $sections = ($this->grade_id || $this->stage_id)
+            ? $sectionsQuery->get()->map(function ($section) {
+                $extra = array_filter([$section->grade?->name, $section->grade?->stage?->name]);
+
+                return [
+                    'id' => $section->id,
+                    'name' => $section->name.($extra ? ' ('.implode(' - ', $extra).')' : ''),
+                ];
+            })
+            : collect();
+
+        $semestersQuery = Semester::with('grade.stage');
+        if ($this->grade_id) {
+            $semestersQuery->where('grade_id', $this->grade_id);
+        } elseif ($this->stage_id) {
+            $semestersQuery->whereHas('grade', fn ($q) => $q->where('stage_id', $this->stage_id));
+        }
+        $semesters = ($this->grade_id || $this->stage_id)
+            ? $semestersQuery->get()->map(function ($semester) {
+                $extra = array_filter([$semester->grade?->name, $semester->grade?->stage?->name]);
+
+                return [
+                    'id' => $semester->id,
+                    'name' => $semester->name_with_academic_year.($extra ? ' ('.implode(' - ', $extra).')' : ''),
+                ];
+            })
+            : collect();
+
+        $studentsQuery = User::role('student')->with('grade.stage', 'section');
+        if ($this->section_id) {
+            $studentsQuery->where('section_id', $this->section_id);
+        } elseif ($this->grade_id) {
+            $studentsQuery->where('grade_id', $this->grade_id);
+        } elseif ($this->stage_id) {
+            $studentsQuery->whereHas('grade', fn ($q) => $q->where('stage_id', $this->stage_id));
+        }
+        $students = ($this->stage_id || $this->grade_id || $this->section_id)
+            ? $studentsQuery->get()->map(function ($student) {
+                $extra = array_filter([$student->section?->name, $student->grade?->name, $student->grade?->stage?->name]);
+
+                return [
+                    'id' => $student->id,
+                    'name' => $student->name.($extra ? ' ('.implode(' - ', $extra).')' : ''),
+                ];
+            })
+            : User::role('student')->with('grade.stage')->get()->map(function ($student) {
+                $extra = array_filter([$student->grade?->name, $student->grade?->stage?->name]);
+
+                return [
+                    'id' => $student->id,
+                    'name' => $student->name.($extra ? ' ('.implode(' - ', $extra).')' : ''),
+                ];
+            });
+
+        $selectedStage = $this->stage_id ? (Stage::find($this->stage_id)?->name ?? null) : null;
+        $selectedGrade = $this->grade_id ? (Grade::find($this->grade_id)?->name ?? null) : null;
+        $selectedSection = $this->section_id ? (Section::find($this->section_id)?->name ?? null) : null;
+        $selectedSemester = $this->semester_id ? (Semester::find($this->semester_id)?->name_with_academic_year ?? null) : null;
+        $selectedStudent = $this->student_id ? (User::find($this->student_id)?->name ?? null) : null;
+
+        return view('livewire.dashboard.reports.student-reports', compact(
+            'totalAttempts', 'avgScore', 'topStudents', 'weakStudents',
+            'stages', 'grades', 'sections', 'semesters', 'students',
+            'selectedStage', 'selectedGrade', 'selectedSection', 'selectedSemester', 'selectedStudent',
+        ));
+    }
+
+    public function printReport()
+    {
+        $url = route('reports.students.print', array_filter([
+            'stage_id' => $this->stage_id,
+            'grade_id' => $this->grade_id,
+            'section_id' => $this->section_id,
+            'semester_id' => $this->semester_id,
+            'student_id' => $this->student_id,
+        ]));
+
+        $this->js("window.open('{$url}', '_blank')");
     }
 }

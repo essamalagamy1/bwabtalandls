@@ -11,7 +11,9 @@ class CreateStage extends Component
     use Toast;
 
     public bool $modalAdd = false;
+
     public $name;
+
     public bool $is_active = true;
 
     public function render()
@@ -22,7 +24,7 @@ class CreateStage extends Component
     public function rules(): array
     {
         return [
-            'name'      => 'required|string|max:255|unique:stages,name',
+            'name' => 'required|string|max:255|unique:stages,name',
             'is_active' => 'boolean',
         ];
     }
@@ -33,7 +35,7 @@ class CreateStage extends Component
         $this->validate();
 
         Stage::create([
-            'name'      => $this->name,
+            'name' => $this->name,
             'is_active' => $this->is_active,
         ]);
 

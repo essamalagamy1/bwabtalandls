@@ -1,12 +1,33 @@
 <div>
-	<x-header title="{{ __('lang.student_reports') }}" subtitle="نظرة شاملة على أداء الطلاب" separator />
+	<x-header title="{{ __('lang.student_reports') }}" subtitle="{{ __('lang.students_overview') }}" separator class="no-print">
+		<x-slot:actions>
+			<x-button 
+				icon="o-printer" 
+				label="{{ __('lang.print_report') }}" 
+				wire:click="printReport" 
+				spinner="printReport" 
+				class="btn-primary btn-outline shadow-sm hover:scale-105 transition-transform" 
+			/>
+		</x-slot:actions>
+	</x-header>
 
-	{{-- Filters --}}
-	<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-base-200 p-4 rounded-xl">
+	{{-- Print-Only Header with Logo, Metadata, and Applied Filters --}}
+	<x-report-print-header 
+		title="{{ __('lang.student_reports') }} - تقرير تحليلي لأداء الطلاب" 
+		:selected-stage="$selectedStage" 
+		:selected-grade="$selectedGrade" 
+		:selected-section="$selectedSection" 
+		:selected-semester="$selectedSemester" 
+		:selected-student="$selectedStudent" 
+	/>
+
+	{{-- Filters (Screen Only) --}}
+	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8 bg-base-200 p-4 rounded-xl no-print">
 		<x-select label="{{ __('lang.stages') }}" wire:model.live="stage_id" :options="$stages" option-value="id" option-label="name" placeholder="{{ __('lang.stages') }}" />
 		<x-select label="{{ __('lang.grades') }}" wire:model.live="grade_id" :options="$grades" option-value="id" option-label="name" placeholder="{{ __('lang.grades') }}" :disabled="!$stage_id" />
-		<x-select label="{{ __('lang.sections') }}" wire:model.live="section_id" :options="$sections" option-value="id" option-label="name" placeholder="{{ __('lang.sections') }}" :disabled="!$grade_id" />
-		<x-select label="{{ __('lang.semesters') }}" wire:model.live="semester_id" :options="$semesters" option-value="id" option-label="name" placeholder="{{ __('lang.semesters') }}" :disabled="!$grade_id" />
+		<x-select label="{{ __('lang.sections') }}" wire:model.live="section_id" :options="$sections" option-value="id" option-label="name" placeholder="{{ __('lang.sections') }}" :disabled="!$stage_id" />
+		<x-select label="{{ __('lang.semesters') }}" wire:model.live="semester_id" :options="$semesters" option-value="id" option-label="name" placeholder="{{ __('lang.semesters') }}" :disabled="!$stage_id" />
+		<x-select label="{{ __('lang.student') }}" wire:model.live="student_id" :options="$students" option-value="id" option-label="name" placeholder="{{ __('lang.student') }}" :disabled="!$stage_id" />
 	</div>
 
 	{{-- Top Stats --}}

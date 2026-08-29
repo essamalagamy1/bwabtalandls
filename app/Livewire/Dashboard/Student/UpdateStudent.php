@@ -2,12 +2,15 @@
 
 namespace App\Livewire\Dashboard\Student;
 
+use App\Mail\AccountStatusNotification;
 use App\Models\Grade;
 use App\Models\Section;
 use App\Models\Stage;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
@@ -17,32 +20,46 @@ class UpdateStudent extends Component
     use Toast, WithFileUploads;
 
     public bool $modalUpdate = false;
+
     public User $student;
+
     public $name;
+
     public $email;
+
     public $password;
+
     public $password_confirmation;
+
     public $phone;
+
     public $phone_key;
+
     public $stage_id;
+
     public $grade_id;
+
     public $section_id;
+
     public $status;
+
     public $image;
 
     public $all_stages = [];
+
     public $all_grades = [];
+
     public $all_sections = [];
 
     public function mount(): void
     {
-        $this->name       = $this->student->name;
-        $this->email      = $this->student->email;
-        $this->phone      = $this->student->phone;
-        $this->phone_key  = $this->student->phone_key;
-        $this->grade_id   = $this->student->grade_id;
+        $this->name = $this->student->name;
+        $this->email = $this->student->email;
+        $this->phone = $this->student->phone;
+        $this->phone_key = $this->student->phone_key;
+        $this->grade_id = $this->student->grade_id;
         $this->section_id = $this->student->section_id;
-        $this->status     = $this->student->status;
+        $this->status = $this->student->status;
 
         $grade = Grade::find($this->grade_id);
         if ($grade) {
@@ -75,16 +92,16 @@ class UpdateStudent extends Component
     public function rules(): array
     {
         return [
-            'name'       => 'required|string|max:255',
-            'email'      => 'required|email|max:255|unique:users,email,'.$this->student->id,
-            'password'   => 'nullable|string|min:8|confirmed',
-            'phone'      => 'required|string|max:20',
-            'phone_key'  => 'required|string|max:5',
-            'stage_id'   => 'required|exists:stages,id',
-            'grade_id'   => 'required|exists:grades,id',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$this->student->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'phone' => 'required|string|max:20',
+            'phone_key' => 'required|string|max:5',
+            'stage_id' => 'required|exists:stages,id',
+            'grade_id' => 'required|exists:grades,id',
             'section_id' => 'nullable|exists:sections,id',
-            'status'     => 'required|in:pending,active,inactive',
-            'image'      => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+            'status' => 'required|in:pending,active,inactive',
+            'image' => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
         ];
     }
 
@@ -94,16 +111,16 @@ class UpdateStudent extends Component
         $this->validate();
 
         $data = [
-            'name'       => $this->name,
-            'email'      => $this->email,
-            'phone'      => $this->phone,
-            'phone_key'  => $this->phone_key,
-            'grade_id'   => $this->grade_id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'phone_key' => $this->phone_key,
+            'grade_id' => $this->grade_id,
             'section_id' => $this->section_id,
-            'status'     => $this->status,
+            'status' => $this->status,
         ];
 
-        if (!empty($this->password)) {
+        if (! empty($this->password)) {
             $data['password'] = Hash::make($this->password);
         }
         $oldStatus = $this->student->status;
@@ -113,10 +130,10 @@ class UpdateStudent extends Component
         // Notify student about account status change
         if ($oldStatus !== $this->status && in_array($this->status, ['active', 'inactive'])) {
             try {
-                \Illuminate\Support\Facades\Mail::to($this->student->email)
-                    ->send(new \App\Mail\AccountStatusNotification($this->student, $this->status));
+                Mail::to($this->student->email)
+                    ->send(new AccountStatusNotification($this->student, $this->status));
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send account status email: ' . $e->getMessage());
+                Log::error('Failed to send account status email: '.$e->getMessage());
             }
         }
 

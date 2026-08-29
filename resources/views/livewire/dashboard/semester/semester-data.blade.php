@@ -2,19 +2,19 @@
 	<x-card title="{{ __('lang.semesters') }}" shadow class="mb-3">
 		<x-slot:menu>
 			@can('create_semester')
-				<livewire:dashboard.semester.create-semester :all_grades="$all_grades" wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
+				<livewire:dashboard.semester.create-semester wire:key="{{ \Illuminate\Support\Str::random(20) }}"/>
 			@endcan
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
 			<x-input label="{{ __('lang.search') }}" wire:model.live="search_name" placeholder="{{ __('lang.search') }}..." clearable/>
-			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
-			<x-choices-offline label="{{ __('lang.section') }}" wire:model.live="search_section_id" :options="$all_sections" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}"/>
+			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-semester-stage-select"/>
+			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-semester-grade-select-{{ $search_stage_id ?? 'all' }}"/>
+			<x-choices-offline label="{{ __('lang.section') }}" wire:model.live="search_section_id" :options="$all_sections" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-semester-section-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}"/>
 			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[
                 ['id' => '', 'name' => __('lang.all')],
                 ['id' => '1', 'name' => __('lang.active')],
                 ['id' => '0', 'name' => __('lang.inactive')],
-            ]" option-value="id" option-label="name"/>
+            ]" option-value="id" option-label="name" wire:key="filter-semester-status-select"/>
 		</div>
 		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 			<div class="overflow-x-auto">
@@ -36,7 +36,7 @@
 					@forelse($semesters as $semester)
 						<tr class="bg-base-200">
 							<th class="text-center">{{ $semesters->firstItem() + $loop->index }}</th>
-							<td class="text-nowrap">{{ $semester->name }}</td>
+							<td class="text-nowrap font-medium">{{ $semester->name_with_academic_year }}</td>
 							<td class="text-center">{{ $semester->grade?->name ?? '-' }}</td>
 							<td class="text-center">{{ $semester->grade?->stage?->name ?? '-' }}</td>
 							<td class="text-center text-nowrap">{{ $semester->start_date?->format('Y-m-d') ?? '-' }}</td>
@@ -52,7 +52,7 @@
 							<td>
 								<div class="flex gap-2 justify-center">
 									@can('edit_semester')
-										<livewire:dashboard.semester.update-semester :semester="$semester" :all_grades="$all_grades" :key="\Illuminate\Support\Str::random(10)"/>
+										<livewire:dashboard.semester.update-semester :semester="$semester" :key="\Illuminate\Support\Str::random(10)"/>
 										@if($semester->is_active)
 											<x-button
 												icon="o-lock-closed"

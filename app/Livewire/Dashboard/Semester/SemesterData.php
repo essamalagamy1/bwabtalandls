@@ -2,8 +2,12 @@
 
 namespace App\Livewire\Dashboard\Semester;
 
+use App\Models\Exam;
 use App\Models\Grade;
+use App\Models\Section;
 use App\Models\Semester;
+use App\Models\Stage;
+use App\Models\Training;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Lazy;
@@ -25,17 +29,36 @@ class SemesterData extends Component
     }
 
     public $all_stages = [];
+
     public $search_stage_id;
+
     public $all_grades;
+
     public $all_sections = [];
+
     public $search_name;
+
     public $search_grade_id;
+
     public $search_section_id;
+
     public $search_is_active = '';
+
+    public function rendering(): void
+    {
+        $this->loadStages();
+        $this->loadGrades();
+        $this->loadSections();
+    }
+
+    public function loadStages(): void
+    {
+        $this->all_stages = Stage::where('is_active', true)->get(['id', 'name'])->toArray();
+    }
 
     public function mount(): void
     {
-        $this->all_stages = \App\Models\Stage::where('is_active', true)->get(['id', 'name'])->toArray();
+        $this->loadStages();
         $this->loadGrades();
         $this->loadSections();
         view()->share('breadcrumbs', $this->breadcrumbs());
@@ -44,31 +67,31 @@ class SemesterData extends Component
     public function loadGrades(): void
     {
         $this->all_grades = Grade::with('stage:id,name')->where('is_active', true)
-            ->when($this->search_stage_id, fn($q) => $q->where('stage_id', $this->search_stage_id))
+            ->when($this->search_stage_id, fn ($q) => $q->where('stage_id', $this->search_stage_id))
             ->get(['id', 'name', 'stage_id'])
             ->map(function ($grade) {
                 return [
                     'id' => $grade->id,
                     'name' => $grade->name,
-                    'full_path_name' => $grade->stage?->name ?? ''
+                    'full_path_name' => $grade->stage?->name ?? '',
                 ];
             })->toArray();
     }
 
     public function loadSections(): void
     {
-        $query = \App\Models\Section::with('grade.stage')->where('is_active', true);
+        $query = Section::with('grade.stage')->where('is_active', true);
         if ($this->search_grade_id) {
             $query->where('grade_id', $this->search_grade_id);
         } elseif ($this->search_stage_id) {
-            $query->whereHas('grade', fn($q) => $q->where('stage_id', $this->search_stage_id));
+            $query->whereHas('grade', fn ($q) => $q->where('stage_id', $this->search_stage_id));
         }
         $this->all_sections = $query->get(['id', 'name', 'grade_id'])
             ->map(function ($section) {
                 return [
                     'id' => $section->id,
                     'name' => $section->name,
-                    'full_path_name' => ($section->grade?->stage?->name ?? '') . ' - ' . ($section->grade?->name ?? ''),
+                    'full_path_name' => ($section->grade?->stage?->name ?? '').' - '.($section->grade?->name ?? ''),
                 ];
             })->toArray();
     }
@@ -98,11 +121,11 @@ class SemesterData extends Component
     public function render(): View
     {
         $data['semesters'] = Semester::query()
-            ->when($this->search_name, fn(Builder $q) => $q->where('name', 'like', "%{$this->search_name}%"))
-            ->when($this->search_stage_id && !$this->search_grade_id, fn(Builder $q) => $q->whereHas('grade', fn($gq) => $gq->where('stage_id', $this->search_stage_id)))
-            ->when($this->search_grade_id, fn(Builder $q) => $q->where('grade_id', $this->search_grade_id))
-            ->when($this->search_section_id, fn(Builder $q) => $q->whereHas('grade.sections', fn($sq) => $sq->where('id', $this->search_section_id)))
-            ->when($this->search_is_active !== '', fn(Builder $q) => $q->where('is_active', (bool)$this->search_is_active))
+            ->when($this->search_name, fn (Builder $q) => $q->where('name', 'like', "%{$this->search_name}%"))
+            ->when($this->search_stage_id && ! $this->search_grade_id, fn (Builder $q) => $q->whereHas('grade', fn ($gq) => $gq->where('stage_id', $this->search_stage_id)))
+            ->when($this->search_grade_id, fn (Builder $q) => $q->where('grade_id', $this->search_grade_id))
+            ->when($this->search_section_id, fn (Builder $q) => $q->whereHas('grade.sections', fn ($sq) => $sq->where('id', $this->search_section_id)))
+            ->when($this->search_is_active !== '', fn (Builder $q) => $q->where('is_active', (bool) $this->search_is_active))
             ->with(['grade.stage'])
             ->withCount('weeks')
             ->latest()
@@ -115,7 +138,7 @@ class SemesterData extends Component
     {
         $this->authorize('edit_semester');
         $semester = Semester::findOrFail($id);
-        $newStatus = !$semester->is_active;
+        $newStatus = ! $semester->is_active;
 
         if ($newStatus) {
             $exists = Semester::where('grade_id', $semester->grade_id)
@@ -124,19 +147,20 @@ class SemesterData extends Component
                 ->exists();
             if ($exists) {
                 $this->error('لا يمكن تفعيل هذا الفصل لوجود فصل آخر مفعل لنفس الصف.');
+
                 return;
             }
         }
 
         $semester->update(['is_active' => $newStatus]);
-        
-        if (!$newStatus) {
+
+        if (! $newStatus) {
             $weekIds = $semester->weeks()->pluck('id');
             $semester->weeks()->update(['is_active' => false]);
-            
+
             if ($weekIds->isNotEmpty()) {
-                \App\Models\Training::whereIn('week_id', $weekIds)->update(['is_active' => false]);
-                \App\Models\Exam::whereIn('week_id', $weekIds)->update(['is_active' => false]);
+                Training::whereIn('week_id', $weekIds)->update(['is_active' => false]);
+                Exam::whereIn('week_id', $weekIds)->update(['is_active' => false]);
             }
         }
 

@@ -12,20 +12,23 @@ class UpdateStage extends Component
     use Toast;
 
     public bool $modalUpdate = false;
+
     public Stage $stage;
+
     public $name;
+
     public bool $is_active;
 
     public function mount(): void
     {
-        $this->name      = $this->stage->name;
+        $this->name = $this->stage->name;
         $this->is_active = $this->stage->is_active;
     }
 
     public function rules(): array
     {
         return [
-            'name'      => 'required|string|max:255|unique:stages,name,'.$this->stage->id,
+            'name' => 'required|string|max:255|unique:stages,name,'.$this->stage->id,
             'is_active' => 'boolean',
         ];
     }
@@ -36,7 +39,7 @@ class UpdateStage extends Component
         $this->validate();
 
         $this->stage->update([
-            'name'      => $this->name,
+            'name' => $this->name,
             'is_active' => $this->is_active,
         ]);
 

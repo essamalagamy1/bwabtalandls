@@ -34,7 +34,7 @@ class RolePermissionSeeder extends Seeder
 
         foreach ($modules as $module => $type) {
             foreach (['create', 'show', 'edit', 'delete'] as $action) {
-                $permission = Permission::firstOrCreate(['name' => $action . '_' . $module], ['type' => $type]);
+                $permission = Permission::firstOrCreate(['name' => $action.'_'.$module], ['type' => $type]);
                 $adminRole->givePermissionTo($permission);
             }
         }

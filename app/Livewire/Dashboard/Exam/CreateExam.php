@@ -2,7 +2,12 @@
 
 namespace App\Livewire\Dashboard\Exam;
 
+use App\Jobs\NotifyStudentsOfNewContentJob;
 use App\Models\Exam;
+use App\Models\Grade;
+use App\Models\Semester;
+use App\Models\Stage;
+use App\Models\Week;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
@@ -12,25 +17,40 @@ class CreateExam extends Component
     use Toast, WithFileUploads;
 
     public bool $modalAdd = false;
+
     public $title;
+
     public $description;
+
     public $stage_id;
+
     public $grade_id;
+
     public $semester_id;
+
     public $week_id;
 
     public $duration_minutes;
+
     public $passing_score;
-    public $is_active = true;
-    
+
+    public $media_views_limit = 0;
+
+    public $attachment;
+
+    public bool $is_active = true;
+
     public $all_stages = [];
+
     public $all_grades = [];
+
     public $all_semesters = [];
+
     public $all_weeks = [];
 
     public function mount()
     {
-        $this->all_stages = \App\Models\Stage::where('is_active', true)->get();
+        $this->all_stages = Stage::where('is_active', true)->get();
     }
 
     public function updatedStageId($stage_id)
@@ -38,7 +58,7 @@ class CreateExam extends Component
         $this->grade_id = null;
         $this->semester_id = null;
         $this->week_id = null;
-        $this->all_grades = \App\Models\Grade::where('stage_id', $stage_id)->where('is_active', true)->get();
+        $this->all_grades = Grade::where('stage_id', $stage_id)->where('is_active', true)->get();
         $this->all_semesters = [];
         $this->all_weeks = [];
     }
@@ -47,14 +67,14 @@ class CreateExam extends Component
     {
         $this->semester_id = null;
         $this->week_id = null;
-        $this->all_semesters = \App\Models\Semester::where('grade_id', $grade_id)->where('is_active', true)->get();
+        $this->all_semesters = Semester::where('grade_id', $grade_id)->where('is_active', true)->get();
         $this->all_weeks = [];
     }
 
     public function updatedSemesterId($semester_id)
     {
         $this->week_id = null;
-        $this->all_weeks = \App\Models\Week::where('semester_id', $semester_id)->where('is_active', true)->get();
+        $this->all_weeks = Week::where('semester_id', $semester_id)->where('is_active', true)->get();
     }
 
     public function render()
@@ -65,13 +85,15 @@ class CreateExam extends Component
     public function rules(): array
     {
         return [
-            'title'            => 'required|string|max:255',
-            'description'      => 'nullable|string',
-            'week_id'          => 'required|exists:weeks,id',
-            'semester_id'      => 'required|exists:semesters,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'week_id' => 'required|exists:weeks,id',
+            'semester_id' => 'required|exists:semesters,id',
             'duration_minutes' => 'required|integer|min:1',
-            'passing_score'    => 'required|numeric|min:0|max:100',
-            'is_active'        => 'boolean',
+            'passing_score' => 'required|numeric|min:0|max:100',
+            'media_views_limit' => 'required|integer|min:0',
+            'attachment' => 'nullable|file|mimes:jpeg,jpg,png,webp,gif,mp3,wav,ogg,m4a,aac|max:51200',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -81,26 +103,31 @@ class CreateExam extends Component
         $this->validate();
 
         $exam = Exam::create([
-            'title'            => $this->title,
-            'description'      => $this->description,
-            'week_id'          => $this->week_id,
-            'semester_id'      => $this->semester_id,
+            'title' => $this->title,
+            'description' => $this->description,
+            'week_id' => $this->week_id,
+            'semester_id' => $this->semester_id,
             'duration_minutes' => $this->duration_minutes,
-            'passing_score'    => $this->passing_score,
-            'is_active'        => (bool) $this->is_active,
+            'passing_score' => $this->passing_score,
+            'media_views_limit' => (int) $this->media_views_limit,
+            'is_active' => (bool) $this->is_active,
         ]);
 
+        if ($this->attachment) {
+            $exam->addMedia($this->attachment)->toMediaCollection('attachment');
+        }
+
         if ($exam->is_active) {
-            $gradeId = \App\Models\Semester::find($exam->semester_id)?->grade_id;
+            $gradeId = Semester::find($exam->semester_id)?->grade_id;
             if ($gradeId) {
-                \App\Jobs\NotifyStudentsOfNewContentJob::dispatch(
+                NotifyStudentsOfNewContentJob::dispatch(
                     $gradeId,
                     $exam->title,
                     'exam',
                     $exam->description,
                     [
-                        'مدة الاختبار' => $exam->duration_minutes . ' دقيقة',
-                        'درجة النجاح' => $exam->passing_score . '%',
+                        'مدة الاختبار' => $exam->duration_minutes.' دقيقة',
+                        'درجة النجاح' => $exam->passing_score.'%',
                     ]
                 );
             }
@@ -113,7 +140,8 @@ class CreateExam extends Component
 
     public function resetData(): void
     {
-        $this->reset(['title', 'description', 'stage_id', 'grade_id', 'week_id', 'semester_id', 'duration_minutes', 'passing_score', 'is_active']);
+        $this->reset(['title', 'description', 'stage_id', 'grade_id', 'week_id', 'semester_id', 'duration_minutes', 'passing_score', 'is_active', 'attachment']);
+        $this->media_views_limit = 0;
         $this->all_grades = [];
         $this->all_semesters = [];
         $this->resetErrorBag();

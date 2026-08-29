@@ -11,7 +11,7 @@ class QuestionSeeder extends Seeder
     public function run(): void
     {
         $exams = Exam::all();
-        
+
         foreach ($exams as $exam) {
             // 5 أسئلة لكل اختبار
             Question::factory()->count(5)->create([
