@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="{{ app()->getLocale()}}" class="scroll-smooth" dir="{{app()->getLocale() === 'ar' ? 'rtl' : 'ltr'}}">
+<html lang="{{ app()->getLocale() }}" class="scroll-smooth" dir="rtl">
 <head>
 <title>{{ config('app.name') }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,21 +25,21 @@ width: 100% !important;
 </style>
 {!! $head ?? '' !!}
 </head>
-<body>
+<body dir="rtl" style="direction: rtl; text-align: right;">
 
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" dir="rtl">
 <tr>
-<td align="center">
-<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<td align="center" dir="rtl">
+<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" dir="rtl">
 {!! $header ?? '' !!}
 
 <!-- Email Body -->
 <tr>
-<td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
-<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+<td class="body" width="100%" cellpadding="0" cellspacing="0" dir="rtl" style="border: hidden !important; direction: rtl; text-align: right;">
+<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation" dir="rtl">
 <!-- Body content -->
 <tr>
-<td class="content-cell">
+<td class="content-cell" dir="rtl" style="direction: rtl; text-align: right;">
 {!! Illuminate\Mail\Markdown::parse($slot) !!}
 
 {!! $subcopy ?? '' !!}
