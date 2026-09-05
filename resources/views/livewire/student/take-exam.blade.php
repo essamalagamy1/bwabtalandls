@@ -30,9 +30,12 @@
 							@if($exam->attachment_type === 'audio')
 								<x-icon name="o-speaker-wave" class="w-6 h-6 text-primary animate-pulse"/>
 								<span class="font-bold text-lg">{{ __('lang.attached_audio') }}</span>
-							@else
+							@elseif($exam->attachment_type === 'image')
 								<x-icon name="o-photo" class="w-6 h-6 text-primary"/>
 								<span class="font-bold text-lg">{{ __('lang.attached_image') }}</span>
+							@else
+								<x-icon name="o-document" class="w-6 h-6 text-primary"/>
+								<span class="font-bold text-lg">{{ __('lang.attached_media') }}</span>
 							@endif
 						</div>
 						<x-badge value="{{ __('lang.unlimited_views') }}" class="badge-success badge-outline font-medium text-xs"/>
@@ -47,6 +50,13 @@
 					@elseif($exam->attachment_type === 'image')
 						<div class="flex justify-center bg-base-200/30 p-2 rounded-xl">
 							<img src="{{ $exam->getFirstMediaUrl('attachment') }}" alt="{{ $exam->title }}" class="max-h-96 rounded-lg object-contain shadow" />
+						</div>
+					@else
+						<div class="flex justify-center p-3">
+							<a href="{{ $exam->getFirstMediaUrl('attachment') }}" target="_blank" class="btn btn-primary btn-sm flex items-center gap-2">
+								<x-icon name="o-arrow-down-tray" class="w-4 h-4"/>
+								<span>{{ __('lang.view') }} {{ __('lang.attachment_file') }}</span>
+							</a>
 						</div>
 					@endif
 				</x-card>
@@ -63,13 +73,23 @@
 							<div class="p-3 {{ $canView ? 'bg-warning/20 text-warning-content' : 'bg-base-300 text-base-content/50' }} rounded-xl">
 								@if($exam->attachment_type === 'audio')
 									<x-icon name="o-speaker-wave" class="w-7 h-7 text-warning"/>
-								@else
+								@elseif($exam->attachment_type === 'image')
 									<x-icon name="o-photo" class="w-7 h-7 text-warning"/>
+								@else
+									<x-icon name="o-document" class="w-7 h-7 text-warning"/>
 								@endif
 							</div>
 							<div>
 								<div class="font-bold text-lg flex items-center gap-2">
-									<span>{{ $exam->attachment_type === 'audio' ? __('lang.attached_audio') : __('lang.attached_image') }}</span>
+									<span>
+										@if($exam->attachment_type === 'audio')
+											{{ __('lang.attached_audio') }}
+										@elseif($exam->attachment_type === 'image')
+											{{ __('lang.attached_image') }}
+										@else
+											{{ __('lang.attached_media') }}
+										@endif
+									</span>
 								</div>
 								<div class="text-sm text-base-content/70 mt-0.5">
 									العدد المسموح: <span class="font-bold">{{ $exam->media_views_limit }}</span> | المتبقي لك: <span class="font-bold {{ $remaining > 0 ? 'text-primary' : 'text-error' }}">{{ $remaining }}</span>
@@ -80,7 +100,7 @@
 						<div>
 							@if($isMediaOpen)
 								<x-button 
-									label="{{ $exam->attachment_type === 'audio' ? __('lang.close_audio') : __('lang.close_image') }}" 
+									label="{{ $exam->attachment_type === 'audio' ? __('lang.close_audio') : ($exam->attachment_type === 'image' ? __('lang.close_image') : __('lang.close')) }}" 
 									icon="o-eye-slash" 
 									wire:click="closeMedia" 
 									class="btn-outline btn-sm sm:btn-md text-error" 
@@ -88,7 +108,7 @@
 								/>
 							@elseif($canView)
 								<x-button 
-									label="{{ $exam->attachment_type === 'audio' ? __('lang.play_audio') : __('lang.view_image') }}" 
+									label="{{ $exam->attachment_type === 'audio' ? __('lang.play_audio') : ($exam->attachment_type === 'image' ? __('lang.view_image') : __('lang.view')) }}" 
 									icon="{{ $exam->attachment_type === 'audio' ? 'o-play' : 'o-eye' }}" 
 									wire:click="openMedia" 
 									wire:confirm="هل أنت متأكد من رغبتك في الاستماع/المشاهدة الآن؟ سيتم احتساب 1 من عدد المرات المتاحة لك."
@@ -131,6 +151,14 @@
 								<div class="flex flex-col items-center bg-base-100 p-3 rounded-xl border border-warning/30">
 									<img src="{{ $exam->getFirstMediaUrl('attachment') }}" alt="{{ $exam->title }}" class="max-h-96 rounded-lg object-contain shadow mb-3" />
 									<x-button label="{{ __('lang.close_image') }}" icon="o-eye-slash" wire:click="closeMedia" class="btn-sm btn-ghost text-error" spinner="closeMedia"/>
+								</div>
+							@else
+								<div class="flex flex-col items-center bg-base-100 p-3 rounded-xl border border-warning/30 gap-3">
+									<a href="{{ $exam->getFirstMediaUrl('attachment') }}" target="_blank" class="btn btn-primary btn-sm flex items-center gap-2">
+										<x-icon name="o-arrow-down-tray" class="w-4 h-4"/>
+										<span>{{ __('lang.view') }} {{ __('lang.attachment_file') }}</span>
+									</a>
+									<x-button label="{{ __('lang.close') }}" icon="o-eye-slash" wire:click="closeMedia" class="btn-sm btn-ghost text-error" spinner="closeMedia"/>
 								</div>
 							@endif
 						</div>

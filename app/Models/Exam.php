@@ -44,11 +44,29 @@ class Exam extends Model implements HasMedia
         if (! $media) {
             return null;
         }
-        if (str_starts_with($media->mime_type, 'audio/')) {
+
+        $mimeType = strtolower($media->mime_type ?? '');
+        $extension = strtolower(pathinfo($media->file_name ?? '', PATHINFO_EXTENSION));
+
+        $audioExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'wma', 'opus', 'weba', 'mid', 'midi'];
+        $imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'bmp', 'ico', 'avif'];
+        $videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'wmv', 'mkv'];
+        $pdfExtensions = ['pdf'];
+
+        if (str_starts_with($mimeType, 'audio/') || in_array($extension, $audioExtensions, true)) {
             return 'audio';
         }
-        if (str_starts_with($media->mime_type, 'image/')) {
+
+        if (str_starts_with($mimeType, 'image/') || in_array($extension, $imageExtensions, true)) {
             return 'image';
+        }
+
+        if (str_starts_with($mimeType, 'video/') || in_array($extension, $videoExtensions, true)) {
+            return 'video';
+        }
+
+        if ($mimeType === 'application/pdf' || in_array($extension, $pdfExtensions, true)) {
+            return 'pdf';
         }
 
         return 'file';

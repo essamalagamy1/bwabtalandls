@@ -6,13 +6,27 @@
 			@endcan
 		</x-slot:menu>
 		<div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
-			<x-input label="{{ __('lang.search') }}" wire:model.live="search_title" placeholder="{{ __('lang.search') }}..." clearable/>
-			<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-stage-select"/>
-			<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-grade-select-{{ $search_stage_id ?? 'all' }}"/>
-			<x-choices-offline label="{{ __('lang.section') }}" wire:model.live="search_section_id" :options="$all_sections" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-section-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}"/>
-			<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-semester-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}"/>
-			<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-week-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}-{{ $search_semester_id ?? 'all' }}"/>
-			<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[['id' => '1', 'name' => __('lang.active')], ['id' => '0', 'name' => __('lang.inactive')]]" option-value="id" option-label="name" placeholder="{{ __('lang.all') }}" wire:key="filter-status-select"/>
+			<div wire:key="filter-search-title-wrap">
+				<x-input label="{{ __('lang.search') }}" wire:model.live="search_title" placeholder="{{ __('lang.search') }}..." clearable/>
+			</div>
+			<div wire:key="filter-stage-wrap">
+				<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages" option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-stage-select"/>
+			</div>
+			<div wire:key="filter-grade-wrap-{{ $search_stage_id ?? 'all' }}">
+				<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="search_grade_id" :options="$all_grades" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-grade-select-{{ $search_stage_id ?? 'all' }}"/>
+			</div>
+			<div wire:key="filter-section-wrap-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}">
+				<x-choices-offline label="{{ __('lang.section') }}" wire:model.live="search_section_id" :options="$all_sections" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-section-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}"/>
+			</div>
+			<div wire:key="filter-semester-wrap-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}">
+				<x-choices-offline label="{{ __('lang.semester') }}" wire:model.live="search_semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-semester-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}"/>
+			</div>
+			<div wire:key="filter-week-wrap-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}-{{ $search_semester_id ?? 'all' }}">
+				<x-choices-offline label="{{ __('lang.week') }}" wire:model.live="search_week_id" :options="$all_weeks" option-value="id" option-label="name" option-sub-label="full_path_name" single clearable searchable placeholder="{{ __('lang.search') }}" wire:key="filter-week-select-{{ $search_stage_id ?? 'all' }}-{{ $search_grade_id ?? 'all' }}-{{ $search_semester_id ?? 'all' }}"/>
+			</div>
+			<div wire:key="filter-status-wrap">
+				<x-select label="{{ __('lang.status') }}" wire:model.live="search_is_active" :options="[['id' => '1', 'name' => __('lang.active')], ['id' => '0', 'name' => __('lang.inactive')]]" option-value="id" option-label="name" placeholder="{{ __('lang.all') }}" wire:key="filter-status-select"/>
+			</div>
 		</div>
 		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 			<div class="overflow-x-auto">
@@ -41,6 +55,8 @@
 											<x-icon name="o-speaker-wave" class="w-4 h-4 text-secondary shrink-0" tooltip="{{ __('lang.attached_audio') }} ({{ $exam->media_views_limit == 0 ? __('lang.unlimited_views') : $exam->media_views_limit . ' ' . __('lang.times') }})"/>
 										@elseif($exam->attachment_type === 'image')
 											<x-icon name="o-photo" class="w-4 h-4 text-primary shrink-0" tooltip="{{ __('lang.attached_image') }} ({{ $exam->media_views_limit == 0 ? __('lang.unlimited_views') : $exam->media_views_limit . ' ' . __('lang.times') }})"/>
+										@else
+											<x-icon name="o-paper-clip" class="w-4 h-4 text-info shrink-0" tooltip="{{ __('lang.attached_media') }} ({{ $exam->media_views_limit == 0 ? __('lang.unlimited_views') : $exam->media_views_limit . ' ' . __('lang.times') }})"/>
 										@endif
 									@endif
 								</div>

@@ -3,6 +3,7 @@
 namespace App\Livewire\Dashboard\Student;
 
 use App\Exports\StudentsExport;
+use App\Jobs\ActivatePendingStudentsJob;
 use App\Mail\AccountStatusNotification;
 use App\Models\Grade;
 use App\Models\Section;
@@ -27,6 +28,10 @@ use Mary\Traits\Toast;
 class StudentData extends Component
 {
     use Toast, WithPagination;
+
+    public bool $showActivatePendingModal = false;
+
+    public int $pendingStudentsCount = 0;
 
     public function placeholder(): View
     {
@@ -295,13 +300,47 @@ class StudentData extends Component
         $statsQuery = clone $query;
         $data['total_students'] = $statsQuery->count();
         $data['active_students'] = (clone $statsQuery)->where('status', 'active')->count();
+        $data['pending_students'] = (clone $statsQuery)->where('status', 'pending')->count();
         $data['inactive_students'] = (clone $statsQuery)->where('status', 'inactive')->count();
+        $data['global_pending_count'] = User::role('student')->where('status', 'pending')->count();
 
         $data['students'] = $query->with(['grade.stage', 'section'])
             ->latest()
             ->paginate(10);
 
         return view('livewire.dashboard.student.student-data', $data);
+    }
+
+    public function confirmActivatePending(): void
+    {
+        $this->authorize('edit_student');
+        $this->pendingStudentsCount = User::role('student')->where('status', 'pending')->count();
+
+        if ($this->pendingStudentsCount === 0) {
+            $this->warning('ما فيه أي طلاب قيد الانتظار حالياً.');
+
+            return;
+        }
+
+        $this->showActivatePendingModal = true;
+    }
+
+    public function activateAllPendingStudents(): void
+    {
+        $this->authorize('edit_student');
+        $count = User::role('student')->where('status', 'pending')->count();
+
+        if ($count === 0) {
+            $this->showActivatePendingModal = false;
+            $this->warning('ما فيه أي طلاب قيد الانتظار حالياً.');
+
+            return;
+        }
+
+        ActivatePendingStudentsJob::dispatch();
+
+        $this->showActivatePendingModal = false;
+        $this->success("أبشر! تم جدولة تفعيل {$count} طالب وإرسال رسائل البريد الإلكتروني لهم بالخلفية بنجاح.");
     }
 
     public function toggleStatus($id): void

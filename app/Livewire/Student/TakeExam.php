@@ -60,8 +60,8 @@ class TakeExam extends Component
         }
 
         if ($this->exam->duration_minutes > 0) {
-            $elapsedSeconds = now()->diffInSeconds($this->attempt->started_at);
-            $this->timeLeft = max(0, ($this->exam->duration_minutes * 60) - $elapsedSeconds);
+            $elapsedSeconds = (int) now()->diffInSeconds($this->attempt->started_at);
+            $this->timeLeft = (int) max(0, ($this->exam->duration_minutes * 60) - $elapsedSeconds);
             if ($this->timeLeft <= 0) {
                 $this->submitExam();
 
