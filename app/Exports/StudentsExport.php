@@ -24,7 +24,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMap
     public function query(): \Illuminate\Database\Query\Builder|Builder|Relation
     {
         // Add eager loading for relationships
-        return $this->query->with('grade.stage');
+        return $this->query->with(['grade.stage', 'section']);
     }
 
     public function headings(): array
@@ -39,6 +39,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMap
                 __('lang.phone'),
                 __('lang.stage'),
                 __('lang.grade'),
+                __('lang.section'),
                 __('lang.status'),
                 __('lang.created_at'),
             ],
@@ -63,6 +64,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMap
             $student->full_phone ?? '-',
             $student->grade?->stage?->name ?? '-',
             $student->grade?->name ?? '-',
+            $student->section?->name ?? '-',
             $statusLabel,
             $student->created_at ? $student->created_at->format('Y-m-d') : '-',
         ];

@@ -277,7 +277,7 @@ class StudentData extends Component
 
     public function exportPdf()
     {
-        $students = $this->getStudentQuery()->with('grade.stage')->get();
+        $students = $this->getStudentQuery()->with(['grade.stage', 'section'])->get();
         $filtersText = $this->getFiltersText();
         $date = now()->format('Y-m-d H:i');
         // Since mPDF has autoScriptToLang for Arabic, we use it directly
