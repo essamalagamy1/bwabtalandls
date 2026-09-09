@@ -66,6 +66,7 @@
                             <th class="text-center">{{ __('lang.email') }}</th>
                             <th class="text-center">{{ __('lang.grade') }}</th>
                             <th class="text-center">{{ __('lang.section') }}</th>
+                            <th class="text-center">ولي الأمر</th>
                             <th class="text-center">{{ __('lang.status') }}</th>
                             <th class="text-center">{{ __('lang.created_at') }}</th>
                             <th class="text-center">{{ __('lang.action') }}</th>
@@ -91,6 +92,16 @@
                                 <td class="text-center text-nowrap">{{ $student->email }}</td>
                                 <td class="text-center text-nowrap">{{ $student->grade?->name ?? '-' }}</td>
                                 <td class="text-center text-nowrap">{{ $student->section?->name ?? '-' }}</td>
+                                <td class="text-center text-nowrap">
+                                    @if($student->parent)
+                                        <div class="flex flex-col items-center gap-0.5">
+                                            <x-badge value="{{ $student->parent->name }}" class="badge-primary badge-sm font-medium" icon="o-user-circle" />
+                                            <span class="text-xs text-base-content/50">{{ $student->parent->email }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-base-content/30 text-xs">—</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     @if ($student->status === 'active')
                                         <x-badge value="{{ __('lang.active') }}" class="badge-success" />
@@ -131,7 +142,7 @@
                             </tr>
                         @empty
                             <tr class="bg-base-200">
-                                <th colspan="8" class="text-center">{{ __('lang.no_data') }}</th>
+                                <th colspan="9" class="text-center">{{ __('lang.no_data') }}</th>
                             </tr>
                         @endforelse
                     </tbody>

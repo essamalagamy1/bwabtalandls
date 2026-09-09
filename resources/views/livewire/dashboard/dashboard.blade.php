@@ -177,6 +177,22 @@
 				</x-card>
 			</div>
 
+			{{-- ═══════════════════════ Ticket Statistics ═══════════════════════ --}}
+			@can('show_ticket')
+				<div class="mt-4 mb-8">
+					<h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+						<x-icon name="o-ticket" class="w-6 h-6 text-primary" />
+						إحصائيات تذاكر الدعم الفني
+					</h3>
+					<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+						<x-stat title="إجمالي التذاكر" value="{{ $ticketStats['total'] ?? 0 }}" icon="o-ticket" class="text-primary bg-base-100 shadow-sm" />
+						<x-stat title="التذاكر المفتوحة" value="{{ $ticketStats['open'] ?? 0 }}" icon="o-envelope-open" class="text-success bg-base-100 shadow-sm" />
+						<x-stat title="قيد المراجعة" value="{{ $ticketStats['in_progress'] ?? 0 }}" icon="o-arrow-path" class="text-warning bg-base-100 shadow-sm" />
+						<x-stat title="التذاكر المغلقة" value="{{ $ticketStats['closed'] ?? 0 }}" icon="o-check-circle" class="text-neutral bg-base-100 shadow-sm" />
+					</div>
+				</div>
+			@endcan
+
 			{{-- ═══════════════════════ Latest Students Table ═══════════════════════ --}}
 			<x-card title="{{ __('lang.latest_students') }}" shadow separator icon="o-user-plus">
 				<div class="overflow-x-auto">

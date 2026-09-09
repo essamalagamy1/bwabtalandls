@@ -27,6 +27,20 @@
 		<x-stat title="{{ __('lang.failed') ?? 'راسب' }}" value="{{ $failedExams }}" icon="o-x-circle" class="shadow-sm border-t-4 border-t-error" color="text-error" />
 	</div>
 
+	{{-- Ticket Statistics --}}
+	<div class="mb-10">
+		<h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+			<x-icon name="o-ticket" class="w-6 h-6 text-primary" />
+			إحصائيات تذاكر الدعم الخاصة بي
+		</h2>
+		<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+			<x-stat title="إجمالي التذاكر" value="{{ $ticketStats['total'] ?? 0 }}" icon="o-ticket" class="text-primary shadow-sm" />
+			<x-stat title="التذاكر المفتوحة" value="{{ $ticketStats['open'] ?? 0 }}" icon="o-envelope-open" class="text-success shadow-sm" />
+			<x-stat title="قيد المراجعة" value="{{ $ticketStats['in_progress'] ?? 0 }}" icon="o-arrow-path" class="text-warning shadow-sm" />
+			<x-stat title="التذاكر المغلقة" value="{{ $ticketStats['closed'] ?? 0 }}" icon="o-check-circle" class="text-neutral shadow-sm" />
+		</div>
+	</div>
+
 	{{-- Progress Charts Section --}}
 	<div class="mb-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
 		<x-card title="{{ __('lang.your_progress') ?? 'تطور مستواك الزمني' }}" class="shadow-xl border-t-4 border-t-primary">

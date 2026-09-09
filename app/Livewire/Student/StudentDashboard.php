@@ -18,6 +18,26 @@ class StudentDashboard extends Component
 
     public array $statusChart = [];
 
+    public array $ticketStats = [];
+
+    public function mount(): void
+    {
+        $this->loadStudentData();
+        $this->loadTicketStats();
+    }
+
+    private function loadTicketStats(): void
+    {
+        $query = \App\Models\Ticket::where('user_id', auth()->id());
+        
+        $this->ticketStats = [
+            'total' => (clone $query)->count(),
+            'open' => (clone $query)->where('status', 'open')->count(),
+            'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
+            'closed' => (clone $query)->where('status', 'closed')->count(),
+        ];
+    }
+
     public function placeholder(): View
     {
         return view('livewire.placeholders.page-loading');

@@ -19,7 +19,7 @@ class ActivatePendingStudentsJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param array<int>|null $studentIds Specific student IDs to activate, or null for all pending students.
+     * @param  array<int>|null  $studentIds  Specific student IDs to activate, or null for all pending students.
      */
     public function __construct(public ?array $studentIds = null) {}
 
@@ -54,7 +54,7 @@ class ActivatePendingStudentsJob implements ShouldQueue
 
                 $activatedCount++;
             } catch (\Throwable $e) {
-                Log::error("ActivatePendingStudentsJob: Failed to activate or notify student ID {$student->id} ({$student->email}): " . $e->getMessage());
+                Log::error("ActivatePendingStudentsJob: Failed to activate or notify student ID {$student->id} ({$student->email}): ".$e->getMessage());
             }
         }
 

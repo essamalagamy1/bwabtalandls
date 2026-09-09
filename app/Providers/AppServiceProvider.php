@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\View\Components\ChoicesOffline;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -25,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Blade::component('choices-offline', \App\View\Components\ChoicesOffline::class);
+        Blade::component('choices-offline', ChoicesOffline::class);
 
         Gate::define('viewLogViewer', function (User $user) {
             return (auth()->check() && auth()->user()->email === 'superadmin@admin.com') || app()->environment('local');

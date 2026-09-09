@@ -9,9 +9,17 @@
 		<x-menu-title title="المنطقة الخاصة" />
 		<x-menu-item title="امتحاناتي" icon-classes="text-primary" icon="o-document-text" link="{{ route('student.exams') }}" />
 		<x-menu-item title="تدريباتي" icon-classes="text-primary" icon="o-play-circle" link="{{ route('student.trainings') }}" />
+		<x-menu-item title="تذاكر الدعم" icon-classes="text-primary" icon="o-ticket" link="{{ route('user.tickets.index') }}" />
 		<div class="pwa-install-container hidden">
 			<x-menu-item title="تثبيت التطبيق" class="pwa-install-button text-indigo-600 dark:text-indigo-400 font-bold" icon-classes="text-indigo-600 dark:text-indigo-400" icon="o-arrow-down-tray" link="javascript:void(0)" />
 		</div>
+		<x-menu-separator />
+	@endrole
+
+	{{-- منطقة ولي الأمر (إذا أردنا إظهار التذاكر له كقسم منفصل أو مع الرئيسية) --}}
+	@role('parent')
+		<x-menu-title title="الدعم الفني" />
+		<x-menu-item title="تذاكر الدعم" icon-classes="text-primary" icon="o-ticket" link="{{ route('user.tickets.index') }}" />
 		<x-menu-separator />
 	@endrole
 
@@ -86,6 +94,13 @@
 		@endcan
 		<x-menu-separator />
 	@endcanany
+
+	{{-- التذاكر والدعم الفني --}}
+	@can('show_ticket')
+		<x-menu-title title="الدعم الفني والتذاكر" />
+		<x-menu-item title="تذاكر الدعم" icon-classes="text-primary" icon="o-ticket" link="{{ route('dashboard.tickets.index') }}" />
+		<x-menu-separator />
+	@endcan
 
 	{{-- إعدادات النظام --}}
 	@can('show_site_setting')

@@ -50,12 +50,42 @@ class Dashboard extends Component
     public array $examScoresChart = [];
 
     public array $newStudentsMonthlyChart = [];
+    public array $ticketStats = [];
 
     public function mount(): void
     {
+        // Redirect parent accounts to their own dashboard
+        if (auth()->user()->isParent()) {
+            $this->redirectRoute('parent.dashboard', navigate: true);
+
+            return;
+        }
+
         view()->share('breadcrumbs', $this->breadcrumbs());
         $this->stages = Stage::get(['id', 'name'])->toArray();
         $this->loadCharts();
+        $this->loadTicketStats();
+    }
+
+    private function loadTicketStats(): void
+    {
+        $query = \App\Models\Ticket::query();
+
+        // If user is a student (not admin), only show their own stats
+        if (auth()->user()->hasRole('student') && !auth()->user()->hasRole('admin')) {
+            $query->where('user_id', auth()->id());
+        } elseif (!auth()->user()->hasPermissionTo('show_ticket')) {
+            // If they are admin but don't have permission to see all tickets, show none
+            $this->ticketStats = ['open' => 0, 'in_progress' => 0, 'closed' => 0];
+            return;
+        }
+
+        $this->ticketStats = [
+            'total' => (clone $query)->count(),
+            'open' => (clone $query)->where('status', 'open')->count(),
+            'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
+            'closed' => (clone $query)->where('status', 'closed')->count(),
+        ];
     }
 
     public function breadcrumbs(): array

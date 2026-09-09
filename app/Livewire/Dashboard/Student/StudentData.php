@@ -277,7 +277,7 @@ class StudentData extends Component
 
     public function exportPdf()
     {
-        $students = $this->getStudentQuery()->with(['grade.stage', 'section'])->get();
+        $students = $this->getStudentQuery()->with(['grade.stage', 'section', 'parent'])->get();
         $filtersText = $this->getFiltersText();
         $date = now()->format('Y-m-d H:i');
         // Since mPDF has autoScriptToLang for Arabic, we use it directly
@@ -304,7 +304,7 @@ class StudentData extends Component
         $data['inactive_students'] = (clone $statsQuery)->where('status', 'inactive')->count();
         $data['global_pending_count'] = User::role('student')->where('status', 'pending')->count();
 
-        $data['students'] = $query->with(['grade.stage', 'section'])
+        $data['students'] = $query->with(['grade.stage', 'section', 'parent'])
             ->latest()
             ->paginate(10);
 

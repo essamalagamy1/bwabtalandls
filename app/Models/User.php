@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Observers\UserObserver;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,8 +28,11 @@ use Spatie\Permission\Traits\HasRoles;
  * @property int|null $university_id
  * @property-read University|null $university
  * @property int|null $grade_id
+ * @property int|null $parent_id
  * @property string $status
  * @property-read Grade|null $grade
+ * @property-read User|null $parent
+ * @property-read Collection|User[] $children
  */
 #[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
@@ -94,5 +98,46 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     public function examAttempts(): HasMany
     {
         return $this->hasMany(ExamAttempt::class, 'user_id');
+    }
+
+    /**
+     * The parent/guardian account linked to this student.
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'parent_id');
+    }
+
+    /**
+     * Students (children) linked to this parent account.
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(User::class, 'parent_id');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->hasRole('student');
+    }
+
+    public function isParent(): bool
+    {
+        return $this->hasRole('parent');
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    public function ticketReplies(): HasMany
+    {
+        return $this->hasMany(TicketReply::class);
     }
 }

@@ -23,6 +23,7 @@ class UpdateStudent extends Component
 
     public User $student;
 
+    // Student fields
     public $name;
 
     public $email;
@@ -44,6 +45,26 @@ class UpdateStudent extends Component
     public $status;
 
     public $image;
+
+    // Parent fields (optional)
+    public $parent_email;
+
+    public $parent_password;
+
+    public $parent_password_confirmation;
+
+    public $parent_name;
+
+    public $parent_phone;
+
+    public $parent_phone_key;
+
+    // Existing parent info (read-only display)
+    public ?int $existing_parent_id = null;
+
+    public ?string $existing_parent_name = null;
+
+    public ?string $existing_parent_email = null;
 
     public $all_stages = [];
 
@@ -73,6 +94,20 @@ class UpdateStudent extends Component
         if ($this->grade_id) {
             $this->all_sections = Section::where('grade_id', $this->grade_id)->where('is_active', true)->get();
         }
+
+        // Load current parent info
+        if ($this->student->parent_id) {
+            $parent = User::find($this->student->parent_id);
+            if ($parent) {
+                $this->existing_parent_id = $parent->id;
+                $this->existing_parent_name = $parent->name;
+                $this->existing_parent_email = $parent->email;
+                $this->parent_email = $parent->email;
+                $this->parent_name = $parent->name;
+                $this->parent_phone = $parent->phone;
+                $this->parent_phone_key = $parent->phone_key;
+            }
+        }
     }
 
     public function updatedStageId($stage_id): void
@@ -91,7 +126,7 @@ class UpdateStudent extends Component
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,'.$this->student->id,
             'password' => 'nullable|string|min:8|confirmed',
@@ -102,7 +137,30 @@ class UpdateStudent extends Component
             'section_id' => 'nullable|exists:sections,id',
             'status' => 'required|in:pending,active,inactive',
             'image' => 'nullable|image|max:5000|mimes:jpg,jpeg,png,gif,webp,svg',
+
+            'parent_name' => 'nullable|string|max:255',
+            'parent_phone' => 'nullable|string|max:20',
+            'parent_phone_key' => 'nullable|string|max:5',
         ];
+
+        // If a new parent_email is entered (or changed), validate it
+        if ($this->parent_email && $this->parent_email !== $this->existing_parent_email) {
+            $rules['parent_email'] = 'required|email|max:255';
+            // Password required only if creating a brand-new parent
+            if (! User::where('email', $this->parent_email)->whereHas('roles', fn ($q) => $q->where('name', 'parent'))->exists()) {
+                $rules['parent_password'] = 'required|string|min:8|confirmed';
+            } else {
+                $rules['parent_password'] = 'nullable|string|min:8|confirmed';
+            }
+        } elseif ($this->parent_email) {
+            $rules['parent_email'] = 'nullable|email|max:255';
+            $rules['parent_password'] = 'nullable|string|min:8|confirmed';
+        } else {
+            $rules['parent_email'] = 'nullable|email|max:255';
+            $rules['parent_password'] = 'nullable';
+        }
+
+        return $rules;
     }
 
     public function saveUpdate(): void
@@ -123,8 +181,16 @@ class UpdateStudent extends Component
         if (! empty($this->password)) {
             $data['password'] = Hash::make($this->password);
         }
-        $oldStatus = $this->student->status;
 
+        // Handle parent
+        if ($this->parent_email) {
+            $data['parent_id'] = $this->createOrUpdateParent();
+        } elseif (! $this->parent_email && $this->existing_parent_id) {
+            // Parent email cleared — unlink
+            $data['parent_id'] = null;
+        }
+
+        $oldStatus = $this->student->status;
         $this->student->update($data);
 
         // Notify student about account status change
@@ -144,6 +210,76 @@ class UpdateStudent extends Component
         $this->modalUpdate = false;
         $this->dispatch('render')->component(StudentData::class);
         $this->success(__('lang.updated_successfully', ['attribute' => __('lang.student')]));
+    }
+
+    /**
+     * Find existing parent by email or create a new one.
+     * If same parent email and we have new password/name, update existing parent.
+     */
+    private function createOrUpdateParent(): int
+    {
+        // Check if it's the same parent as before
+        if ($this->existing_parent_id && $this->parent_email === $this->existing_parent_email) {
+            $parent = User::find($this->existing_parent_id);
+            if ($parent) {
+                $updateData = [];
+                if ($this->parent_name && $this->parent_name !== $parent->name) {
+                    $updateData['name'] = $this->parent_name;
+                }
+                if ($this->parent_phone) {
+                    $updateData['phone'] = $this->parent_phone;
+                    $updateData['phone_key'] = $this->parent_phone_key;
+                }
+                if (! empty($this->parent_password)) {
+                    $updateData['password'] = Hash::make($this->parent_password);
+                }
+                if ($updateData) {
+                    $parent->update($updateData);
+                }
+
+                return $parent->id;
+            }
+        }
+
+        // Look for existing parent with this email
+        $existingParent = User::where('email', $this->parent_email)
+            ->whereHas('roles', fn ($q) => $q->where('name', 'parent'))
+            ->first();
+
+        if ($existingParent) {
+            // Update name/phone if provided
+            $updateData = [];
+            if ($this->parent_name) {
+                $updateData['name'] = $this->parent_name;
+            }
+            if ($this->parent_phone) {
+                $updateData['phone'] = $this->parent_phone;
+                $updateData['phone_key'] = $this->parent_phone_key;
+            }
+            if (! empty($this->parent_password)) {
+                $updateData['password'] = Hash::make($this->parent_password);
+            }
+            if ($updateData) {
+                $existingParent->update($updateData);
+            }
+
+            return $existingParent->id;
+        }
+
+        // Create new parent
+        $parentName = $this->parent_name ?: ('ولي أمر '.$this->name);
+        $parent = User::create([
+            'name' => $parentName,
+            'email' => $this->parent_email,
+            'password' => Hash::make($this->parent_password),
+            'phone' => $this->parent_phone ?: null,
+            'phone_key' => $this->parent_phone_key ?: null,
+            'status' => 'active',
+            'email_verified_at' => now(),
+        ]);
+        $parent->assignRole('parent');
+
+        return $parent->id;
     }
 
     public function render(): View

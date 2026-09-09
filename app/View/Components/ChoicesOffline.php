@@ -4,7 +4,6 @@ namespace App\View\Components;
 
 use Closure;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Arr;
 use Mary\View\Components\ChoicesOffline as MaryChoicesOffline;
 
 class ChoicesOffline extends MaryChoicesOffline

@@ -8,6 +8,7 @@ use App\Livewire\Dashboard\Dashboard;
 use App\Livewire\Dashboard\Exam\ExamData;
 use App\Livewire\Dashboard\ExamAttempt\ExamAttemptData;
 use App\Livewire\Dashboard\Grade\GradeData;
+use App\Livewire\Dashboard\Parent\ParentDashboard;
 use App\Livewire\Dashboard\Profile\Profile;
 use App\Livewire\Dashboard\Question\QuestionData;
 use App\Livewire\Dashboard\Reports\ExamReports;
@@ -34,7 +35,7 @@ Route::middleware(['web-language'])->group(function () {
     Route::get('web-language/{lang}', LanguageController::class)->name('web-language');
     Route::redirect('/', 'login')->name('home');
     // authentication routes
-    Route::middleware(['auth', 'verified', 'role:admin|student'])->group(function () {
+    Route::middleware(['auth', 'verified', 'role:admin|student|parent'])->group(function () {
         Route::livewire('profile', Profile::class)->name('profile'); // profile
         Route::livewire('dashboard', Dashboard::class)->name('dashboard'); // dashboard
         // roles
@@ -58,6 +59,12 @@ Route::middleware(['web-language'])->group(function () {
         Route::livewire('reports/students', StudentReports::class)->name('reports.students')->middleware('permission:show_student_report');
         Route::livewire('reports/exams', ExamReports::class)->name('reports.exams')->middleware('permission:show_exam_report');
         Route::livewire('site-settings', UpdateSiteSetting::class)->name('site-settings')->middleware('permission:show_site_setting'); // site settings
+        
+        // Support Tickets
+        Route::prefix('tickets')->middleware('permission:show_ticket')->group(function () {
+            Route::livewire('/', \App\Livewire\Dashboard\Ticket\TicketData::class)->name('dashboard.tickets.index');
+            Route::livewire('/{ticket}', \App\Livewire\Dashboard\Ticket\ShowTicket::class)->name('dashboard.tickets.show');
+        });
 
         // Print Report Routes
         Route::get('dashboard/print', [ReportPrintController::class, 'dashboard'])->name('dashboard.print');
@@ -74,6 +81,17 @@ Route::middleware(['web-language'])->group(function () {
         Route::livewire('student/exams/{exam}/take', TakeExam::class)->name('student.exams.take');
         Route::livewire('student/exams/{exam}/result', ExamResult::class)->name('student.exams.result');
         Route::livewire('student/trainings', StudentTrainingsData::class)->name('student.trainings');
+    });
+
+    // parent routes
+    Route::middleware(['auth', 'verified', 'role:parent'])->group(function () {
+        Route::livewire('parent/dashboard', ParentDashboard::class)->name('parent.dashboard');
+    });
+
+    // Support Tickets for Users (Students and Parents)
+    Route::middleware(['auth', 'verified', 'role:student|parent'])->group(function () {
+        Route::livewire('my-tickets', \App\Livewire\User\Tickets\TicketData::class)->name('user.tickets.index');
+        Route::livewire('my-tickets/{ticket}', \App\Livewire\User\Tickets\ShowTicket::class)->name('user.tickets.show');
     });
 
     // guest routes

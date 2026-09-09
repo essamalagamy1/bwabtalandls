@@ -12,6 +12,7 @@ class RolePermissionSeeder extends Seeder
     {
         $adminRole = Role::firstOrCreate(['name' => 'admin'], ['is_main' => true]);
         Role::firstOrCreate(['name' => 'student'], ['is_main' => true]);
+        Role::firstOrCreate(['name' => 'parent'], ['is_main' => true]);
 
         $modules = [
             'role' => 'roles_mng',
@@ -30,6 +31,7 @@ class RolePermissionSeeder extends Seeder
             'site_setting' => 'site_settings_mng',
             'student_report' => 'reports_mng',
             'exam_report' => 'reports_mng',
+            'ticket' => 'tickets_mng',
         ];
 
         foreach ($modules as $module => $type) {
