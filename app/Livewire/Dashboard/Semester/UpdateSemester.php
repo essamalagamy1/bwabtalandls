@@ -123,8 +123,8 @@ class UpdateSemester extends Component
             'is_active' => $this->is_active,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-            'academic_year_from' => $this->academic_year_from,
-            'academic_year_to' => $this->academic_year_to,
+            'academic_year_from' => $this->academic_year_from ?: null,
+            'academic_year_to' => $this->academic_year_to ?: null,
         ]);
 
         $this->modalUpdate = false;

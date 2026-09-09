@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             StageSeeder::class,
             GradeSeeder::class,
-            SemesterSeeder::class,
+            // SemesterSeeder::class,
             // WeekSeeder::class,
             // StudentSeeder::class,
             // TrainingSeeder::class,
