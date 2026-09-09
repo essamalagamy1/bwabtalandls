@@ -1090,4 +1090,11 @@ return [
     'time_single' => 'مرة واحدة',
     'current_attachment' => 'الملف المرفق الحالي',
     'delete_attachment' => 'حذف الملف المرفق',
+
+    // Ticket Management Permissions
+    'tickets_mng' => 'إدارة تذاكر الدعم الفني',
+    'create_ticket' => 'إنشاء تذكرة',
+    'show_ticket' => 'عرض التذاكر',
+    'edit_ticket' => 'الرد على التذاكر وتغيير حالتها',
+    'delete_ticket' => 'حذف التذكرة',
 ];
