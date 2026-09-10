@@ -107,14 +107,13 @@ new #[Layout('components.layouts.auth', ['title' => 'login'])] class extends Com
 
             <!-- Password -->
             <div class="relative">
-                <x-input
+                <x-password
                         wire:model="password"
                         :label="__('lang.password')"
-                        type="password"
                         required
                         autocomplete="current-password"
                         :placeholder="__('lang.password')"
-                        viewable
+                        right
                 />
 
                 @if (Route::has('password.request'))

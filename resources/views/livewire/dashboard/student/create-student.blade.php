@@ -10,8 +10,8 @@
 			
 			</div>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<x-input label="{{ __('lang.password') }}" type="password" wire:model="password"/>
-				<x-input label="{{ __('lang.password_confirmation') }}" type="password" wire:model="password_confirmation"/>
+				<x-password label="{{ __('lang.password') }}" right wire:model="password"/>
+				<x-password label="{{ __('lang.password_confirmation') }}" right wire:model="password_confirmation"/>
 			</div>
 		
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -52,8 +52,8 @@
 				<x-input label="بريد ولي الأمر" type="email" wire:model="parent_email" placeholder="البريد الإلكتروني" clearable/>
 			</div>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<x-input label="كلمة مرور ولي الأمر" type="password" wire:model="parent_password"/>
-				<x-input label="تأكيد كلمة المرور" type="password" wire:model="parent_password_confirmation"/>
+				<x-password label="كلمة مرور ولي الأمر" right wire:model="parent_password"/>
+				<x-password label="تأكيد كلمة المرور" right wire:model="parent_password_confirmation"/>
 			</div>
 			<x-phone-input label="هاتف ولي الأمر (اختياري)" phoneProperty="parent_phone" keyProperty="parent_phone_key"/>
 			

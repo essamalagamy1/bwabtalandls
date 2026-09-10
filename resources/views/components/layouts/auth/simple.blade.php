@@ -1,3 +1,4 @@
+@props(['title' => null, 'maxWidth' => 'max-w-md'])
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale()}}" class="scroll-smooth light" dir="{{app()->getLocale() === 'ar' ? 'rtl' : 'ltr'}}" data-theme="light">
 @include('partials.head')
@@ -26,7 +27,7 @@
 	</div>
 </div>
 <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 ">
-	<div class="flex flex-col gap-2  w-full max-w-md">
+	<div class="flex flex-col gap-2 w-full {{ $maxWidth }}">
 		<a href="{{ route('home') }}" class="flex flex-col items-center gap-2 font-medium mb-4">
 			<span class="flex  mb-1 items-center justify-center rounded-md">
 				<x-app-logo-icon class="size-9 fill-current"/>

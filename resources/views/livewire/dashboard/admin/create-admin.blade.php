@@ -6,8 +6,8 @@
 			<x-input label="{{__('lang.name')}}" wire:model="name"/>
 			<x-phone-input required label="{{__('lang.phone')}}" phoneProperty="phone" keyProperty="phone_key"/>
 			<x-input label="{{__('lang.email')}}" type="email" wire:model="email"/>
-			<x-input label="{{__('lang.password')}}" type="password" wire:model="password"/>
-			<x-input label="{{__('lang.password_confirmation')}}" type="password" wire:model="password_confirmation"/>
+			<x-password label="{{__('lang.password')}}" right wire:model="password"/>
+			<x-password label="{{__('lang.password_confirmation')}}" right wire:model="password_confirmation"/>
 			<x-select label="{{ __('lang.status') }}" wire:model="status" :options="[
                 ['id' => 'active', 'name' => __('lang.active')],
                 ['id' => 'inactive', 'name' => __('lang.inactive')],
