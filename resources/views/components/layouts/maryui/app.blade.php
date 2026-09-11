@@ -21,7 +21,8 @@
             {{-- Brand --}}
             <a href="{{ config('app.url') }}"
                 class="ms-2 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
-                <x-app-logo-icon class="size-9 fill-current" />
+                <img src="{{ siteSetting()->getFirstMediaUrl('logo_black') ?? asset('logo.png') }}" alt="logo"
+                    class="" width="60" height="60">
             </a>
         </x-slot:brand>
 
