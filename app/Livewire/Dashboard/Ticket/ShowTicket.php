@@ -3,10 +3,8 @@
 namespace App\Livewire\Dashboard\Ticket;
 
 use App\Models\Ticket;
-use App\Models\TicketReply;
 use App\Notifications\TicketReplyNotification;
 use App\Notifications\TicketStatusUpdatedNotification;
-use Illuminate\Support\Facades\Notification;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -17,21 +15,23 @@ class ShowTicket extends Component
     use WithFileUploads;
 
     public Ticket $ticket;
+
     public string $replyMessage = '';
+
     public $attachment;
 
     public function mount(Ticket $ticket)
     {
         $this->authorize('show_ticket');
         $this->ticket = $ticket->load(['user', 'assignedAdmin', 'replies.user.media', 'replies.media']);
-        
+
         // Mark as in progress if open and viewed by admin
         if ($this->ticket->status === 'open' && auth()->user()->hasPermissionTo('edit_ticket')) {
             $this->ticket->update([
                 'status' => 'in_progress',
                 'assigned_admin_id' => auth()->id(),
             ]);
-            
+
             // Notify user
             $this->ticket->user->notify(new TicketStatusUpdatedNotification($this->ticket, 'قيد المراجعة'));
         }
@@ -40,12 +40,12 @@ class ShowTicket extends Component
     public function changeStatus(string $status): void
     {
         $this->authorize('edit_ticket');
-        
+
         $this->ticket->update(['status' => $status]);
-        
+
         $statusNames = ['open' => 'مفتوحة', 'in_progress' => 'قيد المراجعة', 'closed' => 'مغلقة'];
         $this->ticket->user->notify(new TicketStatusUpdatedNotification($this->ticket, $statusNames[$status]));
-        
+
         $this->dispatch('success', 'تم تغيير حالة التذكرة');
     }
 

@@ -134,7 +134,7 @@ class CreateSemester extends Component
             for ($i = 1; $i <= $totalWeeks; $i++) {
                 Week::create([
                     'semester_id' => $semester->id,
-                    'title' => 'الأسبوع رقم (' . $i . ')',
+                    'title' => 'الأسبوع رقم ('.$i.')',
                     'order' => $i,
                     'is_active' => true,
                     'start_date' => null,

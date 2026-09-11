@@ -5,6 +5,7 @@ namespace App\Livewire\Student;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Semester;
+use App\Models\Ticket;
 use App\Models\Training;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -28,8 +29,8 @@ class StudentDashboard extends Component
 
     private function loadTicketStats(): void
     {
-        $query = \App\Models\Ticket::where('user_id', auth()->id());
-        
+        $query = Ticket::where('user_id', auth()->id());
+
         $this->ticketStats = [
             'total' => (clone $query)->count(),
             'open' => (clone $query)->where('status', 'open')->count(),

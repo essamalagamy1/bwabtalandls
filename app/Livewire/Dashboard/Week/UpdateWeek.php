@@ -75,6 +75,7 @@ class UpdateWeek extends Component
     {
         if (! $this->stage_id) {
             $this->all_grades = [];
+
             return;
         }
         $this->all_grades = Grade::where('is_active', true)
@@ -87,6 +88,7 @@ class UpdateWeek extends Component
     {
         if (! $this->grade_id) {
             $this->all_semesters = [];
+
             return;
         }
         $this->all_semesters = Semester::where('is_active', true)

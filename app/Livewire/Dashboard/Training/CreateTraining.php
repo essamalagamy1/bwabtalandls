@@ -63,13 +63,13 @@ class CreateTraining extends Component
             if ($week && $week->semester && $week->semester->grade && $week->semester->grade->stage) {
                 $this->stage_id = $week->semester->grade->stage->id;
                 $this->updatedStageId($this->stage_id);
-                
+
                 $this->grade_id = $week->semester->grade->id;
                 $this->updatedGradeId($this->grade_id);
-                
+
                 $this->semester_id = $week->semester->id;
                 $this->updatedSemesterId($this->semester_id);
-                
+
                 $this->week_id = $week->id;
             }
         }

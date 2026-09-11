@@ -14,11 +14,14 @@ class TicketData extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $statusFilter = '';
 
     // Create Ticket Fields
     public bool $modalAdd = false;
+
     public string $subject = '';
+
     public string $type = 'problem';
 
     public function updated($property): void
@@ -53,8 +56,8 @@ class TicketData extends Component
     public function render()
     {
         $tickets = auth()->user()->tickets()
-            ->when($this->search, fn($q) => $q->where('subject', 'like', '%' . $this->search . '%'))
-            ->when($this->statusFilter, fn($q) => $q->where('status', $this->statusFilter))
+            ->when($this->search, fn ($q) => $q->where('subject', 'like', '%'.$this->search.'%'))
+            ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
             ->latest()
             ->paginate(10);
 
@@ -68,7 +71,7 @@ class TicketData extends Component
 
         return view('livewire.user.tickets.ticket-data', [
             'tickets' => $tickets,
-            'headers' => $headers
+            'headers' => $headers,
         ]);
     }
 }

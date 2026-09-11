@@ -3,6 +3,7 @@
 namespace App\Livewire\User\Tickets;
 
 use App\Models\Ticket;
+use App\Models\User;
 use App\Notifications\TicketReplyNotification;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Attributes\Title;
@@ -15,7 +16,9 @@ class ShowTicket extends Component
     use WithFileUploads;
 
     public Ticket $ticket;
+
     public string $replyMessage = '';
+
     public $attachment;
 
     public function mount(Ticket $ticket)
@@ -32,6 +35,7 @@ class ShowTicket extends Component
     {
         if ($this->ticket->status === 'closed') {
             $this->addError('replyMessage', 'لا يمكنك الرد على تذكرة مغلقة.');
+
             return;
         }
 
@@ -53,9 +57,9 @@ class ShowTicket extends Component
         if ($this->ticket->assignedAdmin) {
             $this->ticket->assignedAdmin->notify(new TicketReplyNotification($this->ticket, auth()->user()->name));
         } else {
-            $admins = \App\Models\User::role('admin')->permission('show_ticket')->get();
+            $admins = User::role('admin')->permission('show_ticket')->get();
             if ($admins->isNotEmpty()) {
-                \Illuminate\Support\Facades\Notification::send($admins, new TicketReplyNotification($this->ticket, auth()->user()->name));
+                Notification::send($admins, new TicketReplyNotification($this->ticket, auth()->user()->name));
             }
         }
 

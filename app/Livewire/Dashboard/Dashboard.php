@@ -9,6 +9,7 @@ use App\Models\Question;
 use App\Models\Section;
 use App\Models\Semester;
 use App\Models\Stage;
+use App\Models\Ticket;
 use App\Models\Training;
 use App\Models\User;
 use App\Models\Week;
@@ -50,6 +51,7 @@ class Dashboard extends Component
     public array $examScoresChart = [];
 
     public array $newStudentsMonthlyChart = [];
+
     public array $ticketStats = [];
 
     public function mount(): void
@@ -69,14 +71,15 @@ class Dashboard extends Component
 
     private function loadTicketStats(): void
     {
-        $query = \App\Models\Ticket::query();
+        $query = Ticket::query();
 
         // If user is a student (not admin), only show their own stats
-        if (auth()->user()->hasRole('student') && !auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasRole('student') && ! auth()->user()->hasRole('admin')) {
             $query->where('user_id', auth()->id());
-        } elseif (!auth()->user()->hasPermissionTo('show_ticket')) {
+        } elseif (! auth()->user()->hasPermissionTo('show_ticket')) {
             // If they are admin but don't have permission to see all tickets, show none
             $this->ticketStats = ['open' => 0, 'in_progress' => 0, 'closed' => 0];
+
             return;
         }
 

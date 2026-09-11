@@ -22,6 +22,8 @@ use App\Livewire\Dashboard\SiteSetting\UpdateSiteSetting;
 use App\Livewire\Dashboard\Stage\StageData;
 use App\Livewire\Dashboard\Student\StudentData;
 use App\Livewire\Dashboard\Student\StudentProfile;
+use App\Livewire\Dashboard\Ticket\ShowTicket;
+use App\Livewire\Dashboard\Ticket\TicketData;
 use App\Livewire\Dashboard\Training\TrainingData;
 use App\Livewire\Dashboard\Week\WeekData;
 use App\Livewire\Student\ExamResult;
@@ -59,11 +61,11 @@ Route::middleware(['web-language'])->group(function () {
         Route::livewire('reports/students', StudentReports::class)->name('reports.students')->middleware('permission:show_student_report');
         Route::livewire('reports/exams', ExamReports::class)->name('reports.exams')->middleware('permission:show_exam_report');
         Route::livewire('site-settings', UpdateSiteSetting::class)->name('site-settings')->middleware('permission:show_site_setting'); // site settings
-        
+
         // Support Tickets
         Route::prefix('tickets')->middleware('permission:show_ticket')->group(function () {
-            Route::livewire('/', \App\Livewire\Dashboard\Ticket\TicketData::class)->name('dashboard.tickets.index');
-            Route::livewire('/{ticket}', \App\Livewire\Dashboard\Ticket\ShowTicket::class)->name('dashboard.tickets.show');
+            Route::livewire('/', TicketData::class)->name('dashboard.tickets.index');
+            Route::livewire('/{ticket}', ShowTicket::class)->name('dashboard.tickets.show');
         });
 
         // Print Report Routes
@@ -90,8 +92,8 @@ Route::middleware(['web-language'])->group(function () {
 
     // Support Tickets for Users (Students and Parents)
     Route::middleware(['auth', 'verified', 'role:student|parent'])->group(function () {
-        Route::livewire('my-tickets', \App\Livewire\User\Tickets\TicketData::class)->name('user.tickets.index');
-        Route::livewire('my-tickets/{ticket}', \App\Livewire\User\Tickets\ShowTicket::class)->name('user.tickets.show');
+        Route::livewire('my-tickets', App\Livewire\User\Tickets\TicketData::class)->name('user.tickets.index');
+        Route::livewire('my-tickets/{ticket}', App\Livewire\User\Tickets\ShowTicket::class)->name('user.tickets.show');
     });
 
     // guest routes

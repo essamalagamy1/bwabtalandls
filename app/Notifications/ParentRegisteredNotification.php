@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -37,11 +36,11 @@ class ParentRegisteredNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('حياك الله معنا! ابنك سجل بياناتك للمتابعة')
-                    ->markdown('mail.parent-registered', [
-                        'notifiable' => $notifiable,
-                        'password' => $this->password
-                    ]);
+            ->subject('حياك الله معنا! ابنك سجل بياناتك للمتابعة')
+            ->markdown('mail.parent-registered', [
+                'notifiable' => $notifiable,
+                'password' => $this->password,
+            ]);
     }
 
     /**

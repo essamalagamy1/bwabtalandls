@@ -13,9 +13,13 @@ class TicketData extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $statusFilter = '';
+
     public string $typeFilter = '';
+
     public string $priorityFilter = '';
+
     public string $roleFilter = '';
 
     public function updated($property): void
@@ -37,12 +41,12 @@ class TicketData extends Component
         $this->authorize('show_ticket');
 
         $tickets = Ticket::with(['user.roles', 'assignedAdmin'])
-            ->when($this->search, fn($q) => $q->where('subject', 'like', '%' . $this->search . '%'))
-            ->when($this->statusFilter, fn($q) => $q->where('status', $this->statusFilter))
-            ->when($this->typeFilter, fn($q) => $q->where('type', $this->typeFilter))
-            ->when($this->priorityFilter, fn($q) => $q->where('priority', $this->priorityFilter))
+            ->when($this->search, fn ($q) => $q->where('subject', 'like', '%'.$this->search.'%'))
+            ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
+            ->when($this->typeFilter, fn ($q) => $q->where('type', $this->typeFilter))
+            ->when($this->priorityFilter, fn ($q) => $q->where('priority', $this->priorityFilter))
             ->when($this->roleFilter, function ($q) {
-                $q->whereHas('user.roles', fn($r) => $r->where('name', $this->roleFilter));
+                $q->whereHas('user.roles', fn ($r) => $r->where('name', $this->roleFilter));
             })
             ->latest()
             ->paginate(15);
@@ -58,7 +62,7 @@ class TicketData extends Component
 
         return view('livewire.dashboard.ticket.ticket-data', [
             'tickets' => $tickets,
-            'headers' => $headers
+            'headers' => $headers,
         ]);
     }
 }

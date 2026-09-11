@@ -3,6 +3,7 @@
 namespace App\Livewire\Dashboard\Parent;
 
 use App\Models\ExamAttempt;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Title;
@@ -18,7 +19,9 @@ class ParentDashboard extends Component
     public $children = [];
 
     public array $progressChart = [];
+
     public array $statusChart = [];
+
     public array $ticketStats = [];
 
     public function mount(): void
@@ -46,8 +49,8 @@ class ParentDashboard extends Component
 
     private function loadTicketStats(): void
     {
-        $query = \App\Models\Ticket::where('user_id', auth()->id());
-        
+        $query = Ticket::where('user_id', auth()->id());
+
         $this->ticketStats = [
             'total' => (clone $query)->count(),
             'open' => (clone $query)->where('status', 'open')->count(),

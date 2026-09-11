@@ -5,7 +5,6 @@ namespace App\Notifications;
 use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
@@ -24,7 +23,7 @@ class NewTicketNotification extends Notification implements ShouldQueue
     public function toWebPush($notifiable, $notification): WebPushMessage
     {
         $url = route('dashboard.tickets.show', $this->ticket);
-        
+
         return (new WebPushMessage)
             ->title('تذكرة جديدة')
             ->body("تم فتح تذكرة جديدة: {$this->ticket->subject}")
