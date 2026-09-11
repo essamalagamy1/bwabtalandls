@@ -5,6 +5,8 @@ namespace App\Livewire\Dashboard\Semester;
 use App\Models\Grade;
 use App\Models\Semester;
 use App\Models\Stage;
+use App\Models\Week;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -38,6 +40,8 @@ class UpdateSemester extends Component
     public $all_stages = [];
 
     public $all_grades = [];
+
+    public bool $auto_generate_weeks = false;
 
     public function mount(): void
     {
@@ -93,8 +97,9 @@ class UpdateSemester extends Component
             'stage_id' => 'nullable|exists:stages,id',
             'grade_id' => 'required|exists:grades,id',
             'is_active' => 'boolean',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'auto_generate_weeks' => 'boolean',
+            'start_date' => $this->auto_generate_weeks ? 'required|date' : 'nullable|date',
+            'end_date' => $this->auto_generate_weeks ? 'required|date|after_or_equal:start_date' : 'nullable|date|after_or_equal:start_date',
             'academic_year_from' => 'nullable|integer|min:1900|max:2100',
             'academic_year_to' => 'nullable|integer|min:1900|max:2100|gte:academic_year_from',
         ];
@@ -126,6 +131,25 @@ class UpdateSemester extends Component
             'academic_year_from' => $this->academic_year_from ?: null,
             'academic_year_to' => $this->academic_year_to ?: null,
         ]);
+
+        // Auto generate weeks if checkbox is checked AND semester has no existing weeks
+        if ($this->auto_generate_weeks && $this->start_date && $this->end_date && $this->semester->weeks()->count() === 0) {
+            $start = Carbon::parse($this->start_date);
+            $end = Carbon::parse($this->end_date);
+            $totalDays = $start->diffInDays($end);
+            $totalWeeks = (int) ceil($totalDays / 7);
+
+            for ($i = 1; $i <= $totalWeeks; $i++) {
+                Week::create([
+                    'semester_id' => $this->semester->id,
+                    'title' => 'الأسبوع رقم (' . $i . ')',
+                    'order' => $i,
+                    'is_active' => true,
+                    'start_date' => null,
+                    'end_date' => null,
+                ]);
+            }
+        }
 
         $this->modalUpdate = false;
         $this->dispatch('render')->component(SemesterData::class);

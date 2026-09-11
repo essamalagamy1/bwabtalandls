@@ -4,7 +4,11 @@
 		<x-form wire:submit="saveUpdate">
 			<x-input label="{{ __('lang.title') }}" wire:model="title"/>
 			<x-input label="{{ __('lang.order') }}" wire:model="order" type="number" min="1"/>
-			<x-choices-offline label="{{ __('lang.semester') }}" wire:model="semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable/>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="stage_id" :options="$all_stages" option-value="id" option-label="name" single searchable placeholder="{{ __('lang.select') }}..."/>
+				<x-choices-offline label="{{ __('lang.grade') }}" wire:model.live="grade_id" :options="$all_grades" option-value="id" option-label="name" single searchable placeholder="{{ __('lang.select') }}..." :disabled="!$stage_id"/>
+			</div>
+			<x-choices-offline label="{{ __('lang.semester') }}" wire:model="semester_id" :options="$all_semesters" option-value="id" option-label="name" option-sub-label="full_path_name" single searchable :disabled="!$grade_id"/>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 				<x-datepicker label="{{ __('lang.start_date') }}" wire:model="start_date" icon="o-calendar"/>
 				<x-datepicker label="{{ __('lang.end_date') }}" wire:model="end_date" icon="o-calendar"/>

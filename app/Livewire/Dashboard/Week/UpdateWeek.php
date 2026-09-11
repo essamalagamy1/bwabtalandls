@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Dashboard\Week;
 
+use App\Models\Grade;
 use App\Models\Semester;
+use App\Models\Stage;
 use App\Models\Week;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -29,16 +31,74 @@ class UpdateWeek extends Component
 
     public $end_date;
 
-    public $all_semesters;
+    public $stage_id;
+
+    public $grade_id;
+
+    public $all_stages = [];
+
+    public $all_grades = [];
+
+    public $all_semesters = [];
 
     public function mount(): void
     {
         $this->title = $this->week->title;
         $this->order = $this->week->order;
         $this->semester_id = $this->week->semester_id;
+        $this->grade_id = $this->week->semester?->grade_id;
+        $this->stage_id = $this->week->semester?->grade?->stage_id;
         $this->is_active = $this->week->is_active;
         $this->start_date = $this->week->start_date?->format('Y-m-d');
         $this->end_date = $this->week->end_date?->format('Y-m-d');
+
+        $this->all_stages = Stage::where('is_active', true)->get(['id', 'name'])->toArray();
+        $this->loadGrades();
+        $this->loadSemesters();
+    }
+
+    public function updatedStageId($value): void
+    {
+        $this->grade_id = null;
+        $this->semester_id = null;
+        $this->loadGrades();
+        $this->loadSemesters();
+    }
+
+    public function updatedGradeId($value): void
+    {
+        $this->semester_id = null;
+        $this->loadSemesters();
+    }
+
+    public function loadGrades(): void
+    {
+        if (! $this->stage_id) {
+            $this->all_grades = [];
+            return;
+        }
+        $this->all_grades = Grade::where('is_active', true)
+            ->where('stage_id', $this->stage_id)
+            ->get(['id', 'name'])
+            ->toArray();
+    }
+
+    public function loadSemesters(): void
+    {
+        if (! $this->grade_id) {
+            $this->all_semesters = [];
+            return;
+        }
+        $this->all_semesters = Semester::where('is_active', true)
+            ->where('grade_id', $this->grade_id)
+            ->get()
+            ->map(function ($semester) {
+                return [
+                    'id' => $semester->id,
+                    'name' => $semester->name_with_academic_year,
+                    'full_path_name' => '',
+                ];
+            })->toArray();
     }
 
     public function rules(): array

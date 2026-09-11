@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Dashboard\Week;
 
+use App\Models\Grade;
 use App\Models\Semester;
+use App\Models\Stage;
 use App\Models\Week;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -26,7 +28,64 @@ class CreateWeek extends Component
 
     public $end_date;
 
-    public $all_semesters;
+    public $stage_id;
+
+    public $grade_id;
+
+    public $all_stages = [];
+
+    public $all_grades = [];
+
+    public $all_semesters = [];
+
+    public function mount(): void
+    {
+        $this->all_stages = Stage::where('is_active', true)->get(['id', 'name'])->toArray();
+    }
+
+    public function updatedStageId($value): void
+    {
+        $this->grade_id = null;
+        $this->semester_id = null;
+        $this->loadGrades();
+        $this->loadSemesters();
+    }
+
+    public function updatedGradeId($value): void
+    {
+        $this->semester_id = null;
+        $this->loadSemesters();
+    }
+
+    public function loadGrades(): void
+    {
+        if (! $this->stage_id) {
+            $this->all_grades = [];
+            return;
+        }
+        $this->all_grades = Grade::where('is_active', true)
+            ->where('stage_id', $this->stage_id)
+            ->get(['id', 'name'])
+            ->toArray();
+    }
+
+    public function loadSemesters(): void
+    {
+        if (! $this->grade_id) {
+            $this->all_semesters = [];
+            return;
+        }
+        $this->all_semesters = Semester::where('is_active', true)
+            ->where('grade_id', $this->grade_id)
+            ->get()
+            ->map(function ($semester) {
+                return [
+                    'id' => $semester->id,
+                    'name' => $semester->name_with_academic_year,
+                    'full_path_name' => '',
+                ];
+            })->toArray();
+    }
 
     public function render()
     {
@@ -100,8 +159,10 @@ class CreateWeek extends Component
 
     public function resetData(): void
     {
-        $this->reset(['title', 'order', 'semester_id', 'start_date', 'end_date']);
+        $this->reset(['title', 'order', 'stage_id', 'grade_id', 'semester_id', 'start_date', 'end_date']);
         $this->is_active = true;
+        $this->loadGrades();
+        $this->loadSemesters();
         $this->resetErrorBag();
         $this->resetValidation();
     }

@@ -8,6 +8,7 @@ use App\Models\Grade;
 use App\Models\Semester;
 use App\Models\Stage;
 use App\Models\Week;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
@@ -48,9 +49,32 @@ class CreateExam extends Component
 
     public $all_weeks = [];
 
+    #[Url(as: 'search_week_id')]
+    public $search_week_id;
+
     public function mount()
     {
         $this->all_stages = Stage::where('is_active', true)->get();
+        $this->prefillFromUrl();
+    }
+
+    private function prefillFromUrl(): void
+    {
+        if ($this->search_week_id) {
+            $week = Week::with('semester.grade.stage')->find($this->search_week_id);
+            if ($week && $week->semester && $week->semester->grade && $week->semester->grade->stage) {
+                $this->stage_id = $week->semester->grade->stage->id;
+                $this->updatedStageId($this->stage_id);
+                
+                $this->grade_id = $week->semester->grade->id;
+                $this->updatedGradeId($this->grade_id);
+                
+                $this->semester_id = $week->semester->id;
+                $this->updatedSemesterId($this->semester_id);
+                
+                $this->week_id = $week->id;
+            }
+        }
     }
 
     public function updatedStageId($stage_id)
@@ -146,5 +170,6 @@ class CreateExam extends Component
         $this->all_semesters = [];
         $this->resetErrorBag();
         $this->resetValidation();
+        $this->prefillFromUrl();
     }
 }
