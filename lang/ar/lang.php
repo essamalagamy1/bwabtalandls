@@ -1097,4 +1097,5 @@ return [
     'show_ticket' => 'عرض التذاكر',
     'edit_ticket' => 'الرد على التذاكر وتغيير حالتها',
     'delete_ticket' => 'حذف التذكرة',
+    'parent_details' => 'معلومات ولي الأمر',
 ];

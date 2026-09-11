@@ -215,6 +215,8 @@ return [
         'password_confirmation' => 'تأكيد كلمة السر',
         'selected_permissions.*' => 'الصلاحيات المحددة',
         'sort' => 'الترتيب',
+        'semester_id' => 'الفصل الدراسي',
+        'order' => 'الترتيب',
 
     ],
 

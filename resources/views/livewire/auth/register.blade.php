@@ -98,7 +98,7 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
 
         event(new Registered($user));
 
-        \App\Jobs\NotifyAdminsOfNewStudentJob::dispatch($user);
+        // \App\Jobs\NotifyAdminsOfNewStudentJob::dispatch($user);
 
         session()->flash('status', 'تم تسجيل بياناتك بنجاح، وجاري مراجعتها. وبعد الموافقة، بنرسل لك رسالة على بريدك الإلكتروني.');
 

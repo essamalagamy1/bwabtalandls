@@ -34,6 +34,29 @@
                         <span>{{ $user->section?->name ?? '---' }}</span>
                     </div>
                 </div>
+
+                @if($user->parent)
+                    <div class="w-full mt-4 pt-4 border-t border-base-300">
+                        <h3 class="font-bold text-gray-700 mb-3 text-start flex items-center gap-2">
+                            <x-icon name="o-user-group" class="w-5 h-5 text-secondary" />
+                            {{ __('lang.parent_details') ?? 'بيانات ولي الأمر' }}
+                        </h3>
+                        <div class="space-y-2 text-sm text-start">
+                            <div class="flex justify-between border-b border-base-200 pb-2">
+                                <span class="font-bold text-gray-500">{{ __('lang.name') ?? 'الاسم' }}</span>
+                                <span>{{ $user->parent->name }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-base-200 pb-2">
+                                <span class="font-bold text-gray-500">{{ __('lang.email') ?? 'البريد' }}</span>
+                                <span>{{ $user->parent->email }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-base-200 pb-2">
+                                <span class="font-bold text-gray-500">{{ __('lang.phone') ?? 'رقم الجوال' }}</span>
+                                <span dir="ltr">{{ $user->parent->phone_key }}{{ $user->parent->phone }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
 
