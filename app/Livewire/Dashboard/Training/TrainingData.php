@@ -219,7 +219,7 @@ class TrainingData extends Component
             ->when($this->search_is_active !== '', fn (Builder $q) => $q->where('is_active', (bool) $this->search_is_active))
             ->with(['week.semester.grade.stage'])
             ->latest()
-            ->paginate(10);
+            ->paginate(20);
 
         return view('livewire.dashboard.training.training-data', $data);
     }

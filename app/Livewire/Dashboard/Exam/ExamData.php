@@ -217,7 +217,7 @@ class ExamData extends Component
             ->with(['week.semester.grade.stage'])
             ->withCount('questions')
             ->latest()
-            ->paginate(10);
+            ->paginate(20);
 
         return view('livewire.dashboard.exam.exam-data', $data);
     }

@@ -306,7 +306,7 @@ class StudentData extends Component
 
         $data['students'] = $query->with(['grade.stage', 'section', 'parent'])
             ->latest()
-            ->paginate(10);
+            ->paginate(20);
 
         return view('livewire.dashboard.student.student-data', $data);
     }

@@ -129,7 +129,7 @@ class SemesterData extends Component
             ->with(['grade.stage'])
             ->withCount('weeks')
             ->latest()
-            ->paginate(10);
+            ->paginate(20);
 
         return view('livewire.dashboard.semester.semester-data', $data);
     }

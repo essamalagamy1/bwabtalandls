@@ -55,7 +55,7 @@ class GradeData extends Component
             ->with('stage')
             ->withCount('semesters')
             ->latest()
-            ->paginate(10);
+            ->paginate(20);
 
         return view('livewire.dashboard.grade.grade-data', $data);
     }

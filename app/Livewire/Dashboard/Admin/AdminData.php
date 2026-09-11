@@ -63,7 +63,7 @@ class AdminData extends Component
                 $query->select('roles.id', 'roles.name');
             }])
             ->latest()
-            ->paginate(10);
+            ->paginate(20);
 
         return view('livewire.dashboard.admin.admin-data', $data);
     }
