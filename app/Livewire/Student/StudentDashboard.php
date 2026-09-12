@@ -23,7 +23,6 @@ class StudentDashboard extends Component
 
     public function mount(): void
     {
-        $this->loadStudentData();
         $this->loadTicketStats();
     }
 
@@ -48,15 +47,20 @@ class StudentDashboard extends Component
     {
         $user = Auth::user();
         $user->load('grade.stage');
-        $gradeId = $user->grade_id;
+        
+        $gradeIds = $user->enrollments()->pluck('grade_id')->toArray();
+        if (empty($gradeIds)) {
+            $gradeIds = [$user->grade_id];
+        }
 
-        $activeSemester = Semester::where('grade_id', $gradeId)
+        $activeSemester = Semester::whereIn('grade_id', $gradeIds)
             ->where('is_active', true)
+            ->latest()
             ->first();
 
-        $exams = Exam::whereHas('week', function ($query) use ($gradeId) {
-            $query->whereHas('semester', function ($q) use ($gradeId) {
-                $q->where('grade_id', $gradeId)->where('is_active', true);
+        $exams = Exam::whereHas('week', function ($query) use ($gradeIds) {
+            $query->whereHas('semester', function ($q) use ($gradeIds) {
+                $q->whereIn('grade_id', $gradeIds)->where('is_active', true);
             });
         })
             ->with(['week.semester', 'attempts' => function ($q) use ($user) {
@@ -66,9 +70,9 @@ class StudentDashboard extends Component
             ->latest()
             ->get();
 
-        $trainings = Training::whereHas('week', function ($query) use ($gradeId) {
-            $query->whereHas('semester', function ($q) use ($gradeId) {
-                $q->where('grade_id', $gradeId)->where('is_active', true);
+        $trainings = Training::whereHas('week', function ($query) use ($gradeIds) {
+            $query->whereHas('semester', function ($q) use ($gradeIds) {
+                $q->whereIn('grade_id', $gradeIds)->where('is_active', true);
             });
         })
             ->with('week.semester')

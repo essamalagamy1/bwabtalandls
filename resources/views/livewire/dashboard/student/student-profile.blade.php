@@ -55,8 +55,32 @@
                                 <span dir="ltr">{{ $user->parent->phone_key }}{{ $user->parent->phone }}</span>
                             </div>
                         </div>
-                    </div>
                 @endif
+
+                {{-- Academic History --}}
+                <div class="w-full mt-4 pt-4 border-t border-base-300">
+                    <h3 class="font-bold text-gray-700 mb-3 text-start flex items-center gap-2">
+                        <x-icon name="o-clock" class="w-5 h-5 text-accent" />
+                        السجل الأكاديمي
+                    </h3>
+                    <div class="space-y-2 text-sm text-start">
+                        @foreach($user->enrollments()->latest()->get() as $enrollment)
+                            <div class="flex justify-between border-b border-base-200 pb-2">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-gray-700">{{ $enrollment->grade?->name }} - {{ $enrollment->section?->name ?? 'بدون شعبة' }}</span>
+                                    <span class="text-xs text-gray-500">{{ $enrollment->enrolled_at?->format('Y-m-d') }}</span>
+                                </div>
+                                <div>
+                                    @if($enrollment->is_current)
+                                        <x-badge value="الحالي" class="badge-success badge-sm text-white" />
+                                    @else
+                                        <x-badge value="سابق" class="badge-ghost badge-sm" />
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AcademicEnrollment;
 use App\Models\Grade;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -22,7 +23,15 @@ class StudentSeeder extends Seeder
                 $updateData = ['status' => $status];
 
                 if ($grades->isNotEmpty()) {
-                    $updateData['grade_id'] = $grades->random();
+                    $grade_id = $grades->random();
+                    $updateData['grade_id'] = $grade_id;
+                    
+                    AcademicEnrollment::create([
+                        'user_id' => $user->id,
+                        'grade_id' => $grade_id,
+                        'is_current' => true,
+                        'notes' => 'Seeded data',
+                    ]);
                 }
 
                 $user->update($updateData);

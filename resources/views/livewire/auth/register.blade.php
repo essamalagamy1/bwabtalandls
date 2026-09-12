@@ -96,6 +96,14 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
         $user = User::create($validated);
         $user->assignRole('student');
 
+        \App\Models\AcademicEnrollment::create([
+            'user_id' => $user->id,
+            'grade_id' => $user->grade_id,
+            'section_id' => null, // Section will be assigned later by admin if needed
+            'is_current' => true,
+            'notes' => 'Registered via auth',
+        ]);
+
         event(new Registered($user));
 
         // \App\Jobs\NotifyAdminsOfNewStudentJob::dispatch($user);

@@ -3,6 +3,7 @@
 namespace App\Livewire\Dashboard\Student;
 
 use App\Mail\AccountStatusNotification;
+use App\Models\AcademicEnrollment;
 use App\Models\Grade;
 use App\Models\Section;
 use App\Models\Stage;
@@ -191,7 +192,25 @@ class UpdateStudent extends Component
         }
 
         $oldStatus = $this->student->status;
+        $oldGradeId = $this->student->grade_id;
+        $oldSectionId = $this->student->section_id;
         $this->student->update($data);
+
+        // Handle academic enrollment history
+        if ($oldGradeId != $this->grade_id || $oldSectionId != $this->section_id) {
+            $this->student->currentEnrollment()->update([
+                'is_current' => false,
+                'ended_at' => now(),
+            ]);
+
+            AcademicEnrollment::create([
+                'user_id' => $this->student->id,
+                'grade_id' => $this->grade_id,
+                'section_id' => $this->section_id,
+                'is_current' => true,
+                'notes' => 'Grade or Section updated',
+            ]);
+        }
 
         // Notify student about account status change
         if ($oldStatus !== $this->status && in_array($this->status, ['active', 'inactive'])) {

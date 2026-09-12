@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Dashboard\Student;
 
+use App\Models\AcademicEnrollment;
 use App\Models\Grade;
 use App\Models\Section;
 use App\Models\Stage;
@@ -138,8 +139,15 @@ class CreateStudent extends Component
             'email_verified_at' => now(),
             'parent_id' => $parentId,
         ]);
-
         $student->assignRole('student');
+
+        AcademicEnrollment::create([
+            'user_id' => $student->id,
+            'grade_id' => $student->grade_id,
+            'section_id' => $student->section_id,
+            'is_current' => true,
+            'notes' => 'Initial enrollment',
+        ]);
 
         if ($this->image) {
             $student->addMedia($this->image->getRealPath())->toMediaCollection('image');

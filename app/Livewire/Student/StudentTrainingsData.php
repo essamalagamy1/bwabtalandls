@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Student;
 
+use App\Models\Grade;
 use App\Models\Semester;
+use App\Models\Stage;
 use App\Models\Training;
 use App\Models\Week;
 use Illuminate\Contracts\View\View;
@@ -20,9 +22,28 @@ class StudentTrainingsData extends Component
 
     public string $search = '';
 
+    public $selectedStage = '';
+
+    public $selectedGrade = '';
+
     public $selectedSemester = '';
 
     public $selectedWeek = '';
+
+    public function updatedSelectedStage()
+    {
+        $this->selectedGrade = '';
+        $this->selectedSemester = '';
+        $this->selectedWeek = '';
+        $this->resetPage();
+    }
+
+    public function updatedSelectedGrade()
+    {
+        $this->selectedSemester = '';
+        $this->selectedWeek = '';
+        $this->resetPage();
+    }
 
     public function updatedSelectedSemester()
     {
@@ -60,11 +81,35 @@ class StudentTrainingsData extends Component
     public function render(): View
     {
         $user = Auth::user();
-        $gradeId = $user->grade_id;
+        
+        $enrolledGradeIds = $user->enrollments()->pluck('grade_id')->toArray();
+        if (empty($enrolledGradeIds)) {
+            $enrolledGradeIds = [$user->grade_id];
+        }
 
-        $semesters = Semester::where('grade_id', $gradeId)
-            ->where('is_active', true)
-            ->get();
+        // Fetch grades and their stages
+        $grades = Grade::with('stage')->whereIn('id', $enrolledGradeIds)->where('is_active', true)->get();
+        
+        $stageIds = $grades->pluck('stage_id')->unique()->toArray();
+        $stages = Stage::whereIn('id', $stageIds)->where('is_active', true)->get();
+
+        $filteredGrades = collect();
+        if (!empty($this->selectedStage)) {
+            $filteredGrades = $grades->where('stage_id', $this->selectedStage);
+        } else {
+            $filteredGrades = $grades;
+        }
+
+        $semesters = collect();
+        if (!empty($this->selectedGrade)) {
+            $semesters = Semester::where('grade_id', $this->selectedGrade)
+                ->where('is_active', true)
+                ->get();
+        } else {
+            $semesters = Semester::whereIn('grade_id', $filteredGrades->pluck('id'))
+                ->where('is_active', true)
+                ->get();
+        }
 
         if (empty($this->selectedSemester) && $semesters->isNotEmpty()) {
             $this->selectedSemester = $semesters->first()->id;
@@ -75,11 +120,15 @@ class StudentTrainingsData extends Component
             $weeks = Week::where('semester_id', $this->selectedSemester)
                 ->where('is_active', true)
                 ->get();
+        } else {
+            $weeks = Week::whereIn('semester_id', $semesters->pluck('id'))
+                ->where('is_active', true)
+                ->get();
         }
 
-        $trainingsQuery = Training::whereHas('week', function ($query) use ($gradeId) {
-            $query->whereHas('semester', function ($q) use ($gradeId) {
-                $q->where('grade_id', $gradeId);
+        $trainingsQuery = Training::whereHas('week', function ($query) use ($filteredGrades) {
+            $query->whereHas('semester', function ($q) use ($filteredGrades) {
+                $q->whereIn('grade_id', $filteredGrades->pluck('id'));
             });
         });
 
@@ -102,6 +151,6 @@ class StudentTrainingsData extends Component
             ->latest()
             ->paginate(12);
 
-        return view('livewire.student.student-trainings-data', compact('trainings', 'semesters', 'weeks'));
+        return view('livewire.student.student-trainings-data', compact('trainings', 'stages', 'filteredGrades', 'semesters', 'weeks'));
     }
 }

@@ -116,6 +116,16 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         return $this->hasMany(User::class, 'parent_id');
     }
 
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(AcademicEnrollment::class, 'user_id');
+    }
+
+    public function currentEnrollment()
+    {
+        return $this->hasOne(AcademicEnrollment::class, 'user_id')->where('is_current', true);
+    }
+
     public function isAdmin(): bool
     {
         return $this->hasRole('admin');
