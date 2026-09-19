@@ -25,8 +25,10 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
     public string $parent_phone_key = '';
     public $stage_id = null;
     public $grade_id = null;
+    public $section_id = null;
     public array $all_stages = [];
     public array $all_grades = [];
+    public array $all_sections = [];
 
     public function mount(): void
     {
@@ -38,6 +40,8 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
     public function updatedStageId(): void
     {
         $this->grade_id = null;
+        $this->section_id = null;
+        $this->all_sections = [];
         if ($this->stage_id) {
             $this->all_grades = \App\Models\Grade::where('stage_id', $this->stage_id)
                 ->where('is_active', true)
@@ -45,6 +49,19 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
                 ->toArray();
         } else {
             $this->all_grades = [];
+        }
+    }
+
+    public function updatedGradeId(): void
+    {
+        $this->section_id = null;
+        if ($this->grade_id) {
+            $this->all_sections = \App\Models\Section::where('grade_id', $this->grade_id)
+                ->where('is_active', true)
+                ->get(['id', 'name'])
+                ->toArray();
+        } else {
+            $this->all_sections = [];
         }
     }
 
@@ -61,6 +78,7 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
             'phone_key' => ['required', 'string', 'max:5'],
             'stage_id' => ['required', 'exists:stages,id'],
             'grade_id' => ['required', 'exists:grades,id'],
+            'section_id' => [count($this->all_sections) > 0 ? 'required' : 'nullable', 'exists:sections,id'],
 
             // Parent Validation
             'parent_name' => ['required', 'string', 'max:255'],
@@ -99,7 +117,7 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
         \App\Models\AcademicEnrollment::create([
             'user_id' => $user->id,
             'grade_id' => $user->grade_id,
-            'section_id' => null, // Section will be assigned later by admin if needed
+            'section_id' => $user->section_id,
             'is_current' => true,
             'notes' => 'Registered via auth',
         ]);
@@ -155,8 +173,13 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="stage_id" :options="$all_stages"
                             option-value="id" option-label="name" single searchable required />
-                        <x-select label="{{ __('lang.grade') }}" wire:model="grade_id" :options="$all_grades"
+                        <x-select label="{{ __('lang.grade') }}" wire:model.live="grade_id" :options="$all_grades"
                             option-value="id" option-label="name" required placeholder="{{ __('lang.grade') }}" />
+                    </div>
+
+                    <div class="mt-2">
+                        <x-select label="الشعبة / التخصص" wire:model="section_id" :options="$all_sections"
+                            option-value="id" option-label="name" :required="count($all_sections) > 0" placeholder="اختر الشعبة" />
                     </div>
                 </div>
 
