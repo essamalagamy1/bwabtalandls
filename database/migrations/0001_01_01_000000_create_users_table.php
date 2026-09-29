@@ -28,7 +28,6 @@ return new class extends Migration
             $table->enum('status', ['pending', 'active', 'inactive'])->default('pending');
             $table->unsignedBigInteger('grade_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
         });

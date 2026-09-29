@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -37,7 +36,7 @@ use Spatie\Permission\Traits\HasRoles;
 #[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, HasPushSubscriptions, HasRoles, \Illuminate\Auth\MustVerifyEmail, InteractsWithMedia, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasPushSubscriptions, HasRoles, \Illuminate\Auth\MustVerifyEmail, InteractsWithMedia, Notifiable;
 
     protected $table = 'users';
 
