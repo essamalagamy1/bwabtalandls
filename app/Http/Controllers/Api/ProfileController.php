@@ -52,7 +52,17 @@ class ProfileController extends Controller
 
     public function deleteAccount()
     {
-        auth()->user()->delete();
+        $user = auth()->user();
+        $parentId = $user->parent_id;
+        
+        $user->delete();
+
+        if ($parentId) {
+            $otherChildrenCount = \App\Models\User::where('parent_id', $parentId)->count();
+            if ($otherChildrenCount === 0) {
+                \App\Models\User::where('id', $parentId)->delete();
+            }
+        }
 
         return Response::noContent();
     }

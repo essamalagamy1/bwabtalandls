@@ -68,6 +68,9 @@ class StudentData extends Component
 
     public $search_status = '';
 
+    #[Url]
+    public $search_parent_email;
+
     public function updatedSearchStageId($value)
     {
         $this->search_grade_id = null;
@@ -186,14 +189,6 @@ class StudentData extends Component
             ->toArray();
     }
 
-    public function rendering(): void
-    {
-        $this->loadStages();
-        $this->loadGrades();
-        $this->loadSections();
-        $this->loadSemesters();
-        $this->loadWeeks();
-    }
 
     public function mount(): void
     {
@@ -227,6 +222,7 @@ class StudentData extends Component
 
         return User::role('student')
             ->when($this->search_name, fn (Builder $q) => $q->where(fn ($q2) => $q2->where('name', 'like', "%{$this->search_name}%")->orWhere('email', 'like', "%{$this->search_name}%")))
+            ->when($this->search_parent_email, fn (Builder $q) => $q->whereHas('parent', fn ($q2) => $q2->where('email', 'like', "%{$this->search_parent_email}%")))
             ->when($gradeIds !== null, fn (Builder $q) => $q->whereIn('grade_id', $gradeIds))
             ->when($this->search_section_id, fn (Builder $q) => $q->where('section_id', $this->search_section_id))
             ->when($this->search_status !== '', fn (Builder $q) => $q->where('status', $this->search_status));
@@ -237,6 +233,9 @@ class StudentData extends Component
         $filters = [];
         if ($this->search_name) {
             $filters[] = __('lang.search').': '.$this->search_name;
+        }
+        if ($this->search_parent_email) {
+            $filters[] = 'بريد ولي الأمر: '.$this->search_parent_email;
         }
         if ($this->search_stage_id) {
             $stage = collect($this->all_stages)->firstWhere('id', $this->search_stage_id);
@@ -364,7 +363,18 @@ class StudentData extends Component
     public function delete($id): void
     {
         $this->authorize('delete_student');
-        User::findOrFail($id)->delete();
+        $student = User::findOrFail($id);
+        $parentId = $student->parent_id;
+
+        $student->delete();
+
+        if ($parentId) {
+            $otherChildrenCount = User::where('parent_id', $parentId)->count();
+            if ($otherChildrenCount === 0) {
+                User::where('id', $parentId)->delete();
+            }
+        }
+
         $this->success(__('lang.deleted_successfully', ['attribute' => __('lang.student')]));
     }
 }

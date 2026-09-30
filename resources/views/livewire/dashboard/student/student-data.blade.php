@@ -26,9 +26,11 @@
                 class="bg-error/20 text-error" />
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
             <x-input label="{{ __('lang.search') }}" wire:model.live="search_name"
-                placeholder="{{ __('lang.search') }}..." clearable />
+                placeholder="اسم الطالب أو البريد..." clearable />
+            <x-input label="بريد ولي الأمر" wire:model.live="search_parent_email"
+                placeholder="parent@example.com" clearable />
             <x-choices-offline label="{{ __('lang.stage') }}" wire:model.live="search_stage_id" :options="$all_stages"
                 option-value="id" option-label="name" single clearable searchable placeholder="{{ __('lang.search') }}"
                 wire:key="filter-student-stage-select" />

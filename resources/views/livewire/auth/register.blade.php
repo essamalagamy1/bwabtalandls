@@ -82,29 +82,47 @@ new #[Layout('components.layouts.auth', ['title' => 'register', 'maxWidth' => 'm
 
             // Parent Validation
             'parent_name' => ['required', 'string', 'max:255'],
-            'parent_email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class . ',email'],
+            'parent_email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
             'parent_password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
             'parent_phone' => ['required', 'string', 'max:20'],
             'parent_phone_key' => ['required', 'string', 'max:5'],
         ]);
 
+        $existingParent = User::where('email', $this->parent_email)->first();
+
+        if ($existingParent) {
+            if (!$existingParent->hasRole('parent')) {
+                $this->addError('parent_email', 'هذا البريد الإلكتروني مسجل بحساب ليس لولي أمر.');
+                return;
+            }
+
+            if (!Hash::check($this->parent_password, $existingParent->password)) {
+                $this->addError('parent_password', 'كلمة مرور ولي الأمر غير صحيحة.');
+                return;
+            }
+        }
+
         unset($validated['stage_id']);
         unset($validated['parent_name'], $validated['parent_email'], $validated['parent_password'], $validated['parent_phone'], $validated['parent_phone_key']);
 
-        // Create Parent
-        $parent = User::create([
-            'name' => $this->parent_name,
-            'email' => $this->parent_email,
-            'password' => Hash::make($this->parent_password),
-            'phone' => $this->parent_phone,
-            'phone_key' => $this->parent_phone_key,
-            'status' => 'active',
-            'email_verified_at' => now(),
-        ]);
-        $parent->assignRole('parent');
+        if ($existingParent) {
+            $parent = $existingParent;
+        } else {
+            // Create Parent
+            $parent = User::create([
+                'name' => $this->parent_name,
+                'email' => $this->parent_email,
+                'password' => Hash::make($this->parent_password),
+                'phone' => $this->parent_phone,
+                'phone_key' => $this->parent_phone_key,
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]);
+            $parent->assignRole('parent');
 
-        // Notify Parent
-        $parent->notify(new \App\Notifications\ParentRegisteredNotification($this->parent_password));
+            // Notify Parent only if newly created
+            $parent->notify(new \App\Notifications\ParentRegisteredNotification($this->parent_password));
+        }
 
         $validated['password'] = Hash::make($this->password);
         $validated['status'] = 'pending';
